@@ -4,27 +4,29 @@ body {
   padding: 0;
   background-color: #f3f3f3;
 }
-
 header {
   background-color: #222;
   color: #fff;
   padding: 1rem;
   text-align: center;
 }
-
 .controls {
   padding: 1rem;
   background-color: #eee;
 }
-
-.unit-list {
+.unit-list, .army-roster {
   padding: 1rem;
 }
-
 .unit-card {
   background-color: #fff;
   margin: 0.5rem 0;
   padding: 0.5rem;
   border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.unit-card button {
+  margin-left: 0.5rem;
 }
