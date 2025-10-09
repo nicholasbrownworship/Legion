@@ -1,6 +1,9 @@
-[
-  {"name": "Infantry Squad", "faction": "Rebels", "upgrades": ["Grenade", "Medic"]},
-  {"name": "Sniper Team", "faction": "Rebels", "upgrades": ["Camouflage"]},
-  {"name": "Speeder Bike", "faction": "Imperials", "upgrades": ["Blaster Cannon"]},
-  {"name": "Stormtrooper Squad", "faction": "Imperials", "upgrades": ["Shields"]}
-]
+{
+  "factions": ["Rebels", "Imperials"],
+  "units": [
+    {"name": "Infantry Squad", "faction": "Rebels", "points": 50, "upgrades": ["Grenade", "Medic"]},
+    {"name": "Sniper Team", "faction": "Rebels", "points": 75, "upgrades": ["Camouflage"]},
+    {"name": "Speeder Bike", "faction": "Imperials", "points": 60, "upgrades": ["Blaster Cannon"]},
+    {"name": "Stormtrooper Squad", "faction": "Imperials", "points": 55, "upgrades": ["Shields"]}
+  ]
+}

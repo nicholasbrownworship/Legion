@@ -1,44 +1,57 @@
-const factionSelect = document.getElementById('faction-select');
-const unitsContainer = document.getElementById('units-container');
-const armyContainer = document.getElementById('army-container');
+const factionListEl = document.getElementById('faction-list');
+const unitGridEl = document.getElementById('unit-grid');
+const armyContainerEl = document.getElementById('army-container');
+const searchInput = document.getElementById('search-input');
+const saveArmyBtn = document.getElementById('save-army');
+const loadArmyBtn = document.getElementById('load-army');
 
-let units = [];
+let data = {};
+let currentFaction = null;
 let army = [];
 
-// Load units from JSON
+// Load JSON data
 fetch('units.json')
-  .then(response => response.json())
-  .then(data => {
-    units = data;
-    populateFactionDropdown();
+  .then(res => res.json())
+  .then(json => {
+    data = json;
+    renderFactions();
+    renderUnits();
   });
 
-// Populate faction dropdown
-function populateFactionDropdown() {
-  const factions = [...new Set(units.map(u => u.faction))];
-  factions.forEach(f => {
-    const option = document.createElement('option');
-    option.value = f;
-    option.textContent = f;
-    factionSelect.appendChild(option);
+// Render factions in sidebar
+function renderFactions(){
+  factionListEl.innerHTML = '';
+  data.factions.forEach(f => {
+    const btn = document.createElement('button');
+    btn.textContent = f;
+    btn.addEventListener('click', () => {
+      currentFaction = f;
+      renderUnits();
+    });
+    factionListEl.appendChild(btn);
   });
 }
 
-// Filter units by faction
-factionSelect.addEventListener('change', () => {
-  const selectedFaction = factionSelect.value;
-  displayUnits(selectedFaction);
-});
+// Render units
+function renderUnits(){
+  unitGridEl.innerHTML = '';
+  let units = data.units;
+  if(currentFaction) units = units.filter(u => u.faction === currentFaction);
+  const searchTerm = searchInput.value.toLowerCase();
+  if(searchTerm) units = units.filter(u => u.name.toLowerCase().includes(searchTerm));
 
-function displayUnits(faction) {
-  unitsContainer.innerHTML = '';
-  const filtered = faction ? units.filter(u => u.faction === faction) : units;
-  filtered.forEach(unit => {
-    const div = document.createElement('div');
-    div.className = 'unit-card';
-    div.textContent = unit.name;
+  units.forEach(unit => {
+    const card = document.createElement('div');
+    card.className = 'unit-card';
 
-    // Upgrade selector
+    const img = document.createElement('img');
+    img.src = 'images/placeholder.png'; // placeholder image
+    card.appendChild(img);
+
+    const name = document.createElement('div');
+    name.textContent = `${unit.name} (${unit.points} pts)`;
+    card.appendChild(name);
+
     if(unit.upgrades && unit.upgrades.length > 0){
       const select = document.createElement('select');
       unit.upgrades.forEach(up => {
@@ -47,41 +60,54 @@ function displayUnits(faction) {
         opt.textContent = up;
         select.appendChild(opt);
       });
-      div.appendChild(select);
+      card.appendChild(select);
     }
 
-    // Add button
-    const button = document.createElement('button');
-    button.textContent = 'Add to Army';
-    button.addEventListener('click', () => addToArmy(unit));
-    div.appendChild(button);
+    const addBtn = document.createElement('button');
+    addBtn.textContent = 'Add to Army';
+    addBtn.addEventListener('click', () => addToArmy(unit));
+    card.appendChild(addBtn);
 
-    unitsContainer.appendChild(div);
+    unitGridEl.appendChild(card);
   });
 }
 
-// Add unit to army
-function addToArmy(unit) {
+searchInput.addEventListener('input', renderUnits);
+
+// Army builder
+function addToArmy(unit){
   army.push(unit);
-  updateArmyDisplay();
+  renderArmy();
 }
 
-// Display army roster
-function updateArmyDisplay() {
-  armyContainer.innerHTML = '';
+function renderArmy(){
+  armyContainerEl.innerHTML = '';
   army.forEach((unit, index) => {
-    const div = document.createElement('div');
-    div.className = 'unit-card';
-    div.textContent = unit.name;
+    const card = document.createElement('div');
+    card.className = 'unit-card';
+    card.textContent = `${unit.name} (${unit.points} pts)`;
 
     const removeBtn = document.createElement('button');
     removeBtn.textContent = 'Remove';
     removeBtn.addEventListener('click', () => {
       army.splice(index, 1);
-      updateArmyDisplay();
+      renderArmy();
     });
-
-    div.appendChild(removeBtn);
-    armyContainer.appendChild(div);
+    card.appendChild(removeBtn);
+    armyContainerEl.appendChild(card);
   });
 }
+
+// Save / Load army
+saveArmyBtn.addEventListener('click', () => {
+  localStorage.setItem('savedArmy', JSON.stringify(army));
+  alert('Army saved!');
+});
+loadArmyBtn.addEventListener('click', () => {
+  const saved = localStorage.getItem('savedArmy');
+  if(saved){
+    army = JSON.parse(saved);
+    renderArmy();
+    alert('Army loaded!');
+  }
+});
