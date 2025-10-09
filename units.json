@@ -1,0 +1,6 @@
+[
+  {"name": "Infantry Squad", "faction": "Rebels", "upgrades": ["Grenade", "Medic"]},
+  {"name": "Sniper Team", "faction": "Rebels", "upgrades": ["Camouflage"]},
+  {"name": "Speeder Bike", "faction": "Imperials", "upgrades": ["Blaster Cannon"]},
+  {"name": "Stormtrooper Squad", "faction": "Imperials", "upgrades": ["Shields"]}
+]
