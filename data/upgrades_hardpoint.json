@@ -1,1 +1,7 @@
+{
+  "upgrades": [
+    { "name": "Twin Light Blaster Cannon", "points": 18, "description": "Adds Range 1–3 twin blaster.", "factions": ["Rebels"] },
+    { "name": "Laser Cannon", "points": 20, "description": "Adds Heavy weapon upgrade.", "factions": ["Imperials"] }
+  ]
+}
 
