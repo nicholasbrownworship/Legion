@@ -7,7 +7,7 @@
     "type": "Personnel",
     "points": 10,
     "factions": ["Rebels"],
-    "restrictions": ["Corps"],
+    "restrictions": ["Trooper"],
     "text": "Add one Rebel Trooper mini.",
     "isUnique": false
   },
@@ -17,7 +17,7 @@
     "type": "Personnel",
     "points": 11,
     "factions": ["Imperials"],
-    "restrictions": ["Corps"],
+    "restrictions": ["Trooper"],
     "text": "Add one Stormtrooper mini.",
     "isUnique": false
   }
