@@ -11,7 +11,7 @@ const factionModal = document.getElementById('faction-modal');
 
 // === Global Variables ===
 let allUnits = [];
-let allUpgrades = {}; // cache by upgrade type
+let allUpgrades = {}; // cache by typeKey
 let army = [];
 let currentFaction = null;
 let initComplete = false;
@@ -27,7 +27,7 @@ const LIST_RULES = {
 };
 const MAX_POINTS = 1000;
 
-// === Mapping upgrade types to file names ===
+// === Upgrade Files ===
 const upgradeFileMap = {
   armament: 'upgrades_armament.json',
   command: 'upgrades_command.json',
@@ -53,15 +53,24 @@ async function loadJSON(path) {
   return await res.json();
 }
 
+// === Normalize upgrades ===
+function normalizeUpgrades(upgrades, typeKey) {
+  return (upgrades || []).map(up => ({
+    ...up,
+    typeKey,
+    factions: (up.factions || []).map(f => f.toLowerCase()),
+    restrictions: (up.restrictions || []).map(r => r.toLowerCase())
+  }));
+}
+
 // === Filter upgrades for a unit ===
-function filterUpgradesForUnit(unit, upgrades) {
-  return upgrades.filter(up => {
-    const unitFaction = unit.faction.toLowerCase();
-    const unitRank = unit.rank.toLowerCase();
-    const upFactions = (up.factions || []).map(f => f.toLowerCase());
-    const upRestrictions = (up.restrictions || []).map(r => r.toLowerCase());
-    const factionOK = upFactions.length === 0 || upFactions.includes(unitFaction);
-    const restrictionOK = upRestrictions.length === 0 || upRestrictions.includes(unitRank);
+function filterUpgrades(unit, typeKey) {
+  const allOfType = allUpgrades[typeKey] || [];
+  const unitFaction = unit.faction.toLowerCase();
+  const unitRank = unit.rank.toLowerCase();
+  return allOfType.filter(up => {
+    const factionOK = up.factions.length === 0 || up.factions.includes(unitFaction);
+    const restrictionOK = up.restrictions.length === 0 || up.restrictions.includes(unitRank);
     return factionOK && restrictionOK;
   });
 }
@@ -69,23 +78,15 @@ function filterUpgradesForUnit(unit, upgrades) {
 // === Initialization ===
 async function init() {
   try {
-    // Load unit data
     const unitData = await loadJSON('data/units.json');
     allUnits = unitData.units || [];
 
-    // Load all upgrade data
     for (const [typeKey, file] of Object.entries(upgradeFileMap)) {
       try {
         const data = await loadJSON(`data/${file}`);
-        // normalize upgrade type key to match allowedUpgrades
-        allUpgrades[typeKey] = (data.upgrades || []).map(upg => ({
-          ...upg,
-          type: typeKey, // lowercase key matching allowedUpgrades
-          factions: (upg.factions || []).map(f => f.toLowerCase()),
-          restrictions: (upg.restrictions || []).map(r => r.toLowerCase())
-        }));
+        allUpgrades[typeKey] = normalizeUpgrades(data.upgrades, typeKey);
       } catch (err) {
-        console.warn(`No upgrades loaded for type: ${typeKey}`, err);
+        console.warn(`No upgrades loaded for ${typeKey}`, err);
         allUpgrades[typeKey] = [];
       }
     }
@@ -97,7 +98,7 @@ async function init() {
   }
 }
 
-// === Show Faction Selection ===
+// === Show faction modal ===
 function showFactionModal() {
   if (!initComplete) return alert('Data still loading, please wait.');
   factionModal.style.display = 'block';
@@ -120,7 +121,6 @@ function renderUnits() {
   const units = allUnits.filter(u => u.faction.toLowerCase() === currentFaction);
 
   unitGridEl.innerHTML = '';
-
   units.forEach(unit => {
     const card = document.createElement('div');
     card.className = 'unit-card';
@@ -141,8 +141,8 @@ function addUnitToArmy(unit) {
 
   if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
     unit.allowedUpgrades.forEach(typeKey => {
-      const upgradesForType = allUpgrades[typeKey] || [];
-      const filtered = filterUpgradesForUnit(unit, upgradesForType);
+      const filtered = filterUpgrades(unit, typeKey);
+      // initialize empty selection if upgrades exist
       unitCopy.selectedUpgrades[typeKey] = filtered.length ? '' : '';
     });
   }
@@ -175,8 +175,7 @@ function renderArmy() {
 
     if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
       unit.allowedUpgrades.forEach(typeKey => {
-        const upgradesForType = allUpgrades[typeKey] || [];
-        const filtered = filterUpgradesForUnit(unit, upgradesForType);
+        const filtered = filterUpgrades(unit, typeKey);
 
         const select = document.createElement('select');
         select.innerHTML = `<option value="">Select ${typeKey}</option>`;
