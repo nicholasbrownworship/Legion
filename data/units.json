@@ -1,0 +1,90 @@
+{
+  "factions": ["Rebels", "Imperials"],
+
+  "units": [
+    {
+      "id": "rebel_infantry_squad",
+      "name": "Rebel Infantry Squad",
+      "faction": "Rebels",
+      "type": "Corps",
+      "points": 50,
+      "min": 1,
+      "max": 6,
+      "rank": "Trooper",
+      "upgrades": ["Grenade", "Medic"],
+      "restrictions": [],
+      "keywords": ["Trooper"],
+      "image": "images/rebels/infantry_squad.png"
+    },
+    {
+      "id": "rebel_sniper_team",
+      "name": "Rebel Sniper Team",
+      "faction": "Rebels",
+      "type": "SpecialForces",
+      "points": 75,
+      "min": 0,
+      "max": 3,
+      "rank": "Trooper",
+      "upgrades": ["Camouflage", "Targeting Scope"],
+      "restrictions": [],
+      "keywords": ["Heavy Weapon Team", "Scout"],
+      "image": "images/rebels/sniper_team.png"
+    },
+    {
+      "id": "imperial_speeder_bike",
+      "name": "Imperial Speeder Bike Unit",
+      "faction": "Imperials",
+      "type": "Support",
+      "points": 60,
+      "min": 0,
+      "max": 3,
+      "rank": "Repulsor Vehicle",
+      "upgrades": ["Blaster Cannon", "Long-Range Comlink"],
+      "restrictions": [],
+      "keywords": ["Speeder", "Vehicle"],
+      "image": "images/imperials/speeder_bike.png"
+    },
+    {
+      "id": "imperial_stormtrooper_squad",
+      "name": "Stormtrooper Squad",
+      "faction": "Imperials",
+      "type": "Corps",
+      "points": 55,
+      "min": 3,
+      "max": 6,
+      "rank": "Trooper",
+      "upgrades": ["Shields", "Grenade", "Heavy Weapon"],
+      "restrictions": [],
+      "keywords": ["Trooper"],
+      "image": "images/imperials/stormtrooper_squad.png"
+    },
+    {
+      "id": "darth_vader",
+      "name": "Darth Vader",
+      "faction": "Imperials",
+      "type": "Commander",
+      "points": 200,
+      "min": 1,
+      "max": 2,
+      "rank": "Force User",
+      "upgrades": ["Force Power", "Command Card"],
+      "restrictions": [],
+      "keywords": ["Force User", "Melee"],
+      "image": "images/imperials/darth_vader.png"
+    },
+    {
+      "id": "luke_skywalker",
+      "name": "Luke Skywalker",
+      "faction": "Rebels",
+      "type": "Commander",
+      "points": 200,
+      "min": 1,
+      "max": 2,
+      "rank": "Force User",
+      "upgrades": ["Force Power", "Command Card"],
+      "restrictions": [],
+      "keywords": ["Force User", "Melee"],
+      "image": "images/rebels/luke_skywalker.png"
+    }
+  ]
+}
