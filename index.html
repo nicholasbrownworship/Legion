@@ -18,17 +18,22 @@
 <main>
   <section class="controls">
     <input type="text" id="search-input" placeholder="Search units...">
-    <button id="new-army">New Army</button>
-    <button id="reset-army">Reset</button>
   </section>
+
   <section class="unit-grid" id="unit-grid">
     <!-- Units dynamically loaded here -->
   </section>
+
   <section class="army-builder">
     <h2>Your Army</h2>
     <div id="army-container"></div>
-    <button id="save-army">Save Army</button>
-    <button id="load-army">Load Army</button>
+    
+    <!-- Added buttons for New Army and Reset -->
+    <button id="newArmy">New Army</button>
+    <button id="resetArmy">Reset</button>
+
+    <button id="saveArmy">Save Army</button>
+    <button id="loadArmy">Load Army</button>
   </section>
 </main>
 <script src="script.js"></script>
