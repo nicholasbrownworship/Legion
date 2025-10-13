@@ -1,1 +1,7 @@
 
+{
+  "upgrades": [
+    { "name": "Barrage Generator", "points": 10, "description": "Add Blast to attack.", "factions": ["Rebels"] },
+    { "name": "Overcharged Generator", "points": 10, "description": "Add Impact 1 to attack.", "factions": ["Imperials"] }
+  ]
+}
