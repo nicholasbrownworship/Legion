@@ -20,6 +20,76 @@
     "restrictions": ["Corps"],
     "text": "Add one Stormtrooper mini.",
     "isUnique": false
+  },
+    {
+    "id": "2-1b_medical",
+    "name": "2-1B Medical Droid",
+    "type": "Personnel",
+    "points": 20,
+    "factions": ["Rebels"],
+    "restrictions": ["Corps"],
+    "text": "Add 1 2-1B Medical Droid miniature. NONCOMBATANT. >Treat 1: Capacity 2",
+    "isUnique": false
+  },
+    {
+    "id": "astromech_droid",
+    "name": "Astromech Droid",
+    "type": "Personnel",
+    "points": 8,
+    "factions": ["Rebels"],
+    "restrictions": ["Corps"],
+    "text": "Add 1 R5 astromech droid mini. >Repair 1: Capacity 2. NONCOMBATANT.",
+    "isUnique": false
+  },
+    {
+    "id": "rebel_comms",
+    "name": "Rebel Comms Technician",
+    "type": "Personnel",
+    "points": 9,
+    "factions": ["Rebels"],
+    "restrictions": ["Corps"],
+    "text": "Add 1 Rebel Comms Technician miniature. /n/This unit gains 1 COMM upgrade icon. This unit must equip at least 1 COMM upgrade.",
+    "isUnique": false
+  },
+  {
+    "id": "rebel_officer",
+    "name": "Rebel Officer",
+    "type": "Personnel",
+    "points": 16,
+    "factions": ["Rebels"],
+    "restrictions": ["Corps"],
+    "text": "Add 1 Rebel Officer miniature. LEADER. /n/This unit increases its courage by 1 and gains INSPIRE 1.",
+    "isUnique": false
+  },
+    {
+    "id": "rebel_trooper_captain",
+    "name": "Rebel Trooper Captain",
+    "type": "Personnel",
+    "points": 9,
+    "factions": ["Rebels"],
+    "restrictions": ["Corps"],
+    "text": "Add 1 Rebel Trooper Captain miniature. LEADER. /n/This unit gains 1 TRAINING upgrade icon. /n/At the start of this unit's Activation, you may exhause this card. If you do, this unit cannot remove Suppression tokens or be Suppressed during this Activation.",
+    "isUnique": false
+  },
+    {
+    "id": "rebel_trooper_specialist",
+    "name": "Rebel Trooper Specialist",
+    "type": "Personnel",
+    "points": 8,
+    "factions": ["Rebels"],
+    "restrictions": ["Corps"],
+    "text": "Add 1 Rebel Trooper Specialist miniature. /n/This unit gains 1 GEAR upgrade icon. /n/EXHAUST> This unit gains 1 Dodge token or 1 Surge token.",
+    "isUnique": false
+  },
+    {
+    "id": "rebel_trooper_squad",
+    "name": "Rebel Trooper Squad",
+    "type": "Personnel",
+    "points": 45,
+    "factions": ["Rebels"],
+    "restrictions": ["Corps"],
+    "text": "Add 5 Rebel Trooper miniatures. /n/This unit gains INDOMITABLE. /n/This unit is in cohesion if all miniatures are a RANGE 1 of the unit leader instead of RANGE 1/2. /n/This unit cannot be deployed or issued orders using the TRANSPORT keyword.",
+    "isUnique": false
   }
 ]
 }
