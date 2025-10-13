@@ -53,13 +53,15 @@ async function loadJSON(path) {
   return await res.json();
 }
 
-// === Helper: filter upgrades for a unit ===
+// === Filter upgrades for a unit ===
 function filterUpgradesForUnit(unit, upgrades) {
   return upgrades.filter(up => {
-    // match faction (case-insensitive)
-    const factionOK = !up.factions || up.factions.length === 0 || up.factions.map(f => f.toLowerCase()).includes(unit.faction.toLowerCase());
-    // match restrictions (case-insensitive)
-    const restrictionOK = !up.restrictions || up.restrictions.length === 0 || up.restrictions.map(r => r.toLowerCase()).includes(unit.rank.toLowerCase());
+    const unitFaction = unit.faction.toLowerCase();
+    const unitRank = unit.rank.toLowerCase();
+    const upFactions = (up.factions || []).map(f => f.toLowerCase());
+    const upRestrictions = (up.restrictions || []).map(r => r.toLowerCase());
+    const factionOK = upFactions.length === 0 || upFactions.includes(unitFaction);
+    const restrictionOK = upRestrictions.length === 0 || upRestrictions.includes(unitRank);
     return factionOK && restrictionOK;
   });
 }
@@ -75,9 +77,12 @@ async function init() {
     for (const [typeKey, file] of Object.entries(upgradeFileMap)) {
       try {
         const data = await loadJSON(`data/${file}`);
+        // normalize upgrade type key to match allowedUpgrades
         allUpgrades[typeKey] = (data.upgrades || []).map(upg => ({
           ...upg,
-          typeKey // store lowercase typeKey to match allowedUpgrades
+          type: typeKey, // lowercase key matching allowedUpgrades
+          factions: (upg.factions || []).map(f => f.toLowerCase()),
+          restrictions: (upg.restrictions || []).map(r => r.toLowerCase())
         }));
       } catch (err) {
         console.warn(`No upgrades loaded for type: ${typeKey}`, err);
