@@ -1,4 +1,5 @@
-[
+{
+  "upgrades":[
   {
     "id": "offensive_push",
     "name": "Offensive Push",
@@ -10,3 +11,4 @@
     "isUnique": false
   }
 ]
+}
