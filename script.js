@@ -10,7 +10,7 @@ const resetArmyBtn = document.getElementById('reset-army');
 const factionModal = document.getElementById('faction-modal');
 
 let allUnits = [];
-let allUpgrades = {}; // cache for upgrades by type
+let allUpgrades = {}; // { type: [upgrades...] }
 let army = [];
 let currentFaction = null;
 let initComplete = false;
@@ -26,24 +26,6 @@ const LIST_RULES = {
 };
 const MAX_POINTS = 1000;
 
-// === Mapping from unit upgrade types to JSON file names ===
-const upgradeFileMap = {
-  Armament: 'upgrades_armament.json',
-  Command: 'upgrades_command.json',
-  Crew: 'upgrades_crew.json',
-  Gear: 'upgrades_gear.json',
-  Force: 'upgrades_force.json',
-  Comms: 'upgrades_comms.json',
-  Generator: 'upgrades_generator.json',
-  Hardpoint: 'upgrades_hardpoint.json',
-  Ordnance: 'upgrades_ordnance.json',
-  Personnel: 'upgrades_personnel.json',
-  Pilot: 'upgrades_pilot.json',
-  Protocol: 'upgrades_protocol.json',
-  Training: 'upgrades_training.json',
-  Grenades: 'upgrades_grenades.json'
-};
-
 // === Utility to load JSON ===
 async function loadJSON(path) {
   const res = await fetch(path);
@@ -51,21 +33,25 @@ async function loadJSON(path) {
   return await res.json();
 }
 
-// === Initialize units and upgrades ===
+// === Load upgrades dynamically for any type ===
+async function loadUpgradeType(type) {
+  const typeKey = type.toLowerCase();
+  if (allUpgrades[typeKey]) return; // already loaded
+
+  try {
+    const data = await loadJSON(`data/upgrades_${typeKey}.json`);
+    allUpgrades[typeKey] = data.upgrades || [];
+  } catch (err) {
+    console.warn(`No upgrades found for type ${type} (${typeKey})`, err);
+    allUpgrades[typeKey] = [];
+  }
+}
+
+// === Initialize units ===
 async function init() {
   try {
     const unitData = await loadJSON('data/units.json');
     allUnits = unitData.units || [];
-
-    for (const [type, file] of Object.entries(upgradeFileMap)) {
-      try {
-        const data = await loadJSON(`data/${file}`);
-        allUpgrades[type.toLowerCase()] = data.upgrades || [];
-      } catch (err) {
-        console.warn(`No upgrades loaded for type ${type}`, err);
-        allUpgrades[type.toLowerCase()] = [];
-      }
-    }
 
     initComplete = true;
     newArmyBtn.disabled = false;
@@ -124,15 +110,17 @@ function getValidUpgrades(unit, typeKey) {
 }
 
 // === Add unit to army ===
-function addUnitToArmy(unit) {
+async function addUnitToArmy(unit) {
   const unitCopy = { ...unit, selectedUpgrades: {} };
 
   if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
-    unit.allowedUpgrades.forEach(type => {
+    // Load each upgrade type dynamically
+    for (const type of unit.allowedUpgrades) {
+      await loadUpgradeType(type); // ensures upgrades are loaded
       const typeKey = type.toLowerCase();
       const filtered = getValidUpgrades(unit, typeKey);
       unitCopy.selectedUpgrades[type] = filtered.length ? filtered[0].name : '';
-    });
+    }
   }
 
   army.push(unitCopy);
@@ -157,7 +145,6 @@ function renderArmy() {
       <p>Type: ${unit.type}</p>
     `;
 
-    // === Upgrade selectors ===
     const upgradeContainer = document.createElement('div');
     upgradeContainer.className = 'upgrades';
 
@@ -179,12 +166,11 @@ function renderArmy() {
 
         select.addEventListener('change', e => {
           unit.selectedUpgrades[type] = e.target.value;
-          renderArmy(); // recalc points
+          renderArmy();
         });
 
         upgradeContainer.appendChild(select);
 
-        // Add selected upgrade points
         const selectedUpgrade = filtered.find(u => u.name === unit.selectedUpgrades[type]);
         if (selectedUpgrade) totalPoints += selectedUpgrade.points || 0;
       });
@@ -192,7 +178,6 @@ function renderArmy() {
 
     unitDiv.appendChild(upgradeContainer);
 
-    // Remove unit button
     const removeBtn = document.createElement('button');
     removeBtn.textContent = 'Remove';
     removeBtn.addEventListener('click', () => {
@@ -204,7 +189,6 @@ function renderArmy() {
     armyContainerEl.appendChild(unitDiv);
   });
 
-  // === Army summary & validation ===
   const errors = [];
   for (const [type, rule] of Object.entries(LIST_RULES)) {
     const count = typeCounts[type] || 0;
@@ -228,7 +212,6 @@ resetArmyBtn.addEventListener('click', () => {
   renderArmy();
 });
 
-// === Save / Load ===
 saveArmyBtn.addEventListener('click', () => {
   localStorage.setItem('savedArmy', JSON.stringify(army));
   alert('Army saved!');
@@ -245,6 +228,6 @@ loadArmyBtn.addEventListener('click', () => {
 
 // === Initialize ===
 document.addEventListener('DOMContentLoaded', async () => {
-  newArmyBtn.disabled = true; // prevent faction selection before init
+  newArmyBtn.disabled = true;
   await init();
 });
