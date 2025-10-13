@@ -24,7 +24,7 @@ const LIST_RULES = {
   Heavy: { min: 0, max: 2 },
   Grenades: { min: 0, max: 2 } // Example extra type
 };
-const MAX_POINTS = 800;
+const MAX_POINTS = 1000;
 
 // === Mapping from unit upgrade types to JSON file names ===
 const upgradeFileMap = {
