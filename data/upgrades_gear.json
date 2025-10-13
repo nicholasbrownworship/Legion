@@ -1,0 +1,13 @@
+[
+  {
+    "id": "grappling_hooks",
+    "name": "Grappling Hooks",
+    "type": "Gear",
+    "points": 3,
+    "factions": ["Rebels", "Imperials"],
+    "restrictions": ["Trooper"],
+    "text": "Gain Scale.",
+    "isUnique": false
+  }
+]
+
