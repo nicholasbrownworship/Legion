@@ -3,19 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tabletop Admiral Clone</title>
+<title>Galactic Battle Test Builder</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* Top toolbar buttons */
-  #army-buttons {
+  /* Top toolbar */
+  #top-toolbar {
     display: flex;
+    justify-content: center; /* center buttons horizontally */
     gap: 10px;
-    flex-wrap: wrap;
     padding: 10px;
     background-color: #111;
     border-bottom: 2px solid #444;
+    position: sticky; /* stays at top when scrolling */
+    top: 0;
+    z-index: 1000;
   }
-  #army-buttons button {
+
+  #top-toolbar button {
     padding: 8px 16px;
     cursor: pointer;
     border: none;
@@ -24,7 +28,8 @@
     color: #fff;
     font-weight: bold;
   }
-  #army-buttons button:hover {
+
+  #top-toolbar button:hover {
     background-color: #666;
   }
 
@@ -38,6 +43,7 @@
     overflow: auto;
     background-color: rgba(0,0,0,0.5);
   }
+
   .modal-content {
     background-color: #222;
     margin: 15% auto;
@@ -47,6 +53,7 @@
     text-align: center;
     color: #fff;
   }
+
   .modal-content button {
     margin: 10px;
     padding: 10px 20px;
@@ -57,6 +64,7 @@
     color: #fff;
     font-weight: bold;
   }
+
   .modal-content button:hover {
     background-color: #666;
   }
@@ -64,8 +72,8 @@
 </head>
 <body>
 
-<!-- Army buttons now ABOVE header -->
-<div id="army-buttons">
+<!-- Top toolbar -->
+<div id="top-toolbar">
   <button id="newArmy">New Army</button>
   <button id="resetArmy">Reset</button>
   <button id="saveArmy">Save Army</button>
