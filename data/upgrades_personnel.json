@@ -1,0 +1,22 @@
+[
+  {
+    "id": "rebel_trooper",
+    "name": "Rebel Trooper",
+    "type": "Personnel",
+    "points": 10,
+    "factions": ["Rebels"],
+    "restrictions": ["Corps"],
+    "text": "Add one Rebel Trooper mini.",
+    "isUnique": false
+  },
+  {
+    "id": "stormtrooper",
+    "name": "Stormtrooper",
+    "type": "Personnel",
+    "points": 11,
+    "factions": ["Imperials"],
+    "restrictions": ["Corps"],
+    "text": "Add one Stormtrooper mini.",
+    "isUnique": false
+  }
+]
