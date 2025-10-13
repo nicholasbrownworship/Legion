@@ -1,1 +1,7 @@
+{
+  "upgrades": [
+    { "name": "Astromech Droid", "points": 9, "description": "Repair 1 damage token.", "factions": ["Rebels"] },
+    { "name": "Imperial Officer", "points": 8, "description": "Gain Inspire 1.", "factions": ["Imperials"] }
+  ]
+}
 
