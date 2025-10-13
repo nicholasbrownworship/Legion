@@ -54,11 +54,9 @@ async function loadJSON(path) {
 // === Initialize units and upgrades ===
 async function init() {
   try {
-    // Load all units
     const unitData = await loadJSON('data/units.json');
     allUnits = unitData.units || [];
 
-    // Preload all upgrades and normalize keys
     for (const [type, file] of Object.entries(upgradeFileMap)) {
       try {
         const data = await loadJSON(`data/${file}`);
@@ -70,7 +68,7 @@ async function init() {
     }
 
     initComplete = true;
-    newArmyBtn.disabled = false; // enable new army button
+    newArmyBtn.disabled = false;
   } catch (err) {
     console.error('Initialization failed', err);
   }
@@ -113,6 +111,18 @@ function renderUnits() {
   });
 }
 
+// === Helper: Filter upgrades by faction and restrictions ===
+function getValidUpgrades(unit, typeKey) {
+  const upgradesForType = allUpgrades[typeKey] || [];
+  return upgradesForType.filter(up => {
+    const factionOK = !up.factions || up.factions.length === 0 ||
+      up.factions.some(f => f.toLowerCase() === unit.faction.toLowerCase());
+    const restrictionOK = !up.restrictions || up.restrictions.length === 0 ||
+      up.restrictions.some(r => r.toLowerCase() === (unit.rank || '').toLowerCase());
+    return factionOK && restrictionOK;
+  });
+}
+
 // === Add unit to army ===
 function addUnitToArmy(unit) {
   const unitCopy = { ...unit, selectedUpgrades: {} };
@@ -120,12 +130,7 @@ function addUnitToArmy(unit) {
   if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
     unit.allowedUpgrades.forEach(type => {
       const typeKey = type.toLowerCase();
-      const upgradesForType = allUpgrades[typeKey] || [];
-      const filtered = upgradesForType.filter(up => {
-        const factionOK = !up.factions || up.factions.length === 0 || up.factions.includes(unit.faction);
-        const restrictionOK = !up.restrictions || up.restrictions.includes(unit.rank);
-        return factionOK && restrictionOK;
-      });
+      const filtered = getValidUpgrades(unit, typeKey);
       unitCopy.selectedUpgrades[type] = filtered.length ? filtered[0].name : '';
     });
   }
@@ -162,12 +167,7 @@ function renderArmy() {
         select.innerHTML = `<option value="">Select ${type}</option>`;
 
         const typeKey = type.toLowerCase();
-        const upgradesForType = allUpgrades[typeKey] || [];
-        const filtered = upgradesForType.filter(up => {
-          const factionOK = !up.factions || up.factions.length === 0 || up.factions.includes(unit.faction);
-          const restrictionOK = !up.restrictions || up.restrictions.includes(unit.rank);
-          return factionOK && restrictionOK;
-        });
+        const filtered = getValidUpgrades(unit, typeKey);
 
         filtered.forEach(upg => {
           const opt = document.createElement('option');
@@ -179,12 +179,12 @@ function renderArmy() {
 
         select.addEventListener('change', e => {
           unit.selectedUpgrades[type] = e.target.value;
-          renderArmy(); // recalc points immediately
+          renderArmy(); // recalc points
         });
 
         upgradeContainer.appendChild(select);
 
-        // Include selected upgrade points
+        // Add selected upgrade points
         const selectedUpgrade = filtered.find(u => u.name === unit.selectedUpgrades[type]);
         if (selectedUpgrade) totalPoints += selectedUpgrade.points || 0;
       });
