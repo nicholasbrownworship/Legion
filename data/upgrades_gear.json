@@ -1,4 +1,5 @@
-[
+{
+  "upgrades":[
   {
     "id": "grappling_hooks",
     "name": "Grappling Hooks",
@@ -90,4 +91,5 @@
     "isUnique": false
   }
 ]
+}
 
