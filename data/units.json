@@ -71,11 +71,11 @@
       "id": "luke_skywalker",
       "name": "Luke Skywalker",
       "faction": "rebels",
-      "points": 200,
+      "points": 165,
       "min": 1,
       "max": 2,
       "rank": "commander",
-      "allowedUpgrades": ["force", "command", "gear", "training"],
+      "allowedUpgrades": ["force", "force", "force", "training"],
       "restrictions": [],
       "keywords": ["force user", "melee"],
       "image": "images/rebels/luke_skywalker.png"
