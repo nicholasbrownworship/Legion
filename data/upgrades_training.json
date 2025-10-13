@@ -1,0 +1,12 @@
+[
+  {
+    "id": "offensive_push",
+    "name": "Offensive Push",
+    "type": "Training",
+    "points": 6,
+    "factions": ["Rebels", "Imperials"],
+    "restrictions": ["Trooper"],
+    "text": "Gain Tactical 1 when activated.",
+    "isUnique": false
+  }
+]
