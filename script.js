@@ -21,9 +21,21 @@ const LIST_RULES = {
   Corps: { min: 3, max: 6 },
   SpecialForces: { min: 0, max: 3 },
   Support: { min: 0, max: 3 },
-  Heavy: { min: 0, max: 2 }
+  Heavy: { min: 0, max: 2 },
+  Grenades: { min: 0, max: 2 } // Example extra type
 };
 const MAX_POINTS = 800;
+
+// === Mapping from unit upgrade types to JSON file names ===
+const upgradeFileMap = {
+  Commander: 'upgrades_commander.json',
+  Operative: 'upgrades_operative.json',
+  Corps: 'upgrades_corps.json',
+  SpecialForces: 'upgrades_specialforces.json',
+  Support: 'upgrades_support.json',
+  Heavy: 'upgrades_heavy.json',
+  Grenades: 'upgrades_grenades.json'
+};
 
 // === Utility to load JSON ===
 async function loadJSON(path) {
@@ -39,14 +51,13 @@ async function init() {
   allUnits = unitData.units;
 
   // Preload all upgrades
-  const upgradeTypes = ['commander', 'operative', 'corps', 'specialforces', 'support', 'heavy'];
-  for (const type of upgradeTypes) {
+  for (const [type, file] of Object.entries(upgradeFileMap)) {
     try {
-      const data = await loadJSON(`data/upgrades/${type}.json`);
-      allUpgrades[type] = data.upgrades;
+      const data = await loadJSON(`data/${file}`);
+      allUpgrades[type.toLowerCase()] = data.upgrades || [];
     } catch (err) {
       console.warn(`No upgrades loaded for type ${type}`, err);
-      allUpgrades[type] = [];
+      allUpgrades[type.toLowerCase()] = [];
     }
   }
 }
@@ -91,8 +102,7 @@ function renderUnits() {
 // === Add unit to army ===
 function addUnitToArmy(unit) {
   const unitCopy = { ...unit, selectedUpgrades: {} };
-  
-  // Pre-populate upgrades from cached allUpgrades
+
   if (unit.allowedUpgrades) {
     for (const type of unit.allowedUpgrades) {
       const upgradesForType = allUpgrades[type.toLowerCase()] || [];
