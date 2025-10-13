@@ -38,6 +38,26 @@
   .modal-content button:hover {
     background-color: #666;
   }
+
+  /* Army buttons at top */
+  #army-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  #army-buttons button {
+    padding: 8px 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #444;
+    color: #fff;
+    font-weight: bold;
+  }
+  #army-buttons button:hover {
+    background-color: #666;
+  }
 </style>
 </head>
 <body>
@@ -52,7 +72,14 @@
 </aside>
 
 <main>
+  <!-- Controls section: army buttons and search -->
   <section class="controls">
+    <div id="army-buttons">
+      <button id="newArmy">New Army</button>
+      <button id="resetArmy">Reset</button>
+      <button id="saveArmy">Save Army</button>
+      <button id="loadArmy">Load Army</button>
+    </div>
     <input type="text" id="search-input" placeholder="Search units...">
   </section>
 
@@ -63,12 +90,6 @@
   <section class="army-builder">
     <h2>Your Army</h2>
     <div id="army-container"></div>
-
-    <!-- Army management buttons -->
-    <button id="newArmy">New Army</button>
-    <button id="resetArmy">Reset</button>
-    <button id="saveArmy">Save Army</button>
-    <button id="loadArmy">Load Army</button>
   </section>
 </main>
 
