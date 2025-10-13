@@ -1,247 +1,197 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  min-height: 100vh;
-  background-color: #f0f0f0;
-  flex-direction: column; /* stack top toolbar + header + content */
+// === Global Variables ===
+const factionListEl = document.getElementById('faction-list');
+const unitGridEl = document.getElementById('unit-grid');
+const armyContainerEl = document.getElementById('army-container');
+const armySummaryEl = document.getElementById('army-summary');
+const saveArmyBtn = document.getElementById('save-army');
+const loadArmyBtn = document.getElementById('load-army');
+const newArmyBtn = document.getElementById('new-army');
+const resetArmyBtn = document.getElementById('reset-army');
+const factionModal = document.getElementById('faction-modal');
+
+let allUnits = [];
+let army = [];
+let currentFaction = null;
+
+// === Army rules ===
+const LIST_RULES = {
+  Commander: { min: 1, max: 2 },
+  Operative: { min: 0, max: 2 },
+  Corps: { min: 3, max: 6 },
+  SpecialForces: { min: 0, max: 3 },
+  Support: { min: 0, max: 3 },
+  Heavy: { min: 0, max: 2 }
+};
+const MAX_POINTS = 800;
+
+// === Utility to load JSON ===
+async function loadJSON(path) {
+  const res = await fetch(path);
+  if (!res.ok) throw new Error(`Failed to load ${path}`);
+  return await res.json();
 }
 
-/* Top toolbar above the header */
-#top-toolbar {
-  display: flex;
-  justify-content: center; /* center buttons horizontally */
-  gap: 10px;
-  padding: 0.5rem 1rem;
-  background-color: #111;
-  border-bottom: 2px solid #444;
-  width: 100%;
-  box-sizing: border-box;
-  z-index: 20;
+// === Initialize units/factions ===
+async function init() {
+  const data = await loadJSON('data/units.json');
+  allUnits = data.units;
 }
 
-#top-toolbar button {
-  padding: 8px 16px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  background-color: #444;
-  color: #fff;
-  font-weight: bold;
+// === Show faction modal ===
+function showFactionModal() {
+  factionModal.style.display = 'block';
 }
 
-#top-toolbar button:hover {
-  background-color: #666;
+factionModal.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentFaction = btn.dataset.faction;
+    factionModal.style.display = 'none';
+    renderUnits();
+    army = []; // clear army for new army
+    renderArmy();
+  });
+});
+
+// === Render units based on faction ===
+function renderUnits() {
+  if (!currentFaction) return;
+
+  const units = allUnits.filter(u => u.faction === currentFaction);
+  unitGridEl.innerHTML = '';
+
+  units.forEach(unit => {
+    const card = document.createElement('div');
+    card.className = 'unit-card';
+    card.innerHTML = `
+      <img src="${unit.image || 'images/placeholder_unit.png'}" alt="${unit.name}">
+      <h3>${unit.name}</h3>
+      <p>Type: ${unit.type} | Points: ${unit.points}</p>
+      <button>Add to Army</button>
+    `;
+    card.querySelector('button').addEventListener('click', () => addUnitToArmy(unit));
+    unitGridEl.appendChild(card);
+  });
 }
 
-/* Header */
-header {
-  width: 100%;
-  background-color: #222;
-  color: white;
-  padding: 1rem;
-  text-align: center;
-  position: relative; /* sits below toolbar */
-  z-index: 10;
+// === Add unit to army ===
+async function addUnitToArmy(unit) {
+  const unitCopy = { ...unit, selectedUpgrades: {} };
+  if (unit.allowedUpgrades) {
+    for (const type of unit.allowedUpgrades) {
+      try {
+        const upgradeData = await loadJSON(`data/upgrades/${type.toLowerCase()}.json`);
+        const filtered = upgradeData.upgrades.filter(up =>
+          up.factions.includes(unit.faction) &&
+          (!up.restrictions || up.restrictions.includes(unit.rank))
+        );
+        unitCopy.selectedUpgrades[type] = filtered.length ? filtered[0].name : null;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+  army.push(unitCopy);
+  renderArmy();
 }
 
-/* Main content layout with sidebar and main area */
-#content {
-  display: flex;
-  flex: 1;
-  margin-top: 0;
+// === Render army ===
+async function renderArmy() {
+  armyContainerEl.innerHTML = '';
+  let totalPoints = 0;
+  const typeCounts = {};
+
+  for (const [index, unit] of army.entries()) {
+    totalPoints += unit.points;
+    typeCounts[unit.type] = (typeCounts[unit.type] || 0) + 1;
+
+    const unitDiv = document.createElement('div');
+    unitDiv.className = 'army-unit';
+    unitDiv.innerHTML = `
+      <img src="${unit.image || 'images/placeholder_unit.png'}" alt="${unit.name}">
+      <h3>${unit.name} (${unit.points} pts)</h3>
+      <p>Type: ${unit.type}</p>
+    `;
+
+    // Upgrades
+    const upgradeContainer = document.createElement('div');
+    upgradeContainer.className = 'upgrades';
+    for (const type of unit.allowedUpgrades || []) {
+      const select = document.createElement('select');
+      select.innerHTML = `<option value="">Select ${type}</option>`;
+      try {
+        const upgradeData = await loadJSON(`data/upgrades/${type.toLowerCase()}.json`);
+        const filtered = upgradeData.upgrades.filter(up =>
+          up.factions.includes(unit.faction) &&
+          (!up.restrictions || up.restrictions.includes(unit.rank))
+        );
+        filtered.forEach(upg => {
+          const opt = document.createElement('option');
+          opt.value = upg.name;
+          opt.textContent = `${upg.name} (${upg.points} pts)`;
+          if (unit.selectedUpgrades[type] === upg.name) opt.selected = true;
+          select.appendChild(opt);
+        });
+        select.addEventListener('change', e => {
+          unit.selectedUpgrades[type] = e.target.value;
+        });
+        upgradeContainer.appendChild(select);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    unitDiv.appendChild(upgradeContainer);
+
+    // Remove button
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = 'Remove';
+    removeBtn.addEventListener('click', () => {
+      army.splice(index, 1);
+      renderArmy();
+    });
+    unitDiv.appendChild(removeBtn);
+
+    armyContainerEl.appendChild(unitDiv);
+  }
+
+  // Army summary
+  const errors = [];
+  for (const [type, rule] of Object.entries(LIST_RULES)) {
+    const count = typeCounts[type] || 0;
+    if (count < rule.min) errors.push(`Need at least ${rule.min} ${type}.`);
+    if (count > rule.max) errors.push(`Too many ${type} units (max ${rule.max}).`);
+  }
+  if (totalPoints > MAX_POINTS) errors.push(`Army exceeds ${MAX_POINTS} points (${totalPoints}).`);
+
+  armySummaryEl.innerHTML = `
+    <div><strong>Total Points:</strong> ${totalPoints} / ${MAX_POINTS}</div>
+    <div><strong>Composition:</strong></div>
+    <ul>${Object.entries(typeCounts).map(([type, count]) => `<li>${type}: ${count}</li>`).join('')}</ul>
+    <div class="errors">${errors.length ? errors.join('<br>') : '<span style="color:lime;">Valid list</span>'}</div>
+  `;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 200px;
-  background-color: #333;
-  color: white;
-  padding: 1rem;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
+// === Buttons ===
+newArmyBtn.addEventListener('click', showFactionModal);
+resetArmyBtn.addEventListener('click', () => {
+  army = [];
+  renderArmy();
+});
 
-.sidebar h2 {
-  margin-top: 0;
-}
+// === Save/Load ===
+saveArmyBtn.addEventListener('click', () => {
+  localStorage.setItem('savedArmy', JSON.stringify(army));
+  alert('Army saved!');
+});
 
-/* Main content area */
-main {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-}
+loadArmyBtn.addEventListener('click', () => {
+  const saved = localStorage.getItem('savedArmy');
+  if (saved) {
+    army = JSON.parse(saved);
+    renderArmy();
+    alert('Army loaded!');
+  }
+});
 
-/* Search input inside main */
-.controls {
-  margin-bottom: 10px;
-}
-
-.controls input {
-  width: 100%;
-  padding: 8px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-/* Unit grid styling */
-.unit-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-}
-
-.unit-card {
-  background-color: white;
-  border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  padding: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: black; /* ensure text is visible on white card */
-}
-
-.unit-card img {
-  width: 100%;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.unit-card button, .unit-card select {
-  margin-top: 0.5rem;
-}
-
-/* Army builder styling */
-.army-builder {
-  margin-top: 2rem;
-  background-color: #fff;
-  padding: 1rem;
-  border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-/* Army container */
-#army-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-/* Army unit inside the builder */
-.army-unit {
-  background-color: #eee;
-  border-radius: 6px;
-  padding: 0.5rem;
-  width: 180px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-.army-unit img {
-  width: 100%;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.army-unit h3 {
-  margin: 0.5rem 0 0 0;
-  font-size: 1rem;
-  text-align: center;
-}
-
-.army-unit p {
-  margin: 0.25rem 0;
-  font-size: 0.85rem;
-}
-
-.army-unit .upgrades {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
-}
-
-.army-unit .upgrades select {
-  width: 100%;
-  padding: 4px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-/* Remove button inside army unit */
-.army-unit button {
-  margin-top: 0.5rem;
-  padding: 4px 8px;
-  border: none;
-  border-radius: 4px;
-  background-color: #c44;
-  color: white;
-  cursor: pointer;
-}
-
-.army-unit button:hover {
-  background-color: #e66;
-}
-
-/* Army summary */
-.army-summary {
-  margin-top: 1rem;
-}
-
-.army-summary ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-.army-summary .errors {
-  color: red;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-}
-
-/* Modal styles for faction selection */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 2000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.5);
-}
-
-.modal-content {
-  background-color: #222;
-  margin: 15% auto;
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  text-align: center;
-  color: #fff;
-}
-
-.modal-content button {
-  margin: 10px;
-  padding: 10px 20px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  background-color: #444;
-  color: #fff;
-  font-weight: bold;
-}
-
-.modal-content button:hover {
-  background-color: #666;
-}
+// === Init ===
+document.addEventListener('DOMContentLoaded', init);
