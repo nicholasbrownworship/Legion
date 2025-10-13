@@ -1,22 +1,12 @@
 [
   {
-    "id": "z6_trooper",
-    "name": "Z-6 Trooper",
-    "type": "Heavy Weapon",
-    "points": 22,
-    "factions": ["Rebels"],
-    "restrictions": ["Corps"],
-    "text": "Adds one mini armed with a Z-6 rotary blaster.",
-    "isUnique": false
-  },
-  {
-    "id": "dlt19_trooper",
-    "name": "DLT-19 Trooper",
-    "type": "Heavy Weapon",
-    "points": 24,
-    "factions": ["Imperials"],
-    "restrictions": ["Corps"],
-    "text": "Adds one mini armed with a DLT-19 heavy blaster rifle.",
+    "id": "improvised_orders",
+    "name": "Improvised Orders",
+    "type": "Command",
+    "points": 10,
+    "factions": ["Rebels", "Imperials"],
+    "restrictions": ["Commander"],
+    "text": "Once per round, draw 2 order tokens and choose 1 to put back.",
     "isUnique": false
   }
 ]
