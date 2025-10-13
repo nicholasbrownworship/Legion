@@ -1,1 +1,7 @@
+{
+  "upgrades": [
+    { "name": "Impact Grenades", "points": 5, "description": "Gain Impact 1.", "factions": ["Rebels", "Imperials"] },
+    { "name": "Concussion Grenades", "points": 5, "description": "Gain Blast.", "factions": ["Rebels", "Imperials"] }
+  ]
+}
 
