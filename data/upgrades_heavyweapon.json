@@ -5,7 +5,7 @@
       "name": "Z-6 Trooper",
       "type": "heavyweapon",
       "points": 20,
-      "factions": ["rebel"],
+      "factions": ["rebels"],
       "text": "This is a test.",
       "isUnique": false
     },
@@ -14,7 +14,7 @@
       "name": "DLT-19 Stormtrooper",
       "type": "heavyweapon",
       "points": 20,
-      "factions": ["imperial"],
+      "factions": ["imperials"],
       "text": "Adds a trooper with a DLT-19 Heavy Blaster Rifle. Long-range support option for Stormtroopers. :contentReference[oaicite:0]{index=0}",
       "isUnique": false
     },
@@ -23,7 +23,7 @@
       "name": "HH-12 Stormtrooper",
       "type": "heavyweapon",
       "points": 16,
-      "factions": ["imperial"],
+      "factions": ["imperials"],
       "text": "Adds a trooper with an HH-12 heavy weapon. High impact, but Cumbersome. :contentReference[oaicite:1]{index=1}",
       "isUnique": false
     },
@@ -32,7 +32,7 @@
       "name": "RT-97C Stormtrooper",
       "type": "heavyweapon",
       "points": 22,
-      "factions": ["imperial"],
+      "factions": ["imperials"],
       "text": "Long-range accurate heavy weapon option. :contentReference[oaicite:2]{index=2}",
       "isUnique": false
     },
@@ -41,7 +41,7 @@
       "name": "T-21 Stormtrooper",
       "type": "HeavyWeapon",
       "points": 20,
-      "factions": ["imperial"],
+      "factions": ["imperials"],
       "text": "Critical-focused heavy blaster for Stormtroopers. :contentReference[oaicite:3]{index=3}",
       "isUnique": false
     },
@@ -50,7 +50,7 @@
       "name": "DLT-20A Trooper",
       "type": "heavyweapon",
       "points": 26,
-      "factions": ["rebel"],
+      "factions": ["rebels"],
       "text": "Long-range heavy rifle option for Rebel Troopers. :contentReference[oaicite:4]{index=4}",
       "isUnique": false
     },
@@ -59,7 +59,7 @@
       "name": "SX-21 Trooper",
       "type": "heavyweapon",
       "points": 13,
-      "factions": ["rebel"],
+      "factions": ["rebels"],
       "text": "Powerful close-range heavy weapon for Rebel Troopers. :contentReference[oaicite:5]{index=5}",
       "isUnique": false
     },
@@ -68,7 +68,7 @@
       "name": "MPL-57 Ion Trooper",
       "type": "heavyweapon",
       "points": 27,
-      "factions": ["rebel"],
+      "factions": ["rebels"],
       "text": "Ion heavy weapon; trades off some range and firepower for vehicle suppression. :contentReference[oaicite:6]{index=6}",
       "isUnique": false
     },
@@ -77,7 +77,7 @@
       "name": "DLT-19x Sniper",
       "type": "heavyweapon",
       "points": 38,
-      "factions": ["imperial"],
+      "factions": ["imperials"],
       "text": "Very long-range sniper heavy weapon. :contentReference[oaicite:7]{index=7}",
       "isUnique": false
     },
@@ -86,7 +86,7 @@
       "name": "DLT-19D Death Trooper",
       "type": "heavyweapon",
       "points": 30,
-      "factions": ["imperial"],
+      "factions": ["imperials"],
       "text": "Heavy rifle option for Death Troopers. :contentReference[oaicite:8]{index=8}",
       "isUnique": false
     },
@@ -95,7 +95,7 @@
       "name": "XS-IV Assault Cannon",
       "type": "heavyweapon",
       "points": 55,
-      "factions": ["imperial"],
+      "factions": ["imperials"],
       "text": "High-damage heavy option for Dark Troopers / Assault units. :contentReference[oaicite:9]{index=9}",
       "isUnique": false
     },
@@ -104,7 +104,7 @@
       "name": "SM-9 Frag Launcher",
       "type": "heavyweapon",
       "points": 45,
-      "factions": ["imperial"],
+      "factions": ["imperials"],
       "text": "Explosive secondary heavy weapon — good area effect. :contentReference[oaicite:10]{index=10}",
       "isUnique": false
     }
