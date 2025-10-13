@@ -7,7 +7,7 @@
     "type": "Personnel",
     "points": 10,
     "factions": ["Rebels"],
-    "restrictions": [],
+    "restrictions": ["Corps"],
     "text": "Add one Rebel Trooper mini.",
     "isUnique": false
   },
