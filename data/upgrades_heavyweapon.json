@@ -1,0 +1,13 @@
+[
+  {
+    "id": "Z-6",
+    "name": "Z-6 Trooper",
+    "type": "HeavyWeapon",
+    "points": 10,
+    "factions": ["Rebels", "Imperials"],
+    "restrictions": [],
+    "text": "This is a test.",
+    "isUnique": false
+  }
+ 
+]
