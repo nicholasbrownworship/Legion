@@ -6,6 +6,28 @@
 <title>Tabletop Admiral Clone</title>
 <link rel="stylesheet" href="style.css">
 <style>
+  /* Top toolbar buttons */
+  #army-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px;
+    background-color: #111;
+    border-bottom: 2px solid #444;
+  }
+  #army-buttons button {
+    padding: 8px 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #444;
+    color: #fff;
+    font-weight: bold;
+  }
+  #army-buttons button:hover {
+    background-color: #666;
+  }
+
   /* Modal styles */
   .modal {
     display: none; 
@@ -38,29 +60,18 @@
   .modal-content button:hover {
     background-color: #666;
   }
-
-  /* Army buttons at top */
-  #army-buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-  }
-  #army-buttons button {
-    padding: 8px 16px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #444;
-    color: #fff;
-    font-weight: bold;
-  }
-  #army-buttons button:hover {
-    background-color: #666;
-  }
 </style>
 </head>
 <body>
+
+<!-- Army buttons now ABOVE header -->
+<div id="army-buttons">
+  <button id="newArmy">New Army</button>
+  <button id="resetArmy">Reset</button>
+  <button id="saveArmy">Save Army</button>
+  <button id="loadArmy">Load Army</button>
+</div>
+
 <header>
   <h1>Tabletop Admiral Clone</h1>
 </header>
@@ -72,14 +83,8 @@
 </aside>
 
 <main>
-  <!-- Controls section: army buttons and search -->
+  <!-- Controls section: search bar -->
   <section class="controls">
-    <div id="army-buttons">
-      <button id="newArmy">New Army</button>
-      <button id="resetArmy">Reset</button>
-      <button id="saveArmy">Save Army</button>
-      <button id="loadArmy">Load Army</button>
-    </div>
     <input type="text" id="search-input" placeholder="Search units...">
   </section>
 
