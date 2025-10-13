@@ -8,6 +8,6 @@
     "factions": ["Rebels", "Imperials"],
     "text": "This is a test.",
     "isUnique": false
-  
+    }
   ]
 }
