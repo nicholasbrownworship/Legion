@@ -28,12 +28,19 @@ const MAX_POINTS = 800;
 
 // === Mapping from unit upgrade types to JSON file names ===
 const upgradeFileMap = {
-  Commander: 'upgrades_commander.json',
-  Operative: 'upgrades_operative.json',
-  Corps: 'upgrades_corps.json',
-  SpecialForces: 'upgrades_specialforces.json',
-  Support: 'upgrades_support.json',
-  Heavy: 'upgrades_heavy.json',
+  Armament: 'upgrades_armament.json'
+  Command: 'upgrades_command.json'
+  Crew: 'upgrades_crew.json'
+  Gear: 'upgrades_gear.json'
+  Force: 'upgrades_force.json'
+  Comms: 'upgrades_comms.json'
+  Generator: 'upgrades_generator.json'
+  Hardpoint: 'upgrades_hardpoint.json'
+  Ordnance: 'upgrades_ordnance.json'
+  Personnel: 'upgrades_personnel.json'
+  Pilot: 'upgrades_pilot.json'
+  Protocol: 'upgrades_protocol.json'
+  Training: 'upgrades_training.json'
   Grenades: 'upgrades_grenades.json'
 };
 
