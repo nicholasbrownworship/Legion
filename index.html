@@ -5,16 +5,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tabletop Admiral Clone</title>
 <link rel="stylesheet" href="style.css">
+<style>
+  /* Modal styles */
+  .modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; top: 0;
+    width: 100%; height: 100%; 
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+  }
+  .modal-content {
+    background-color: #222;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+    color: #fff;
+  }
+  .modal-content button {
+    margin: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #444;
+    color: #fff;
+    font-weight: bold;
+  }
+  .modal-content button:hover {
+    background-color: #666;
+  }
+</style>
 </head>
 <body>
 <header>
   <h1>Tabletop Admiral Clone</h1>
 </header>
+
 <aside class="sidebar">
   <h2>Factions</h2>
   <div id="faction-list"></div>
   <div id="army-summary" class="army-summary"></div>
 </aside>
+
 <main>
   <section class="controls">
     <input type="text" id="search-input" placeholder="Search units...">
@@ -27,15 +63,53 @@
   <section class="army-builder">
     <h2>Your Army</h2>
     <div id="army-container"></div>
-    
-    <!-- Added buttons for New Army and Reset -->
+
+    <!-- Army management buttons -->
     <button id="newArmy">New Army</button>
     <button id="resetArmy">Reset</button>
-
     <button id="saveArmy">Save Army</button>
     <button id="loadArmy">Load Army</button>
   </section>
 </main>
+
+<!-- Modal for faction selection -->
+<div id="factionModal" class="modal">
+  <div class="modal-content">
+    <h3>Select Your Faction</h3>
+    <button data-faction="Rebels">Rebels</button>
+    <button data-faction="Imperials">Imperials</button>
+  </div>
+</div>
+
 <script src="script.js"></script>
+<script>
+  // === Modal JS ===
+  const factionModal = document.getElementById('factionModal');
+  const newArmyBtn = document.getElementById('newArmy');
+
+  newArmyBtn.addEventListener('click', () => {
+    factionModal.style.display = 'block';
+  });
+
+  // Faction selection buttons
+  factionModal.querySelectorAll('button[data-faction]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const faction = btn.getAttribute('data-faction');
+      factionModal.style.display = 'none';
+
+      // Trigger the JS function to create a new army
+      if (typeof createNewArmy === 'function') {
+        createNewArmy(faction);
+      }
+    });
+  });
+
+  // Close modal if click outside content
+  window.addEventListener('click', (e) => {
+    if (e.target == factionModal) {
+      factionModal.style.display = 'none';
+    }
+  });
+</script>
 </body>
 </html>
