@@ -82,34 +82,5 @@
 </div>
 
 <script src="script.js"></script>
-<script>
-  // === Modal JS ===
-  const factionModal = document.getElementById('factionModal');
-  const newArmyBtn = document.getElementById('newArmy');
-
-  newArmyBtn.addEventListener('click', () => {
-    factionModal.style.display = 'block';
-  });
-
-  // Faction selection buttons
-  factionModal.querySelectorAll('button[data-faction]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const faction = btn.getAttribute('data-faction');
-      factionModal.style.display = 'none';
-
-      // Trigger the JS function to create a new army
-      if (typeof createNewArmy === 'function') {
-        createNewArmy(faction);
-      }
-    });
-  });
-
-  // Close modal if click outside content
-  window.addEventListener('click', (e) => {
-    if (e.target == factionModal) {
-      factionModal.style.display = 'none';
-    }
-  });
-</script>
 </body>
 </html>
