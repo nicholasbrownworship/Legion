@@ -5,137 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tabletop Admiral Clone</title>
 <link rel="stylesheet" href="style.css">
-<style>
-  /* Reset and basic layout */
-  body {
-    margin: 0;
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: column; /* stack top toolbar, header, and content */
-    height: 100vh;
-  }
-
-  /* Top horizontal toolbar above header */
-  #top-toolbar {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    padding: 10px;
-    background-color: #111;
-    border-bottom: 2px solid #444;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  #top-toolbar button {
-    padding: 8px 16px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #444;
-    color: #fff;
-    font-weight: bold;
-  }
-
-  #top-toolbar button:hover {
-    background-color: #666;
-  }
-
-  header {
-    padding: 10px;
-    background-color: #222;
-    color: #fff;
-    text-align: center;
-  }
-
-  /* Main content layout with sidebar + main area */
-  #content {
-    display: flex;
-    flex: 1;
-    overflow: hidden; /* avoid scroll conflicts */
-  }
-
-  .sidebar {
-    width: 220px; /* fixed sidebar width */
-    background-color: #222;
-    color: #fff;
-    padding: 10px;
-    box-sizing: border-box;
-    overflow-y: auto;
-  }
-
-  main {
-    flex: 1; /* take remaining horizontal space */
-    padding: 10px;
-    overflow-y: auto;
-    background-color: #111;
-    color: #fff;
-  }
-
-  /* Controls inside main (search bar only) */
-  .controls {
-    margin-bottom: 10px;
-  }
-
-  .controls input {
-    width: 100%;
-    padding: 8px;
-    border-radius: 5px;
-    border: none;
-  }
-
-  /* Modal styles */
-  .modal {
-    display: none; 
-    position: fixed; 
-    z-index: 2000; 
-    left: 0; top: 0;
-    width: 100%; height: 100%; 
-    overflow: auto;
-    background-color: rgba(0,0,0,0.5);
-  }
-
-  .modal-content {
-    background-color: #222;
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-    text-align: center;
-    color: #fff;
-  }
-
-  .modal-content button {
-    margin: 10px;
-    padding: 10px 20px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #444;
-    color: #fff;
-    font-weight: bold;
-  }
-
-  .modal-content button:hover {
-    background-color: #666;
-  }
-</style>
 </head>
 <body>
 
-<!-- Top toolbar: buttons above header -->
+<!-- Top toolbar -->
 <div id="top-toolbar">
-  <button id="newArmy">New Army</button>
-  <button id="resetArmy">Reset</button>
-  <button id="saveArmy">Save Army</button>
-  <button id="loadArmy">Load Army</button>
+  <button id="new-army">New Army</button>
+  <button id="reset-army">Reset</button>
 </div>
 
 <header>
   <h1>Tabletop Admiral Clone</h1>
 </header>
 
-<!-- Main layout: sidebar + main content -->
 <div id="content">
   <aside class="sidebar">
     <h2>Factions</h2>
@@ -144,7 +26,6 @@
   </aside>
 
   <main>
-    <!-- Controls section: search bar only -->
     <section class="controls">
       <input type="text" id="search-input" placeholder="Search units...">
     </section>
@@ -156,14 +37,16 @@
     <section class="army-builder">
       <h2>Your Army</h2>
       <div id="army-container"></div>
+      <button id="save-army">Save Army</button>
+      <button id="load-army">Load Army</button>
     </section>
   </main>
 </div>
 
-<!-- Modal for faction selection -->
-<div id="factionModal" class="modal">
+<!-- Faction modal -->
+<div id="faction-modal" class="modal">
   <div class="modal-content">
-    <h3>Select Your Faction</h3>
+    <h2>Select a Faction</h2>
     <button data-faction="Rebels">Rebels</button>
     <button data-faction="Imperials">Imperials</button>
   </div>
