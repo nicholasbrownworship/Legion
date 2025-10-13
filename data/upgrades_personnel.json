@@ -1,4 +1,6 @@
-[
+
+{
+"upgrades":[
   {
     "id": "rebel_trooper",
     "name": "Rebel Trooper",
@@ -20,3 +22,4 @@
     "isUnique": false
   }
 ]
+}
