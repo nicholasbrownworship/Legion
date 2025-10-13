@@ -42,12 +42,13 @@ function showFactionModal() {
   factionModal.style.display = 'block';
 }
 
+// Faction selection buttons
 factionModal.querySelectorAll('button').forEach(btn => {
   btn.addEventListener('click', () => {
     currentFaction = btn.dataset.faction;
     factionModal.style.display = 'none';
+    army = [];
     renderUnits();
-    army = []; // clear army for new army
     renderArmy();
   });
 });
@@ -76,6 +77,7 @@ function renderUnits() {
 // === Add unit to army ===
 async function addUnitToArmy(unit) {
   const unitCopy = { ...unit, selectedUpgrades: {} };
+
   if (unit.allowedUpgrades) {
     for (const type of unit.allowedUpgrades) {
       try {
@@ -86,15 +88,16 @@ async function addUnitToArmy(unit) {
         );
         unitCopy.selectedUpgrades[type] = filtered.length ? filtered[0].name : null;
       } catch (err) {
-        console.error(err);
+        console.error(`Failed to load upgrades for ${type}`, err);
       }
     }
   }
+
   army.push(unitCopy);
   renderArmy();
 }
 
-// === Render army ===
+// === Render army with upgrades ===
 async function renderArmy() {
   armyContainerEl.innerHTML = '';
   let totalPoints = 0;
@@ -112,37 +115,44 @@ async function renderArmy() {
       <p>Type: ${unit.type}</p>
     `;
 
-    // Upgrades
+    // === Add upgrade selectors ===
     const upgradeContainer = document.createElement('div');
     upgradeContainer.className = 'upgrades';
-    for (const type of unit.allowedUpgrades || []) {
-      const select = document.createElement('select');
-      select.innerHTML = `<option value="">Select ${type}</option>`;
-      try {
-        const upgradeData = await loadJSON(`data/upgrades/${type.toLowerCase()}.json`);
-        const filtered = upgradeData.upgrades.filter(up =>
-          up.factions.includes(unit.faction) &&
-          (!up.restrictions || up.restrictions.includes(unit.rank))
-        );
-        filtered.forEach(upg => {
-          const opt = document.createElement('option');
-          opt.value = upg.name;
-          opt.textContent = `${upg.name} (${upg.points} pts)`;
-          if (unit.selectedUpgrades[type] === upg.name) opt.selected = true;
-          select.appendChild(opt);
-        });
-        select.addEventListener('change', e => {
-          unit.selectedUpgrades[type] = e.target.value;
-        });
-        upgradeContainer.appendChild(select);
-      } catch (err) {
-        console.error(err);
+
+    if (unit.allowedUpgrades) {
+      for (const type of unit.allowedUpgrades) {
+        const select = document.createElement('select');
+        select.innerHTML = `<option value="">Select ${type}</option>`;
+
+        try {
+          const upgradeData = await loadJSON(`data/upgrades/${type.toLowerCase()}.json`);
+          const filtered = upgradeData.upgrades.filter(up =>
+            up.factions.includes(unit.faction) &&
+            (!up.restrictions || up.restrictions.includes(unit.rank))
+          );
+
+          filtered.forEach(upg => {
+            const opt = document.createElement('option');
+            opt.value = upg.name;
+            opt.textContent = `${upg.name} (${upg.points} pts)`;
+            if (unit.selectedUpgrades[type] === upg.name) opt.selected = true;
+            select.appendChild(opt);
+          });
+
+          select.addEventListener('change', e => {
+            unit.selectedUpgrades[type] = e.target.value;
+          });
+
+          upgradeContainer.appendChild(select);
+        } catch (err) {
+          console.error(`Error loading upgrades for ${type}`, err);
+        }
       }
     }
 
     unitDiv.appendChild(upgradeContainer);
 
-    // Remove button
+    // Remove unit button
     const removeBtn = document.createElement('button');
     removeBtn.textContent = 'Remove';
     removeBtn.addEventListener('click', () => {
@@ -154,7 +164,7 @@ async function renderArmy() {
     armyContainerEl.appendChild(unitDiv);
   }
 
-  // Army summary
+  // === Army Summary & Validation ===
   const errors = [];
   for (const [type, rule] of Object.entries(LIST_RULES)) {
     const count = typeCounts[type] || 0;
@@ -193,5 +203,5 @@ loadArmyBtn.addEventListener('click', () => {
   }
 });
 
-// === Init ===
+// === Initialize ===
 document.addEventListener('DOMContentLoaded', init);
