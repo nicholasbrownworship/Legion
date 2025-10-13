@@ -10,6 +10,7 @@ const resetArmyBtn = document.getElementById('reset-army');
 const factionModal = document.getElementById('faction-modal');
 
 let allUnits = [];
+let allUpgrades = {}; // cache for upgrades by type
 let army = [];
 let currentFaction = null;
 
@@ -31,10 +32,23 @@ async function loadJSON(path) {
   return await res.json();
 }
 
-// === Initialize units/factions ===
+// === Initialize units and upgrades ===
 async function init() {
-  const data = await loadJSON('data/units.json');
-  allUnits = data.units;
+  // Load all units
+  const unitData = await loadJSON('data/units.json');
+  allUnits = unitData.units;
+
+  // Preload all upgrades
+  const upgradeTypes = ['commander', 'operative', 'corps', 'specialforces', 'support', 'heavy'];
+  for (const type of upgradeTypes) {
+    try {
+      const data = await loadJSON(`data/upgrades/${type}.json`);
+      allUpgrades[type] = data.upgrades;
+    } catch (err) {
+      console.warn(`No upgrades loaded for type ${type}`, err);
+      allUpgrades[type] = [];
+    }
+  }
 }
 
 // === Show faction modal ===
@@ -75,133 +89,13 @@ function renderUnits() {
 }
 
 // === Add unit to army ===
-async function addUnitToArmy(unit) {
+function addUnitToArmy(unit) {
   const unitCopy = { ...unit, selectedUpgrades: {} };
-
+  
+  // Pre-populate upgrades from cached allUpgrades
   if (unit.allowedUpgrades) {
     for (const type of unit.allowedUpgrades) {
-      try {
-        const upgradeData = await loadJSON(`data/upgrades/${type.toLowerCase()}.json`);
-        const filtered = upgradeData.upgrades.filter(up =>
-          up.factions.includes(unit.faction) &&
-          (!up.restrictions || up.restrictions.includes(unit.rank))
-        );
-        unitCopy.selectedUpgrades[type] = filtered.length ? filtered[0].name : null;
-      } catch (err) {
-        console.error(`Failed to load upgrades for ${type}`, err);
-      }
-    }
-  }
-
-  army.push(unitCopy);
-  renderArmy();
-}
-
-// === Render army with upgrades ===
-async function renderArmy() {
-  armyContainerEl.innerHTML = '';
-  let totalPoints = 0;
-  const typeCounts = {};
-
-  for (const [index, unit] of army.entries()) {
-    totalPoints += unit.points;
-    typeCounts[unit.type] = (typeCounts[unit.type] || 0) + 1;
-
-    const unitDiv = document.createElement('div');
-    unitDiv.className = 'army-unit';
-    unitDiv.innerHTML = `
-      <img src="${unit.image || 'images/placeholder_unit.png'}" alt="${unit.name}">
-      <h3>${unit.name} (${unit.points} pts)</h3>
-      <p>Type: ${unit.type}</p>
-    `;
-
-    // === Add upgrade selectors ===
-    const upgradeContainer = document.createElement('div');
-    upgradeContainer.className = 'upgrades';
-
-    if (unit.allowedUpgrades) {
-      for (const type of unit.allowedUpgrades) {
-        const select = document.createElement('select');
-        select.innerHTML = `<option value="">Select ${type}</option>`;
-
-        try {
-          const upgradeData = await loadJSON(`data/upgrades/${type.toLowerCase()}.json`);
-          const filtered = upgradeData.upgrades.filter(up =>
-            up.factions.includes(unit.faction) &&
-            (!up.restrictions || up.restrictions.includes(unit.rank))
-          );
-
-          filtered.forEach(upg => {
-            const opt = document.createElement('option');
-            opt.value = upg.name;
-            opt.textContent = `${upg.name} (${upg.points} pts)`;
-            if (unit.selectedUpgrades[type] === upg.name) opt.selected = true;
-            select.appendChild(opt);
-          });
-
-          select.addEventListener('change', e => {
-            unit.selectedUpgrades[type] = e.target.value;
-          });
-
-          upgradeContainer.appendChild(select);
-        } catch (err) {
-          console.error(`Error loading upgrades for ${type}`, err);
-        }
-      }
-    }
-
-    unitDiv.appendChild(upgradeContainer);
-
-    // Remove unit button
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = 'Remove';
-    removeBtn.addEventListener('click', () => {
-      army.splice(index, 1);
-      renderArmy();
-    });
-    unitDiv.appendChild(removeBtn);
-
-    armyContainerEl.appendChild(unitDiv);
-  }
-
-  // === Army Summary & Validation ===
-  const errors = [];
-  for (const [type, rule] of Object.entries(LIST_RULES)) {
-    const count = typeCounts[type] || 0;
-    if (count < rule.min) errors.push(`Need at least ${rule.min} ${type}.`);
-    if (count > rule.max) errors.push(`Too many ${type} units (max ${rule.max}).`);
-  }
-  if (totalPoints > MAX_POINTS) errors.push(`Army exceeds ${MAX_POINTS} points (${totalPoints}).`);
-
-  armySummaryEl.innerHTML = `
-    <div><strong>Total Points:</strong> ${totalPoints} / ${MAX_POINTS}</div>
-    <div><strong>Composition:</strong></div>
-    <ul>${Object.entries(typeCounts).map(([type, count]) => `<li>${type}: ${count}</li>`).join('')}</ul>
-    <div class="errors">${errors.length ? errors.join('<br>') : '<span style="color:lime;">Valid list</span>'}</div>
-  `;
-}
-
-// === Buttons ===
-newArmyBtn.addEventListener('click', showFactionModal);
-resetArmyBtn.addEventListener('click', () => {
-  army = [];
-  renderArmy();
-});
-
-// === Save/Load ===
-saveArmyBtn.addEventListener('click', () => {
-  localStorage.setItem('savedArmy', JSON.stringify(army));
-  alert('Army saved!');
-});
-
-loadArmyBtn.addEventListener('click', () => {
-  const saved = localStorage.getItem('savedArmy');
-  if (saved) {
-    army = JSON.parse(saved);
-    renderArmy();
-    alert('Army loaded!');
-  }
-});
-
-// === Initialize ===
-document.addEventListener('DOMContentLoaded', init);
+      const upgradesForType = allUpgrades[type.toLowerCase()] || [];
+      const filtered = upgradesForType.filter(up =>
+        up.factions.includes(unit.faction) &&
+        (!up.restrictions || up.restrictions.i
