@@ -6,7 +6,7 @@
     "type": "Training",
     "points": 6,
     "factions": ["Rebels", "Imperials"],
-    "restrictions": ["Trooper"],
+    "restrictions": ["Corps"],
     "text": "Gain Tactical 1 when activated.",
     "isUnique": false
   }
