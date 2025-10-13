@@ -56,14 +56,14 @@ async function init() {
   const unitData = await loadJSON('data/units.json');
   allUnits = unitData.units;
 
-  // Preload all upgrades using the exact type names as keys
+  // Preload all upgrades and normalize keys
   for (const [type, file] of Object.entries(upgradeFileMap)) {
     try {
       const data = await loadJSON(`data/${file}`);
-      allUpgrades[type] = data.upgrades || [];
+      allUpgrades[type.toLowerCase()] = data.upgrades || [];
     } catch (err) {
       console.warn(`No upgrades loaded for type ${type}`, err);
-      allUpgrades[type] = [];
+      allUpgrades[type.toLowerCase()] = [];
     }
   }
 }
@@ -111,7 +111,8 @@ function addUnitToArmy(unit) {
 
   if (unit.allowedUpgrades) {
     for (const type of unit.allowedUpgrades) {
-      const upgradesForType = allUpgrades[type] || [];
+      const typeKey = type.toLowerCase();
+      const upgradesForType = allUpgrades[typeKey] || [];
       const filtered = upgradesForType.filter(up =>
         up.factions.includes(unit.faction) &&
         (!up.restrictions || up.restrictions.includes(unit.rank))
@@ -151,7 +152,8 @@ function renderArmy() {
         const select = document.createElement('select');
         select.innerHTML = `<option value="">Select ${type}</option>`;
 
-        const upgradesForType = allUpgrades[type] || [];
+        const typeKey = type.toLowerCase();
+        const upgradesForType = allUpgrades[typeKey] || [];
         const filtered = upgradesForType.filter(up =>
           up.factions.includes(unit.faction) &&
           (!up.restrictions || up.restrictions.includes(unit.rank))
