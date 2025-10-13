@@ -2,11 +2,91 @@
   {
     "id": "grappling_hooks",
     "name": "Grappling Hooks",
-    "type": "Gear",
-    "points": 3,
-    "factions": ["Rebels", "Imperials"],
-    "restrictions": ["Trooper"],
-    "text": "Gain Scale.",
+    "type": "gear",
+    "points": 2,
+    "factions": ["rebels", "imperials"],
+    "restrictions": ["trooper"],
+    "text": "Gain Expert Climber.",
+    "isUnique": false
+  }
+  {
+    "id": "ascension_cables",
+    "name": "Ascension Cables",
+    "type": "gear",
+    "points": 4,
+    "factions": ["rebels", "imperials"],
+    "restrictions": ["trooper"],
+    "text": "Gain Scale until the end of your activation.",
+    "isUnique": false
+  }
+  {
+    "id": "electrobinoculars",
+    "name": "Electrobinoculars",
+    "type": "gear",
+    "points": 8,
+    "factions": ["rebels", "imperials"],
+    "restrictions": ["trooper"],
+    "text": "Gain Spotter 1.",
+    "isUnique": false
+  }
+  {
+    "id": "emergency_stims",
+    "name": "Emergency Stims",
+    "type": "gear",
+    "points": 8,
+    "factions": ["rebels", "imperials"],
+    "restrictions": ["trooper"],
+    "text": "When this unit would suffer 1 or more Wounds from an enemy attack, you may exhause this card to prevent suffereng up to 2 of those Wounds and place an equal number of Wound tokens on this card instead. If you do, at the end of this unit's next Activation, this unit removes each Wound token from this card and suffers Wounds equal to the number of Wound tokens removed.",
+    "isUnique": false
+  }
+  {
+    "id": "extra_supplies",
+    "name": "Extra Supplies",
+    "type": "gear",
+    "points": 5,
+    "factions": ["rebels", "imperials"],
+    "restrictions": ["trooper"],
+    "text": "At the end of this unit's Activation you may discard this card. If you do, ready 1 of this unit's non-FORCE upgrades.",
+    "isUnique": false
+  }
+  {
+    "id": "portable_scanner",
+    "name": "Portable Scanner",
+    "type": "gear",
+    "points": 6,
+    "factions": ["rebels", "imperials"],
+    "restrictions": ["trooper"],
+    "text": "This unit games Take Cover 1.",
+    "isUnique": false
+  }
+  {
+    "id": "prepared_supplies",
+    "name": "Prepared Supplies",
+    "type": "gear",
+    "points": 5,
+    "factions": ["rebels", "imperials"],
+    "restrictions": ["trooper"],
+    "text": "Cache: Dodge 1",
+    "isUnique": false
+  }
+  {
+    "id": "recon_intel",
+    "name": "Recon Intel",
+    "type": "gear",
+    "points": 8,
+    "factions": ["rebels", "imperials"],
+    "restrictions": ["trooper"],
+    "text": "This unit gains Scout 1.",
+    "isUnique": false
+  }
+  {
+    "id": "targeting_scopes",
+    "name": "Targeting Scopes",
+    "type": "gear",
+    "points": 4,
+    "factions": ["rebels", "imperials"],
+    "restrictions": ["trooper"],
+    "text": "This unit gains Precise 1.",
     "isUnique": false
   }
 ]
