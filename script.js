@@ -53,11 +53,12 @@ async function loadJSON(path) {
   return await res.json();
 }
 
-// === Normalize upgrades ===
+// === Normalize Upgrades ===
 function normalizeUpgrades(upgrades, typeKey) {
   return (upgrades || []).map(up => ({
     ...up,
-    typeKey,
+    typeKey: typeKey.toLowerCase(),
+    type: typeKey.toLowerCase(),
     factions: (up.factions || []).map(f => f.toLowerCase()),
     restrictions: (up.restrictions || []).map(r => r.toLowerCase())
   }));
@@ -68,9 +69,14 @@ function filterUpgrades(unit, typeKey) {
   const allOfType = allUpgrades[typeKey] || [];
   const unitFaction = unit.faction.toLowerCase();
   const unitRank = unit.rank.toLowerCase();
+
   return allOfType.filter(up => {
-    const factionOK = up.factions.length === 0 || up.factions.includes(unitFaction);
-    const restrictionOK = up.restrictions.length === 0 || up.restrictions.includes(unitRank);
+    const upgradeFactions = (up.factions || []).map(f => f.toLowerCase());
+    const upgradeRestrictions = (up.restrictions || []).map(r => r.toLowerCase());
+
+    const factionOK = upgradeFactions.length === 0 || upgradeFactions.includes(unitFaction);
+    const restrictionOK = upgradeRestrictions.length === 0 || upgradeRestrictions.includes(unitRank);
+
     return factionOK && restrictionOK;
   });
 }
@@ -85,6 +91,11 @@ async function init() {
       try {
         const data = await loadJSON(`data/${file}`);
         allUpgrades[typeKey] = normalizeUpgrades(data.upgrades, typeKey);
+
+        // Console logs for verification
+        if (typeKey === 'heavyweapon') {
+          console.log('Loaded heavy weapons:', allUpgrades[typeKey]);
+        }
       } catch (err) {
         console.warn(`No upgrades loaded for ${typeKey}`, err);
         allUpgrades[typeKey] = [];
@@ -141,8 +152,7 @@ function addUnitToArmy(unit) {
 
   if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
     unit.allowedUpgrades.forEach(typeKey => {
-      const filtered = filterUpgrades(unit, typeKey);
-      // initialize empty selection if upgrades exist
+      const filtered = filterUpgrades(unit, typeKey.toLowerCase());
       unitCopy.selectedUpgrades[typeKey] = filtered.length ? '' : '';
     });
   }
@@ -175,7 +185,7 @@ function renderArmy() {
 
     if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
       unit.allowedUpgrades.forEach(typeKey => {
-        const filtered = filterUpgrades(unit, typeKey);
+        const filtered = filterUpgrades(unit, typeKey.toLowerCase());
 
         const select = document.createElement('select');
         select.innerHTML = `<option value="">Select ${typeKey}</option>`;
