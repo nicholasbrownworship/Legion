@@ -1,0 +1,7 @@
+
+{
+  "upgrades": [
+    { "name": "Proton Torpedoes", "points": 13, "description": "Gain Impact 2, Armor Piercing.", "factions": ["Rebels"] },
+    { "name": "Concussion Missiles", "points": 12, "description": "Gain Blast and Suppressive.", "factions": ["Imperials"] }
+  ]
+}
