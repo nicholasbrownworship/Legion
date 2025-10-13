@@ -6,11 +6,11 @@
       "id": "rebel_infantry_squad",
       "name": "Rebel Infantry Squad",
       "faction": "rebels",
-      "points": 50,
+      "points": 40,
       "min": 1,
       "max": 6,
       "rank": "corps",
-      "allowedUpgrades": ["grenades", "personnel", "heavyweapon", "training"],
+      "allowedUpgrades": ["grenades", "personnel", "heavyweapon", "gear"],
       "restrictions": [],
       "keywords": ["trooper"],
       "image": "images/rebels/infantry_squad.png"
