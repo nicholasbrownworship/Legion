@@ -1,0 +1,23 @@
+[
+  {
+    "id": "force_push",
+    "name": "Force Push",
+    "type": "Force",
+    "points": 10,
+    "factions": ["Rebels", "Imperials"],
+    "restrictions": ["Force User"],
+    "text": "After you perform a move, choose an enemy trooper at range 1 and push it.",
+    "isUnique": false
+  },
+  {
+    "id": "force_reflexes",
+    "name": "Force Reflexes",
+    "type": "Force",
+    "points": 10,
+    "factions": ["Rebels", "Imperials"],
+    "restrictions": ["Force User"],
+    "text": "Gain a dodge token; exhaust after use.",
+    "isUnique": false
+  }
+]
+
