@@ -3,22 +3,23 @@ body {
   margin: 0;
   padding: 0;
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background-color: #f0f0f0;
-  flex-direction: column; /* stack top toolbar + header + content */
 }
 
-/* Top toolbar above the header */
+/* Top toolbar */
 #top-toolbar {
   display: flex;
-  justify-content: center; /* center buttons horizontally */
+  justify-content: center;
   gap: 10px;
   padding: 0.5rem 1rem;
   background-color: #111;
   border-bottom: 2px solid #444;
   width: 100%;
   box-sizing: border-box;
-  z-index: 20;
+  z-index: 1000;
+  position: relative;
 }
 
 #top-toolbar button {
@@ -42,15 +43,15 @@ header {
   color: white;
   padding: 1rem;
   text-align: center;
-  position: relative; /* no longer fixed, sits below toolbar */
+  position: relative;
   z-index: 10;
 }
 
-/* Main content layout with sidebar and main area */
+/* Layout */
 #content {
   display: flex;
   flex: 1;
-  margin-top: 0; /* no need for header offset */
+  margin-top: 0;
 }
 
 /* Sidebar */
@@ -67,14 +68,25 @@ header {
   margin-top: 0;
 }
 
-/* Main content area */
+/* Main area */
 main {
   flex: 1;
   padding: 1rem;
   overflow-y: auto;
 }
 
-/* Unit grid styling */
+.controls {
+  margin-bottom: 10px;
+}
+
+.controls input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Unit grid */
 .unit-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -82,13 +94,14 @@ main {
 }
 
 .unit-card {
-  background-color: black;
+  background-color: white;
   border-radius: 6px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: black;
 }
 
 .unit-card img {
@@ -102,10 +115,10 @@ main {
   margin-top: 0.5rem;
 }
 
-/* Army builder styling */
+/* Army builder */
 .army-builder {
   margin-top: 2rem;
-  background-color: #222;
+  background-color: #fff;
   padding: 1rem;
   border-radius: 6px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -118,7 +131,81 @@ main {
   margin-bottom: 1rem;
 }
 
-/* Modal styles for faction selection */
+.army-unit {
+  background-color: #eee;
+  border-radius: 6px;
+  padding: 0.5rem;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.army-unit img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.army-unit h3 {
+  margin: 0.5rem 0 0 0;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.army-unit p {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+.army-unit .upgrades {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.army-unit .upgrades select {
+  width: 100%;
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.army-unit button {
+  margin-top: 0.5rem;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background-color: #c44;
+  color: white;
+  cursor: pointer;
+}
+
+.army-unit button:hover {
+  background-color: #e66;
+}
+
+/* Army summary */
+.army-summary {
+  margin-top: 1rem;
+}
+
+.army-summary ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.army-summary .errors {
+  color: red;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Modal */
 .modal {
   display: none;
   position: fixed;
