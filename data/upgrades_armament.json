@@ -1,22 +1,6 @@
-[
-  {
-    "id": "z6_trooper",
-    "name": "Z-6 Trooper",
-    "type": "Heavy Weapon",
-    "points": 22,
-    "factions": ["Rebels"],
-    "restrictions": ["Corps"],
-    "text": "Adds one mini armed with a Z-6 rotary blaster.",
-    "isUnique": false
-  },
-  {
-    "id": "dlt19_trooper",
-    "name": "DLT-19 Trooper",
-    "type": "Heavy Weapon",
-    "points": 24,
-    "factions": ["Imperials"],
-    "restrictions": ["Corps"],
-    "text": "Adds one mini armed with a DLT-19 heavy blaster rifle.",
-    "isUnique": false
-  }
-]
+{
+  "upgrades": [
+    { "name": "DLT-19 Heavy Blaster", "points": 24, "description": "Adds 2 red dice to attack.", "factions": ["Imperials"] },
+    { "name": "Z-6 Rotary Blaster", "points": 22, "description": "Adds 6 white dice to attack.", "factions": ["Rebels"] }
+  ]
+}
