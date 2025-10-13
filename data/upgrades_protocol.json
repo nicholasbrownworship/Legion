@@ -1,1 +1,7 @@
 
+{
+  "upgrades": [
+    { "name": "Aggression Protocols", "points": 6, "description": "Gain Charge 1.", "factions": ["Imperials"] },
+    { "name": "Defensive Protocols", "points": 6, "description": "Gain Dodge 1.", "factions": ["Rebels"] }
+  ]
+}
