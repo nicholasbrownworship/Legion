@@ -9,17 +9,13 @@
   /* Top horizontal toolbar */
   #top-toolbar {
     display: flex;
-    justify-content: center;  /* center buttons horizontally */
-    align-items: center;      /* vertically center if taller container */
-    gap: 10px;                /* space between buttons */
+    justify-content: center; /* center buttons horizontally */
+    gap: 10px;
     padding: 10px;
     background-color: #111;
     border-bottom: 2px solid #444;
-    width: 100%;              /* full width */
+    width: 100%; /* full width */
     box-sizing: border-box;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
   }
 
   #top-toolbar button {
@@ -30,7 +26,6 @@
     background-color: #444;
     color: #fff;
     font-weight: bold;
-    white-space: nowrap;      /* prevent wrapping inside button */
   }
 
   #top-toolbar button:hover {
@@ -76,7 +71,7 @@
 </head>
 <body>
 
-<!-- Correct top horizontal toolbar -->
+<!-- Horizontal top toolbar ABOVE header -->
 <div id="top-toolbar">
   <button id="newArmy">New Army</button>
   <button id="resetArmy">Reset</button>
@@ -95,6 +90,7 @@
 </aside>
 
 <main>
+  <!-- Controls section: search bar -->
   <section class="controls">
     <input type="text" id="search-input" placeholder="Search units...">
   </section>
