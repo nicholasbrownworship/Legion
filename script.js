@@ -1,13 +1,14 @@
 // === Global Variables ===
-const factionSelectEl = document.getElementById('factionSelect');
-const unitListEl = document.getElementById('unitList');
-const armyListEl = document.getElementById('armyList');
-const saveArmyBtn = document.getElementById('saveArmy');
-const loadArmyBtn = document.getElementById('loadArmy');
-const armySummaryEl = document.getElementById('armySummary');
+const unitListEl = document.getElementById('unit-grid');
+const armyListEl = document.getElementById('army-container');
+const armySummaryEl = document.getElementById('army-summary');
 
 const newArmyBtn = document.getElementById('newArmy');
 const resetArmyBtn = document.getElementById('resetArmy');
+const saveArmyBtn = document.getElementById('saveArmy');
+const loadArmyBtn = document.getElementById('loadArmy');
+
+const factionModal = document.getElementById('factionModal');
 
 let allUnits = [];
 let army = [];
@@ -24,40 +25,71 @@ const LIST_RULES = {
 };
 const MAX_POINTS = 800;
 
-// === Utility to fetch JSON ===
+// === Load JSON utility ===
 async function loadJSON(path) {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`Failed to load ${path}`);
   return await res.json();
 }
 
-// === Initialize factions ===
+// === Initialize units ===
 async function init() {
   const data = await loadJSON('data/units.json');
   allUnits = data.units;
 
-  factionSelectEl.innerHTML = data.factions
-    .map(f => `<option value="${f}">${f}</option>`)
-    .join('');
-
-  factionSelectEl.addEventListener('change', () => {
-    selectedFaction = factionSelectEl.value;
-    renderUnits();
+  // Set up modal faction selection
+  factionModal.querySelectorAll('button[data-faction]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedFaction = btn.getAttribute('data-faction');
+      factionModal.style.display = 'none';
+      createNewArmy(selectedFaction);
+    });
   });
 
-  // Initialize selectedFaction
-  selectedFaction = factionSelectEl.value;
+  // New Army button opens modal
+  newArmyBtn.addEventListener('click', () => {
+    factionModal.style.display = 'block';
+  });
 
+  // Reset button clears army but keeps faction
+  resetArmyBtn.addEventListener('click', () => {
+    army = [];
+    renderArmy();
+  });
+
+  // Save / Load buttons
+  saveArmyBtn.addEventListener('click', () => {
+    localStorage.setItem('savedArmy', JSON.stringify(army));
+    alert('Army saved!');
+  });
+
+  loadArmyBtn.addEventListener('click', () => {
+    const saved = localStorage.getItem('savedArmy');
+    if (saved) {
+      army = JSON.parse(saved);
+      renderArmy();
+      alert('Army loaded!');
+    }
+  });
+}
+
+// === Create new army after faction selection ===
+function createNewArmy(faction) {
+  army = [];
+  renderArmy();
   renderUnits();
 }
 
-// === Render units based on selected faction ===
+// === Render units for selected faction ===
 function renderUnits() {
-  if (!selectedFaction) return;
+  if (!selectedFaction) {
+    unitListEl.innerHTML = '<p>Please select a faction to see units.</p>';
+    return;
+  }
 
-  const units = allUnits.filter(u => u.faction === selectedFaction);
-
+  const units = allUnits.filter(u => u.faction.toLowerCase() === selectedFaction.toLowerCase());
   unitListEl.innerHTML = '';
+
   units.forEach(unit => {
     const card = document.createElement('div');
     card.className = 'unit-card';
@@ -94,7 +126,7 @@ async function addUnitToArmy(unit) {
   renderArmy();
 }
 
-// === Render army and upgrades ===
+// === Render army and summary ===
 async function renderArmy() {
   armyListEl.innerHTML = '';
   let totalPoints = 0;
@@ -114,6 +146,7 @@ async function renderArmy() {
 
     const upgradeContainer = document.createElement('div');
     upgradeContainer.className = 'upgrades';
+
     for (const type of unit.allowedUpgrades || []) {
       const select = document.createElement('select');
       select.innerHTML = `<option value="">Select ${type}</option>`;
@@ -156,6 +189,7 @@ async function renderArmy() {
     armyListEl.appendChild(unitDiv);
   }
 
+  // Army summary & validation
   const errors = [];
   for (const [type, rule] of Object.entries(LIST_RULES)) {
     const count = typeCounts[type] || 0;
@@ -172,41 +206,5 @@ async function renderArmy() {
   `;
 }
 
-// === Save / Load Army ===
-saveArmyBtn.addEventListener('click', () => {
-  localStorage.setItem('savedArmy', JSON.stringify(army));
-  alert('Army saved!');
-});
-
-loadArmyBtn.addEventListener('click', () => {
-  const saved = localStorage.getItem('savedArmy');
-  if (saved) {
-    army = JSON.parse(saved);
-    renderArmy();
-    alert('Army loaded!');
-  }
-});
-
-// === New Army button ===
-newArmyBtn.addEventListener('click', () => {
-  const faction = prompt("Select your faction: Rebels or Imperials").toLowerCase();
-  if (faction === 'rebels' || faction === 'imperials') {
-    selectedFaction = faction;
-    factionSelectEl.value = faction.charAt(0).toUpperCase() + faction.slice(1);
-    army = [];
-    renderArmy();
-    renderUnits();
-    alert(`New army created for ${selectedFaction.charAt(0).toUpperCase() + selectedFaction.slice(1)}!`);
-  } else {
-    alert("Invalid faction. Please choose 'Rebels' or 'Imperials'.");
-  }
-});
-
-// === Reset Army button ===
-resetArmyBtn.addEventListener('click', () => {
-  army = [];
-  renderArmy();
-  alert("Army has been reset.");
-});
-
+// === Initialize page ===
 document.addEventListener('DOMContentLoaded', init);
