@@ -4,10 +4,22 @@ const armyContainerEl = document.getElementById('army-container');
 const searchInput = document.getElementById('search-input');
 const saveArmyBtn = document.getElementById('save-army');
 const loadArmyBtn = document.getElementById('load-army');
+const armySummaryEl = document.getElementById('army-summary'); // Add this div in your HTML
 
 let data = {};
 let currentFaction = null;
 let army = [];
+
+// Legion list-building rules
+const LIST_RULES = {
+  Commander: { min: 1, max: 2 },
+  Operative: { min: 0, max: 2 },
+  Corps: { min: 3, max: 6 },
+  SpecialForces: { min: 0, max: 3 },
+  Support: { min: 0, max: 3 },
+  Heavy: { min: 0, max: 2 },
+};
+const MAX_POINTS = 800;
 
 // Load JSON data
 fetch('units.json')
@@ -18,8 +30,8 @@ fetch('units.json')
     renderUnits();
   });
 
-// Render factions in sidebar
-function renderFactions(){
+// Render factions
+function renderFactions() {
   factionListEl.innerHTML = '';
   data.factions.forEach(f => {
     const btn = document.createElement('button');
@@ -33,26 +45,31 @@ function renderFactions(){
 }
 
 // Render units
-function renderUnits(){
+function renderUnits() {
   unitGridEl.innerHTML = '';
   let units = data.units;
-  if(currentFaction) units = units.filter(u => u.faction === currentFaction);
+  if (currentFaction) units = units.filter(u => u.faction === currentFaction);
   const searchTerm = searchInput.value.toLowerCase();
-  if(searchTerm) units = units.filter(u => u.name.toLowerCase().includes(searchTerm));
+  if (searchTerm) units = units.filter(u => u.name.toLowerCase().includes(searchTerm));
 
   units.forEach(unit => {
     const card = document.createElement('div');
     card.className = 'unit-card';
 
     const img = document.createElement('img');
-    img.src = 'images/placeholder.png'; // placeholder image
+    img.src = 'images/placeholder.png';
     card.appendChild(img);
 
     const name = document.createElement('div');
     name.textContent = `${unit.name} (${unit.points} pts)`;
     card.appendChild(name);
 
-    if(unit.upgrades && unit.upgrades.length > 0){
+    const type = document.createElement('div');
+    type.textContent = `Type: ${unit.type}`;
+    type.className = 'unit-type';
+    card.appendChild(type);
+
+    if (unit.upgrades && unit.upgrades.length > 0) {
       const select = document.createElement('select');
       unit.upgrades.forEach(up => {
         const opt = document.createElement('option');
@@ -74,18 +91,30 @@ function renderUnits(){
 
 searchInput.addEventListener('input', renderUnits);
 
-// Army builder
-function addToArmy(unit){
+// Add unit to army
+function addToArmy(unit) {
   army.push(unit);
   renderArmy();
 }
 
-function renderArmy(){
+// Render army + validation
+function renderArmy() {
   armyContainerEl.innerHTML = '';
+
+  let totalPoints = 0;
+  const counts = {};
+
+  // Count unit types and points
+  army.forEach(u => {
+    totalPoints += u.points;
+    counts[u.type] = (counts[u.type] || 0) + 1;
+  });
+
+  // Display each unit
   army.forEach((unit, index) => {
     const card = document.createElement('div');
     card.className = 'unit-card';
-    card.textContent = `${unit.name} (${unit.points} pts)`;
+    card.innerHTML = `<strong>${unit.name}</strong> (${unit.points} pts) - <em>${unit.type}</em>`;
 
     const removeBtn = document.createElement('button');
     removeBtn.textContent = 'Remove';
@@ -96,16 +125,36 @@ function renderArmy(){
     card.appendChild(removeBtn);
     armyContainerEl.appendChild(card);
   });
+
+  // Validate list-building
+  const errors = [];
+  for (const [type, rule] of Object.entries(LIST_RULES)) {
+    const count = counts[type] || 0;
+    if (count < rule.min) errors.push(`Need at least ${rule.min} ${type}.`);
+    if (count > rule.max) errors.push(`Too many ${type} units (max ${rule.max}).`);
+  }
+  if (totalPoints > MAX_POINTS)
+    errors.push(`Army exceeds ${MAX_POINTS} points (${totalPoints}).`);
+
+  // Summary display
+  armySummaryEl.innerHTML = `
+    <div><strong>Total Points:</strong> ${totalPoints} / ${MAX_POINTS}</div>
+    <div><strong>Composition:</strong></div>
+    <ul>${Object.entries(counts)
+      .map(([type, count]) => `<li>${type}: ${count}</li>`)
+      .join('')}</ul>
+    <div class="errors">${errors.length > 0 ? errors.join('<br>') : '<span style="color:lime;">Valid list</span>'}</div>
+  `;
 }
 
-// Save / Load army
+// Save / Load
 saveArmyBtn.addEventListener('click', () => {
   localStorage.setItem('savedArmy', JSON.stringify(army));
   alert('Army saved!');
 });
 loadArmyBtn.addEventListener('click', () => {
   const saved = localStorage.getItem('savedArmy');
-  if(saved){
+  if (saved) {
     army = JSON.parse(saved);
     renderArmy();
     alert('Army loaded!');
