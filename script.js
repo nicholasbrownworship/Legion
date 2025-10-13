@@ -22,7 +22,7 @@ const LIST_RULES = {
   SpecialForces: { min: 0, max: 3 },
   Support: { min: 0, max: 3 },
   Heavy: { min: 0, max: 2 },
-  Grenades: { min: 0, max: 2 } // Example extra type
+  
 };
 const MAX_POINTS = 1000;
 
