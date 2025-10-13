@@ -1,0 +1,12 @@
+[
+  {
+    "id": "comms_relay",
+    "name": "Comms Relay",
+    "type": "Comms",
+    "points": 5,
+    "factions": ["Rebels", "Imperials"],
+    "restrictions": ["Trooper", "Vehicle"],
+    "text": "When issued an order, may issue that order to another friendly unit at range 1–2.",
+    "isUnique": false
+  }
+]
