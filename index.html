@@ -6,15 +6,24 @@
 <title>Tabletop Admiral Clone</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  /* Top horizontal toolbar */
+  /* Reset and basic layout */
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column; /* stack top toolbar, header, and content */
+    height: 100vh;
+  }
+
+  /* Top horizontal toolbar above header */
   #top-toolbar {
     display: flex;
-    justify-content: center; /* center buttons horizontally */
+    justify-content: center;
     gap: 10px;
     padding: 10px;
     background-color: #111;
     border-bottom: 2px solid #444;
-    width: 100%; /* full width */
+    width: 100%;
     box-sizing: border-box;
   }
 
@@ -30,6 +39,49 @@
 
   #top-toolbar button:hover {
     background-color: #666;
+  }
+
+  header {
+    padding: 10px;
+    background-color: #222;
+    color: #fff;
+    text-align: center;
+  }
+
+  /* Main content layout with sidebar + main area */
+  #content {
+    display: flex;
+    flex: 1;
+    overflow: hidden; /* avoid scroll conflicts */
+  }
+
+  .sidebar {
+    width: 220px; /* fixed sidebar width */
+    background-color: #222;
+    color: #fff;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  main {
+    flex: 1; /* take remaining horizontal space */
+    padding: 10px;
+    overflow-y: auto;
+    background-color: #111;
+    color: #fff;
+  }
+
+  /* Controls inside main (search bar only) */
+  .controls {
+    margin-bottom: 10px;
+  }
+
+  .controls input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
   }
 
   /* Modal styles */
@@ -71,7 +123,7 @@
 </head>
 <body>
 
-<!-- Horizontal top toolbar ABOVE header -->
+<!-- Top toolbar: buttons above header -->
 <div id="top-toolbar">
   <button id="newArmy">New Army</button>
   <button id="resetArmy">Reset</button>
@@ -83,27 +135,30 @@
   <h1>Tabletop Admiral Clone</h1>
 </header>
 
-<aside class="sidebar">
-  <h2>Factions</h2>
-  <div id="faction-list"></div>
-  <div id="army-summary" class="army-summary"></div>
-</aside>
+<!-- Main layout: sidebar + main content -->
+<div id="content">
+  <aside class="sidebar">
+    <h2>Factions</h2>
+    <div id="faction-list"></div>
+    <div id="army-summary" class="army-summary"></div>
+  </aside>
 
-<main>
-  <!-- Controls section: search bar -->
-  <section class="controls">
-    <input type="text" id="search-input" placeholder="Search units...">
-  </section>
+  <main>
+    <!-- Controls section: search bar only -->
+    <section class="controls">
+      <input type="text" id="search-input" placeholder="Search units...">
+    </section>
 
-  <section class="unit-grid" id="unit-grid">
-    <!-- Units dynamically loaded here -->
-  </section>
+    <section class="unit-grid" id="unit-grid">
+      <!-- Units dynamically loaded here -->
+    </section>
 
-  <section class="army-builder">
-    <h2>Your Army</h2>
-    <div id="army-container"></div>
-  </section>
-</main>
+    <section class="army-builder">
+      <h2>Your Army</h2>
+      <div id="army-container"></div>
+    </section>
+  </main>
+</div>
 
 <!-- Modal for faction selection -->
 <div id="factionModal" class="modal">
