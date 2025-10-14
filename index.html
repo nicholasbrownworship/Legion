@@ -2,79 +2,55 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Test New Army Button</title>
-<style>
-  .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); }
-  .modal-content { background:#fff; padding:20px; margin:20% auto; width:300px; text-align:center; }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tabletop Admiral Clone</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<button id="new-army">New Army</button>
+<div id="top-toolbar">
+  <button id="new-army">New Army</button>
+  <button id="reset-army">Reset</button>
+</div>
 
+<header>
+  <h1>Tabletop Admiral Clone</h1>
+</header>
+
+<div id="content">
+  <aside class="sidebar">
+    <h2>Factions</h2>
+    <div id="faction-list"></div>
+    <div id="army-summary" class="army-summary"></div>
+  </aside>
+
+  <main>
+    <section class="controls">
+      <input type="text" id="search-input" placeholder="Search units...">
+    </section>
+
+    <section class="unit-grid" id="unit-grid">
+      <!-- Units dynamically loaded here -->
+    </section>
+
+    <section class="army-builder">
+      <h2>Your Army</h2>
+      <div id="army-container"></div>
+      <button id="save-army">Save Army</button>
+      <button id="load-army">Load Army</button>
+    </section>
+  </main>
+</div>
+
+<!-- Faction modal -->
 <div id="faction-modal" class="modal">
   <div class="modal-content">
-    <h2>Select Faction</h2>
+    <h2>Select a Faction</h2>
     <button data-faction="Rebels">Rebels</button>
     <button data-faction="Imperials">Imperials</button>
   </div>
 </div>
 
-<div id="unit-grid"></div>
-<div id="army-container"></div>
-
-<script>
-const newArmyBtn = document.getElementById('new-army');
-const factionModal = document.getElementById('faction-modal');
-const unitGridEl = document.getElementById('unit-grid');
-const armyContainerEl = document.getElementById('army-container');
-
-let army = [];
-let currentFaction = null;
-
-// Show Faction Modal
-newArmyBtn.addEventListener('click', () => {
-  factionModal.style.display = 'block';
-});
-
-// Faction Buttons
-factionModal.querySelectorAll('button[data-faction]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    currentFaction = btn.dataset.faction;
-    factionModal.style.display = 'none';
-    console.log('Faction selected:', currentFaction);
-    army = [];
-    renderUnits();
-    renderArmy();
-  });
-});
-
-// Dummy Render Units
-function renderUnits() {
-  unitGridEl.innerHTML = '';
-  if (!currentFaction) return;
-  const units = [{name:'Unit 1', points:10},{name:'Unit 2', points:20}];
-  units.forEach(unit => {
-    const card = document.createElement('div');
-    card.innerHTML = `<h3>${unit.name}</h3><p>${unit.points} pts</p><button>Add to Army</button>`;
-    card.querySelector('button').addEventListener('click', () => {
-      army.push(unit);
-      renderArmy();
-    });
-    unitGridEl.appendChild(card);
-  });
-}
-
-// Dummy Render Army
-function renderArmy() {
-  armyContainerEl.innerHTML = '';
-  army.forEach(u => {
-    const div = document.createElement('div');
-    div.textContent = `${u.name} (${u.points} pts)`;
-    armyContainerEl.appendChild(div);
-  });
-}
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
