@@ -6,27 +6,24 @@
     "type": "force",
     "points": 40,
     "factions": ["rebels", "imperials"],
-    "restrictions": ["trooper"],
     "text": ">Choose an enemy Trooper unit within RANGE 1 of this unit. The chosen unit makes a Speed-1 Move, even if it is Engaged. You resolve this Move.",
     "isUnique": false
   },
   {
     "id": "force_reflexes",
     "name": "Force Reflexes",
-    "type": "Force",
+    "type": "force",
     "points": 5,
     "factions": ["rebels", "imperials"],
-    "restrictions": ["trooper"],
     "text": "Gain a dodge token; exhaust after use.",
     "isUnique": false
   },
    {
     "id": "hope",
     "name": "Hope",
-    "type": "Force",
+    "type": "force",
     "points": 10,
     "factions": ["rebels"],
-    "restrictions": ["trooper"],
     "text": "This unit gains INSPIRE 1.",
     "isUnique": false
   }
