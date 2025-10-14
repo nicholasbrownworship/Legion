@@ -14,8 +14,7 @@ const modalFactionButtons = modalContentEl.querySelectorAll('button[data-faction
 let units = [];
 let currentArmy = [];
 let selectedFaction = null;
-
-// Define rank priority for correct ordering
+const upgradesData = {}; // store loaded upgrades by type
 const rankOrder = ["commander", "operative", "corps", "specialforces", "support", "heavy"];
 
 // === Load Unit Data ===
@@ -24,15 +23,30 @@ fetch('data/units.json')
   .then(data => {
     units = data.units;
     console.log("Units loaded:", units);
-    newArmyBtn.disabled = false; // enable New Army button
+    newArmyBtn.disabled = false;
+    loadAllUpgradeFiles();
   })
   .catch(err => console.error('Error loading unit data:', err));
 
-// === Attach modal button click listeners ===
+// === Load all upgrade JSONs dynamically ===
+function loadAllUpgradeFiles() {
+  const types = ["gear", "force", "command"]; // extend this array as needed
+  types.forEach(type => {
+    fetch(`data/upgrades_${type}.json`)
+      .then(res => res.json())
+      .then(data => {
+        upgradesData[type] = data.upgrades;
+        console.log(`Loaded ${type} upgrades`, upgradesData[type]);
+      })
+      .catch(err => console.error(`Error loading upgrades_${type}.json:`, err));
+  });
+}
+
+// === Faction modal selection ===
 modalFactionButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     selectedFaction = btn.dataset.faction;
-    factionModalEl.classList.remove('active'); // hide modal
+    factionModalEl.classList.remove('active'); 
     displayUnits(selectedFaction);
   });
 });
@@ -40,9 +54,9 @@ modalFactionButtons.forEach(btn => {
 // === Display Units for Selected Faction ===
 function displayUnits(faction) {
   unitGridEl.innerHTML = '';
-  const filtered = units.filter(u => u.faction.toLowerCase() === faction.toLowerCase());
-  console.log("Selected faction:", faction);
-  console.log("Units found:", filtered.map(u => u.name));
+  const filtered = units
+    .filter(u => u.faction.toLowerCase() === faction.toLowerCase())
+    .sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
   if (filtered.length === 0) {
     unitGridEl.innerHTML = `<p>No units found for ${capitalize(faction === 'gar' ? 'Republic' : faction)}.</p>`;
@@ -128,17 +142,22 @@ function addUnitToArmy(unit) {
   upgradesDiv.classList.add('unit-upgrades');
   upgradesDiv.style.marginTop = "5px";
 
-  unit.allowedUpgrades.forEach(upg => {
-    const btn = document.createElement('button');
-    btn.classList.add('upgrade-btn');
-    btn.dataset.upgrade = upg;
-    btn.textContent = capitalize(upg);
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('selected');
-      console.log(`Toggled upgrade "${upg}" for ${unit.name}`);
+  if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
+    unit.allowedUpgrades.forEach(upgType => {
+      const availableUpgrades = upgradesData[upgType] || [];
+      availableUpgrades.forEach(upg => {
+        const btn = document.createElement('button');
+        btn.classList.add('upgrade-btn');
+        btn.dataset.upgrade = upg.id;
+        btn.textContent = upg.name;
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('selected');
+          console.log(`Toggled upgrade "${upg.name}" for ${unit.name}`);
+        });
+        upgradesDiv.appendChild(btn);
+      });
     });
-    upgradesDiv.appendChild(btn);
-  });
+  }
 
   infoDiv.appendChild(upgradesDiv);
   unitEl.appendChild(infoDiv);
@@ -185,10 +204,7 @@ function updateArmySummary() {
 }
 
 // === Army Buttons ===
-newArmyBtn.addEventListener('click', () => {
-  factionModalEl.classList.add('active'); // show modal
-});
-
+newArmyBtn.addEventListener('click', () => factionModalEl.classList.add('active'));
 resetArmyBtn.addEventListener('click', () => {
   if (confirm('Clear current army?')) {
     currentArmy = [];
@@ -196,12 +212,10 @@ resetArmyBtn.addEventListener('click', () => {
     updateArmySummary();
   }
 });
-
 saveArmyBtn.addEventListener('click', () => {
   localStorage.setItem('savedArmy', JSON.stringify(currentArmy));
   alert('Army saved!');
 });
-
 loadArmyBtn.addEventListener('click', () => {
   const saved = JSON.parse(localStorage.getItem('savedArmy') || '[]');
   if (!saved.length) return alert('No saved army found!');
