@@ -17,7 +17,7 @@ let currentArmy = [];
 let selectedFaction = null;
 
 // === Load Unit Data ===
-fetch('units.json')
+fetch('data/units.json')
   .then(res => res.json())
   .then(data => {
     units = data.units;
