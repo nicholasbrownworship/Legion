@@ -7,6 +7,7 @@ const newArmyBtn = document.getElementById('new-army');
 const resetArmyBtn = document.getElementById('reset-army');
 const saveArmyBtn = document.getElementById('save-army');
 const loadArmyBtn = document.getElementById('load-army');
+const searchInputEl = document.getElementById('search-input');
 const factionModalEl = document.getElementById('faction-modal');
 
 // === Global Data ===
@@ -19,12 +20,30 @@ fetch('units.json')
   .then(res => res.json())
   .then(data => {
     units = data.units;
-    populateFactionList();
+    populateFactionButtons();
   })
   .catch(err => console.error('Error loading unit data:', err));
 
-// === Populate Faction List ===
-function populateFactionList() {
+// === Faction Modal Functions ===
+newArmyBtn.addEventListener('click', () => {
+  factionModalEl.style.display = 'flex';
+});
+
+function populateFactionButtons() {
+  const modalButtons = factionModalEl.querySelectorAll('button[data-faction]');
+  modalButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedFaction = btn.dataset.faction;
+      factionModalEl.style.display = 'none';
+      displayUnits(selectedFaction);
+      updateFactionList(); // Update sidebar faction buttons
+    });
+  });
+}
+
+// === Populate Sidebar Faction List ===
+function updateFactionList() {
+  factionListEl.innerHTML = '';
   const factions = [...new Set(units.map(u => u.faction))];
   factions.forEach(faction => {
     const btn = document.createElement('button');
@@ -37,11 +56,19 @@ function populateFactionList() {
   });
 }
 
-// === Display Units for Selected Faction ===
+// === Display Units ===
 function displayUnits(faction) {
   unitGridEl.innerHTML = '';
-  const filtered = units.filter(u => u.faction === faction);
-  filtered.forEach(unit => {
+  let filteredUnits = units.filter(u => u.faction === faction);
+
+  const searchTerm = searchInputEl.value.trim().toLowerCase();
+  if (searchTerm) {
+    filteredUnits = filteredUnits.filter(u =>
+      u.name.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  filteredUnits.forEach(unit => {
     const card = document.createElement('div');
     card.classList.add('unit-card');
     card.innerHTML = `
@@ -59,25 +86,30 @@ function displayUnits(faction) {
   });
 }
 
-// === Rank Section Management ===
+// === Search Units ===
+searchInputEl.addEventListener('input', () => {
+  if (selectedFaction) displayUnits(selectedFaction);
+});
+
+// === Army Management Functions ===
 function getOrCreateRankSection(rank) {
-  let rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
-  if (!rankSection) {
-    rankSection = document.createElement('div');
-    rankSection.classList.add('rank-section');
-    rankSection.dataset.rank = rank;
+  let section = document.querySelector(`.rank-section[data-rank="${rank}"]`);
+  if (!section) {
+    section = document.createElement('div');
+    section.classList.add('rank-section');
+    section.dataset.rank = rank;
 
     const header = document.createElement('h3');
     header.textContent = rank;
-    rankSection.appendChild(header);
+    section.appendChild(header);
 
     const list = document.createElement('div');
     list.classList.add('rank-list');
-    rankSection.appendChild(list);
+    section.appendChild(list);
 
-    armyContainerEl.appendChild(rankSection);
+    armyContainerEl.appendChild(section);
   }
-  return rankSection.querySelector('.rank-list');
+  return section.querySelector('.rank-list');
 }
 
 function addUnitToArmy(unit) {
@@ -88,12 +120,12 @@ function addUnitToArmy(unit) {
   unitEl.textContent = `${unit.name} (${unit.points} pts)`;
 
   const removeBtn = document.createElement('button');
-  removeBtn.textContent = '✕';
   removeBtn.classList.add('remove-unit');
+  removeBtn.textContent = '✕';
   removeBtn.addEventListener('click', () => {
     unitEl.remove();
     currentArmy = currentArmy.filter(u => u !== unit);
-    checkEmptyRankSections();
+    removeEmptyRankSections();
     updateArmySummary();
   });
 
@@ -103,42 +135,25 @@ function addUnitToArmy(unit) {
   updateArmySummary();
 }
 
-function checkEmptyRankSections() {
+function removeEmptyRankSections() {
   document.querySelectorAll('.rank-section').forEach(section => {
     const list = section.querySelector('.rank-list');
     if (!list.children.length) section.remove();
   });
 }
 
-// === Update Summary ===
 function updateArmySummary() {
   const totalPoints = currentArmy.reduce((sum, u) => sum + u.points, 0);
   const totalUnits = currentArmy.length;
   armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
 }
 
-// === Modal Handling ===
-function openFactionModal() {
-  factionModalEl.style.display = 'flex';
-}
-
-function closeFactionModal() {
-  factionModalEl.style.display = 'none';
-}
-
-// === Army Management Buttons ===
-newArmyBtn.addEventListener('click', () => {
-  currentArmy = [];
-  armyContainerEl.innerHTML = '';
-  armySummaryEl.textContent = 'Total Units: 0 | Total Points: 0';
-  openFactionModal();
-});
-
+// === Army Buttons ===
 resetArmyBtn.addEventListener('click', () => {
   if (confirm('Clear current army?')) {
     currentArmy = [];
     armyContainerEl.innerHTML = '';
-    armySummaryEl.textContent = 'Total Units: 0 | Total Points: 0';
+    updateArmySummary();
   }
 });
 
@@ -155,11 +170,9 @@ loadArmyBtn.addEventListener('click', () => {
   saved.forEach(unit => addUnitToArmy(unit));
 });
 
-// === Modal Faction Buttons ===
-document.querySelectorAll('#faction-modal button[data-faction]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    selectedFaction = btn.dataset.faction;
-    displayUnits(selectedFaction);
-    closeFactionModal();
-  });
+// === Close Modal if Click Outside ===
+window.addEventListener('click', e => {
+  if (e.target === factionModalEl) {
+    factionModalEl.style.display = 'none';
+  }
 });
