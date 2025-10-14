@@ -1,12 +1,13 @@
 /* === Base Styles === */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f0f0f0;
+  background: linear-gradient(to bottom, #1b1b1b 0%, #2e2e2e 100%);
+  color: #f0f0f0;
 }
 
 /* === Top Toolbar === */
@@ -14,38 +15,37 @@ body {
   display: flex;
   justify-content: center;
   gap: 10px;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   background-color: #111;
-  border-bottom: 2px solid #444;
-  width: 100%;
-  box-sizing: border-box;
+  border-bottom: 2px solid #555;
   z-index: 1000;
-  position: relative;
 }
 
 #top-toolbar button {
-  padding: 8px 16px;
+  padding: 10px 18px;
   cursor: pointer;
   border: none;
-  border-radius: 5px;
-  background-color: #444;
+  border-radius: 6px;
+  background-color: #333;
   color: #fff;
   font-weight: bold;
+  transition: background 0.2s;
 }
 
 #top-toolbar button:hover {
-  background-color: #666;
+  background-color: #555;
 }
 
 /* === Header === */
 header {
   width: 100%;
-  background-color: #222;
-  color: white;
+  background: #222;
+  color: #ffdd57;
   padding: 1rem;
   text-align: center;
-  position: relative;
-  z-index: 10;
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 3px #000;
 }
 
 /* === Layout === */
@@ -58,15 +58,40 @@ header {
 /* === Sidebar === */
 .sidebar {
   width: 220px;
-  background-color: #333;
-  color: white;
+  background-color: #1f1f1f;
+  color: #f0f0f0;
   padding: 1rem;
   box-sizing: border-box;
   overflow-y: auto;
+  border-right: 2px solid #444;
 }
 
 .sidebar h2 {
   margin-top: 0;
+  color: #ffdd57;
+  text-align: center;
+  text-shadow: 0 0 3px #000;
+}
+
+/* === Main Area === */
+main {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* === Search Input === */
+.controls input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background-color: #2e2e2e;
+  color: #fff;
+}
+
+.controls input::placeholder {
+  color: #ccc;
 }
 
 /* === Unit Grid === */
@@ -76,118 +101,134 @@ header {
   gap: 1rem;
 }
 
-/* Unit Cards */
 .unit-card {
-  background-color: white;
-  border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  background-color: #2b2b2b;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: black;
-  cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .unit-card:hover {
   transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.6);
 }
 
 .unit-card img {
   width: 100%;
   height: 100px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 6px;
+  border: 1px solid #444;
+}
+
+.unit-card h3 {
+  margin: 0.5rem 0 0.25rem 0;
+  text-align: center;
+}
+
+.unit-card p {
+  font-size: 0.85rem;
+  margin: 0.25rem 0;
+  text-align: center;
 }
 
 .unit-card button {
   margin-top: 0.5rem;
-  width: 100%;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 6px 12px;
   border: none;
-  background-color: #444;
-  color: white;
+  border-radius: 4px;
+  background-color: #ffdd57;
+  color: #1b1b1b;
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .unit-card button:hover {
-  background-color: #666;
+  background-color: #ffc107;
 }
 
 /* === Army Builder === */
 .army-builder {
   margin-top: 2rem;
-  background-color: #fff;
+  background-color: #2e2e2e;
   padding: 1rem;
-  border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
 }
 
-/* Rank Sections */
-.army-rank-section {
+#army-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
-.army-rank-section h3 {
-  margin: 0 0 0.5rem 0;
-  padding: 4px 8px;
-  background-color: #222;
-  color: white;
-  border-radius: 4px;
-}
-
-/* Army Units */
 .army-unit {
-  background-color: #eee;
-  border-radius: 6px;
+  background-color: #3a3a3a;
+  border-radius: 8px;
   padding: 0.5rem;
   width: 180px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  margin-bottom: 0.5rem;
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.army-unit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
 }
 
 .army-unit img {
   width: 100%;
   height: 80px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 6px;
+  border: 1px solid #555;
 }
 
-.army-unit h4 {
+.army-unit h3 {
   margin: 0.5rem 0 0.25rem 0;
   font-size: 1rem;
   text-align: center;
 }
 
-.army-unit .unit-details {
-  display: none;
+.army-unit p {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+/* === Upgrades === */
+.army-unit .upgrades {
+  width: 100%;
+  display: flex;
   flex-direction: column;
   gap: 0.25rem;
   margin-top: 0.5rem;
 }
 
-.army-unit.expanded .unit-details {
-  display: flex;
-}
-
-.army-unit select {
+.army-unit .upgrades select {
   width: 100%;
-  padding: 4px;
+  padding: 4px 6px;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid #555;
+  background-color: #2b2b2b;
+  color: #fff;
 }
 
+/* Multi-select styling */
+.army-unit .upgrades select[multiple] {
+  height: auto;
+  min-height: 60px;
+}
+
+/* Remove button */
 .army-unit button {
   margin-top: 0.5rem;
   padding: 4px 8px;
@@ -196,15 +237,20 @@ header {
   background-color: #c44;
   color: white;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .army-unit button:hover {
   background-color: #e66;
 }
 
-/* Army Summary */
+/* === Army Summary === */
 .army-summary {
   margin-top: 1rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  background-color: #2a2a2a;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
 }
 
 .army-summary ul {
@@ -213,12 +259,12 @@ header {
 }
 
 .army-summary .errors {
-  color: red;
+  color: #ff6666;
   margin-top: 0.5rem;
   font-size: 0.9rem;
 }
 
-/* Modal */
+/* === Modal === */
 .modal {
   display: none;
   position: fixed;
@@ -228,17 +274,18 @@ header {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.7);
 }
 
 .modal-content {
-  background-color: #222;
-  margin: 15% auto;
+  background-color: #1f1f1f;
+  margin: 10% auto;
   padding: 20px;
   border-radius: 10px;
-  width: 300px;
+  width: 320px;
   text-align: center;
-  color: #fff;
+  color: #ffdd57;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
 }
 
 .modal-content button {
@@ -246,12 +293,13 @@ header {
   padding: 10px 20px;
   cursor: pointer;
   border: none;
-  border-radius: 5px;
-  background-color: #444;
-  color: #fff;
+  border-radius: 6px;
+  background-color: #333;
+  color: #ffdd57;
   font-weight: bold;
+  transition: background 0.2s;
 }
 
 .modal-content button:hover {
-  background-color: #666;
+  background-color: #555;
 }
