@@ -1,4 +1,8 @@
+// === Full Army Builder Script ===
+
+// Wrap only the initialization in DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
+
   // === Global Elements ===
   const unitGridEl = document.getElementById('unit-grid');
   const armyContainerEl = document.getElementById('army-container');
@@ -15,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let units = [];
   let currentArmy = [];
   let selectedFaction = null;
-  const upgradesData = {}; // store loaded upgrades by type
+  const upgradesData = {};
   const rankOrder = ["commander", "operative", "corps", "specialforces", "support", "heavy"];
 
   // === Load all upgrade JSONs dynamically ===
@@ -31,9 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
           upgradesData[type] = data.upgrades || [];
           console.log(`Loaded ${type} upgrades`, upgradesData[type]);
         })
-        .catch(err => {
-          console.debug(`Skipping upgrades_${type}.json: ${err.message}`);
-        });
+        .catch(err => console.debug(`Skipping upgrades_${type}.json: ${err.message}`));
     });
   }
 
@@ -45,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
         units = data.units || [];
         console.log(`Units loaded for ${faction}:`, units);
 
-        // Optional: merge multi-faction units if needed
         fetch('data/units_multi.json')
           .then(res => res.json())
           .then(multiData => {
@@ -136,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return rankSection;
   }
 
+  // === Add Unit ===
   function addUnitToArmy(unit) {
     const armyUnit = JSON.parse(JSON.stringify(unit));
     armyUnit.selectedUpgrades = {};
@@ -352,4 +354,5 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!str) return '';
     return String(str).charAt(0).toUpperCase() + String(str).slice(1);
   }
+
 });
