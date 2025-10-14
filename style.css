@@ -225,7 +225,7 @@ main {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  background: #0099bb; /* solid cyan for upgrade type */
+  background: linear-gradient(90deg, #00a6c8, #007b9e);
   border: 1px solid #00fff2;
   color: #ffffff;
   font-family: 'Orbitron', sans-serif;
@@ -247,14 +247,14 @@ main {
 .upgrade-type-btn .arrow {
   display: inline-block;
   transition: transform 0.3s ease;
-  color: #00e5ff;
+  color: #fff;
 }
 
 .upgrade-type-btn.active .arrow {
   transform: rotate(90deg);
 }
 
-/* === FIXED UPGRADE DROPDOWN OPTIONS === */
+/* === Dropdown Options === */
 .upgrade-menu {
   max-height: 0;
   overflow: hidden;
@@ -262,10 +262,10 @@ main {
   opacity: 0;
   margin-left: 6px;
   padding-left: 6px;
-  background: #001f35; /* dark solid background for visibility */
+  background: rgba(0, 20, 40, 0.95);
   border-left: 2px solid #00fff2;
   border-radius: 0 6px 6px 0;
-  box-shadow: 0 0 8px rgba(0,255,242,0.4);
+  box-shadow: 0 0 10px rgba(0,255,242,0.4);
 }
 
 .upgrade-menu.show {
@@ -273,13 +273,14 @@ main {
   opacity: 1;
 }
 
+/* === Individual Upgrade Buttons === */
 .upgrade-btn {
   display: block;
   width: 100%;
-  background: #004466; /* solid dark for contrast */
+  background: linear-gradient(90deg, #002a3d, #003a50);
   border: 1px solid #00fff2;
-  color: #ffffff; /* bright text for readability */
-  padding: 6px 10px;
+  color: #e8faff;
+  padding: 8px 10px;
   margin: 4px 0;
   border-radius: 4px;
   text-align: left;
@@ -290,8 +291,9 @@ main {
 }
 
 .upgrade-btn:hover {
-  background: #00ffff; /* neon cyan highlight */
+  background: #00ffff;
   color: #000;
+  text-shadow: 0 0 4px #00fff2;
 }
 
 .upgrade-btn.selected {
