@@ -67,8 +67,11 @@
       "max": 2,
       "rank": "commander",
       "unitType": "trooper",
-      "allowedUpgrades": ["force", "force", "force", "command"],
+      "allowedUpgrades": ["force", "command"],
       "restrictions": [],
+      "upgradeSlots": {3
+        "force": 3
+      },
       "keywords": ["trooper", "force user"],
       "image": "images/imperials/darth_vader.png"
     },
