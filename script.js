@@ -243,12 +243,32 @@ function renderArmy() {
 }
 
 // === Buttons ===
-newArmyBtn.addEventListener('click', showFactionModal);
+// === New Army button fix ===
+document.addEventListener('DOMContentLoaded', () => {
+  const newArmyBtn = document.getElementById('new-army');
+  const resetArmyBtn = document.getElementById('reset-army');
+  const factionModal = document.getElementById('faction-modal');
 
-resetArmyBtn.addEventListener('click', () => {
-  army = [];
-  renderArmy();
+  newArmyBtn.addEventListener('click', () => {
+    factionModal.style.display = 'block';
+  });
+
+  resetArmyBtn.addEventListener('click', () => {
+    army = [];
+    renderArmy();
+  });
+
+  factionModal.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentFaction = btn.dataset.faction.toLowerCase();
+      army = [];
+      factionModal.style.display = 'none';
+      renderUnits();
+      renderArmy();
+    });
+  });
 });
+
 
 saveArmyBtn.addEventListener('click', () => {
   localStorage.setItem('savedArmy', JSON.stringify({ faction: currentFaction, army }));
