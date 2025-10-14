@@ -1,5 +1,5 @@
 {
-  "factions": ["rebels", "imperials"],
+  "factions": ["rebels", "imperials", "cis", "gar"],
 
   "units": [
     {
