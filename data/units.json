@@ -69,7 +69,7 @@
       "unitType": "trooper",
       "allowedUpgrades": ["force", "command"],
       "restrictions": [],
-      "upgradeSlots": {3
+      "upgradeSlots": {
         "force": 3
       },
       "keywords": ["trooper", "force user"],
