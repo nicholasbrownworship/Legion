@@ -69,7 +69,7 @@
       "unitType": "force user",
       "allowedUpgrades": ["force", "command", "gear", "training"],
       "restrictions": [],
-      "keywords": ["force user", "melee"],
+      "keywords": ["force user", "trooper"],
       "image": "images/imperials/darth_vader.png"
     },
     {
@@ -83,7 +83,7 @@
       "unitType": "force user",
       "allowedUpgrades": ["force", "gear", "comamand", "training"],
       "restrictions": [],
-      "keywords": ["force user", "melee"],
+      "keywords": ["force user", "trooper"],
       "image": "images/rebels/luke_skywalker.png"
     }
   ]
