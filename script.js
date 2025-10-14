@@ -19,23 +19,22 @@ fetch('units.json')
   .then(res => res.json())
   .then(data => {
     units = data.units;
-    populateFactionList(); // populate sidebar faction buttons
+    populateSidebarFactionList();
   })
   .catch(err => console.error('Error loading unit data:', err));
 
-// === Modal Buttons Functionality ===
-const modalButtons = factionModalEl.querySelectorAll('button[data-faction]');
-modalButtons.forEach(btn => {
+// === Modal Functionality ===
+const modalFactionButtons = factionModalEl.querySelectorAll('button[data-faction]');
+modalFactionButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     selectedFaction = btn.dataset.faction;
     factionModalEl.style.display = 'none';
     displayUnits(selectedFaction);
-    updateFactionList(); // highlight or refresh sidebar if needed
   });
 });
 
-// === Populate Sidebar Faction List ===
-function populateFactionList() {
+// === Sidebar Faction Buttons ===
+function populateSidebarFactionList() {
   const factions = [...new Set(units.map(u => u.faction))];
   factionListEl.innerHTML = '';
   factions.forEach(faction => {
@@ -58,18 +57,20 @@ function displayUnits(faction) {
     card.classList.add('unit-card');
     card.innerHTML = `
       <h4>${unit.name}</h4>
-      <p>${unit.rank}</p>
-      <p>${unit.points} pts</p>
+      <p>Rank: ${unit.rank}</p>
+      <p>Points: ${unit.points}</p>
       <button class="add-unit">Add</button>
     `;
+
     card.querySelector('.add-unit').addEventListener('click', () => {
       addUnitToArmy(unit);
     });
+
     unitGridEl.appendChild(card);
   });
 }
 
-// === Rank Section Management ===
+// === Army Management ===
 function getOrCreateRankSection(rank) {
   let rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
   if (!rankSection) {
@@ -78,7 +79,7 @@ function getOrCreateRankSection(rank) {
     rankSection.dataset.rank = rank;
 
     const header = document.createElement('h3');
-    header.textContent = rank;
+    header.textContent = `${rank} (0)`; // count included
     rankSection.appendChild(header);
 
     const list = document.createElement('div');
@@ -87,12 +88,17 @@ function getOrCreateRankSection(rank) {
 
     armyContainerEl.appendChild(rankSection);
   }
-  return rankSection.querySelector('.rank-list');
+  return rankSection;
 }
 
 function addUnitToArmy(unit) {
-  const rankList = getOrCreateRankSection(unit.rank);
+  currentArmy.push(unit);
 
+  // Get or create rank section
+  const rankSection = getOrCreateRankSection(unit.rank);
+  const rankList = rankSection.querySelector('.rank-list');
+
+  // Create unit element
   const unitEl = document.createElement('div');
   unitEl.classList.add('army-unit');
   unitEl.textContent = `${unit.name} (${unit.points} pts)`;
@@ -101,16 +107,26 @@ function addUnitToArmy(unit) {
   removeBtn.textContent = '✕';
   removeBtn.classList.add('remove-unit');
   removeBtn.addEventListener('click', () => {
-    unitEl.remove();
     currentArmy = currentArmy.filter(u => u !== unit);
+    unitEl.remove();
+    updateRankCount(unit.rank);
     checkEmptyRankSections();
     updateArmySummary();
   });
 
   unitEl.appendChild(removeBtn);
   rankList.appendChild(unitEl);
-  currentArmy.push(unit);
+
+  updateRankCount(unit.rank);
   updateArmySummary();
+}
+
+// === Update Rank Counts ===
+function updateRankCount(rank) {
+  const rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
+  if (!rankSection) return;
+  const count = currentArmy.filter(u => u.rank === rank).length;
+  rankSection.querySelector('h3').textContent = `${rank} (${count})`;
 }
 
 function checkEmptyRankSections() {
@@ -120,14 +136,14 @@ function checkEmptyRankSections() {
   });
 }
 
-// === Update Summary ===
+// === Update Army Summary ===
 function updateArmySummary() {
-  const totalPoints = currentArmy.reduce((sum, u) => sum + u.points, 0);
   const totalUnits = currentArmy.length;
+  const totalPoints = currentArmy.reduce((sum, u) => sum + u.points, 0);
   armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
 }
 
-// === Army Management Buttons ===
+// === Army Buttons ===
 newArmyBtn.addEventListener('click', () => {
   factionModalEl.style.display = 'flex'; // show modal
 });
@@ -136,7 +152,7 @@ resetArmyBtn.addEventListener('click', () => {
   if (confirm('Clear current army?')) {
     currentArmy = [];
     armyContainerEl.innerHTML = '';
-    armySummaryEl.textContent = 'Total Units: 0 | Total Points: 0';
+    updateArmySummary();
   }
 });
 
@@ -153,9 +169,7 @@ loadArmyBtn.addEventListener('click', () => {
   saved.forEach(unit => addUnitToArmy(unit));
 });
 
-// === Optional: Close Modal on Outside Click ===
-window.addEventListener('click', (e) => {
-  if (e.target === factionModalEl) {
-    factionModalEl.style.display = 'none';
-  }
+// === Close Modal on Outside Click ===
+window.addEventListener('click', e => {
+  if (e.target === factionModalEl) factionModalEl.style.display = 'none';
 });
