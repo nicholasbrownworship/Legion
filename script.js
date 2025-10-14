@@ -58,7 +58,7 @@ function displayUnits(faction) {
     .filter(u => u.faction.toLowerCase() === faction.toLowerCase())
     .sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
-  if (!filtered.length) {
+  if (filtered.length === 0) {
     unitGridEl.innerHTML = `<p>No units found for ${capitalize(faction === 'gar' ? 'Republic' : faction)}.</p>`;
     return;
   }
@@ -110,8 +110,9 @@ function getOrCreateRankSection(rank) {
 }
 
 function addUnitToArmy(unit) {
-  const armyUnit = JSON.parse(JSON.stringify(unit)); // deep copy to store upgrades per instance
-  armyUnit.selectedUpgrades = {}; 
+  const armyUnit = JSON.parse(JSON.stringify(unit)); // deep copy
+  armyUnit.selectedUpgrades = {};
+  armyUnit.currentPoints = armyUnit.points;
   currentArmy.push(armyUnit);
 
   const rankSection = getOrCreateRankSection(armyUnit.rank);
@@ -136,7 +137,7 @@ function addUnitToArmy(unit) {
   infoDiv.style.verticalAlign = "top";
 
   const namePts = document.createElement('span');
-  namePts.textContent = `${armyUnit.name} (${armyUnit.points} pts)`;
+  namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
   infoDiv.appendChild(namePts);
 
   // Upgrades container
@@ -144,12 +145,19 @@ function addUnitToArmy(unit) {
   upgradesContainer.classList.add('unit-upgrades');
   upgradesContainer.style.marginTop = "5px";
 
+  // Upgrade images container
+  const upgradeImagesDiv = document.createElement('div');
+  upgradeImagesDiv.classList.add('upgrade-images');
+  upgradeImagesDiv.style.marginTop = "5px";
+  upgradeImagesDiv.style.display = "flex";
+  upgradeImagesDiv.style.flexWrap = "wrap";
+  infoDiv.appendChild(upgradeImagesDiv);
+
   if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
     armyUnit.allowedUpgrades.forEach(upgType => {
       const upgradeSection = document.createElement('div');
       upgradeSection.classList.add('upgrade-section');
 
-      // Header to toggle dropdown
       const header = document.createElement('div');
       header.textContent = capitalize(upgType);
       header.classList.add('upgrade-header');
@@ -171,18 +179,36 @@ function addUnitToArmy(unit) {
         const btn = document.createElement('button');
         btn.classList.add('upgrade-btn');
         btn.dataset.upgrade = upg.id;
-        btn.textContent = upg.name;
+        btn.textContent = `${upg.name} (+${upg.points} pts)`;
+
         btn.addEventListener('click', () => {
           armyUnit.selectedUpgrades[upgType] = armyUnit.selectedUpgrades[upgType] || new Set();
-          if (armyUnit.selectedUpgrades[upgType].has(upg.id)) {
+          const isSelected = armyUnit.selectedUpgrades[upgType].has(upg.id);
+
+          if (isSelected) {
             armyUnit.selectedUpgrades[upgType].delete(upg.id);
+            armyUnit.currentPoints -= upg.points;
             btn.classList.remove('selected');
+            const imgEl = upgradeImagesDiv.querySelector(`img[data-upgrade="${upg.id}"]`);
+            if (imgEl) upgradeImagesDiv.removeChild(imgEl);
           } else {
             armyUnit.selectedUpgrades[upgType].add(upg.id);
+            armyUnit.currentPoints += upg.points;
             btn.classList.add('selected');
+            const upgImg = document.createElement('img');
+            upgImg.src = upg.image || ''; // placeholder, set in JSON
+            upgImg.alt = upg.name;
+            upgImg.dataset.upgrade = upg.id;
+            upgImg.style.width = "30px";
+            upgImg.style.height = "30px";
+            upgImg.style.marginRight = "5px";
+            upgradeImagesDiv.appendChild(upgImg);
           }
-          console.log(`Unit ${armyUnit.name} upgrades:`, armyUnit.selectedUpgrades);
+
+          namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
+          updateArmySummary();
         });
+
         menu.appendChild(btn);
       });
 
@@ -195,7 +221,6 @@ function addUnitToArmy(unit) {
   infoDiv.appendChild(upgradesContainer);
   unitEl.appendChild(infoDiv);
 
-  // Remove button
   const removeBtn = document.createElement('button');
   removeBtn.textContent = '✕';
   removeBtn.classList.add('remove-unit');
@@ -232,7 +257,7 @@ function checkEmptyRankSections() {
 
 function updateArmySummary() {
   const totalUnits = currentArmy.length;
-  const totalPoints = currentArmy.reduce((sum, u) => sum + u.points, 0);
+  const totalPoints = currentArmy.reduce((sum, u) => sum + u.currentPoints, 0);
   armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
 }
 
