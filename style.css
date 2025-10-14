@@ -66,6 +66,7 @@ button {
   border-radius: 4px;
   text-shadow: 0 0 4px #00fff2;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 button:hover {
@@ -273,7 +274,6 @@ main {
   opacity: 1;
 }
 
-/* === Individual Upgrade Buttons === */
 .upgrade-btn {
   display: block;
   width: 100%;
@@ -336,6 +336,7 @@ main {
   text-align: center;
   box-shadow: 0 0 20px #00fff2;
   animation: fadeIn 0.3s ease;
+  color: #d0f0ff;
 }
 
 .modal-content h2 {
@@ -349,12 +350,21 @@ main {
   margin: 10px;
   min-width: 120px;
   background: rgba(0, 255, 242, 0.15);
+  border: 1px solid #00fff2;
+  color: #00fff2;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  padding: 6px 10px;
+  border-radius: 4px;
+  text-shadow: 0 0 4px #00fff2;
+  transition: all 0.2s ease;
 }
 
 .modal-content button:hover {
   background: #00f0ff;
   color: #000;
   box-shadow: 0 0 10px #00f0ff;
+  transform: scale(1.05);
 }
 
 /* === Animations === */
