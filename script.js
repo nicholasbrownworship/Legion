@@ -74,12 +74,10 @@ function filterUpgrades(unit, typeKey) {
   return allOfType.filter(up => {
     const upgradeFactions = (up.factions || []).map(f => f.toLowerCase());
     const upgradeRestrictions = (up.restrictions || []).map(r => r.toLowerCase());
-
     const factionOK = upgradeFactions.length === 0 || upgradeFactions.includes(unitFaction);
     const restrictionOK =
       upgradeRestrictions.length === 0 ||
       upgradeRestrictions.some(r => r === unitRank || r === unitType);
-
     return factionOK && restrictionOK;
   });
 }
@@ -87,14 +85,13 @@ function filterUpgrades(unit, typeKey) {
 // === Initialization ===
 async function init() {
   try {
-    // Load units
     const unitData = await loadJSON('data/units.json');
     allUnits = (unitData.units || []).map(u => ({
       ...u,
-      unitType: u.keywords?.[0]?.toLowerCase() || ''
+      unitType: u.keywords?.[0]?.toLowerCase() || '',
+      upgradeSlots: u.upgradeSlots || {} // allows specifying multiple slots per upgrade type
     }));
 
-    // Load upgrades
     for (const [typeKey, file] of Object.entries(upgradeFileMap)) {
       try {
         const data = await loadJSON(`data/${file}`);
@@ -133,7 +130,6 @@ factionModal.querySelectorAll('button').forEach(btn => {
 function renderUnits() {
   if (!currentFaction) return;
   const units = allUnits.filter(u => u.faction.toLowerCase() === currentFaction);
-
   unitGridEl.innerHTML = '';
   units.forEach(unit => {
     const card = document.createElement('div');
@@ -154,59 +150,12 @@ function addUnitToArmy(unit) {
   const unitCopy = { ...unit, selectedUpgrades: {} };
   if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
     unit.allowedUpgrades.forEach(typeKey => {
-      const filtered = filterUpgrades(unitCopy, typeKey.toLowerCase());
-      unitCopy.selectedUpgrades[typeKey] = filtered.length ? '' : '';
+      const maxSlots = unit.upgradeSlots?.[typeKey] || 1;
+      unitCopy.selectedUpgrades[typeKey] = Array(maxSlots).fill('');
     });
   }
   army.push(unitCopy);
   renderArmy();
-}
-
-// === Helper to create unit element ===
-function createArmyUnitElement(unit, index) {
-  const unitDiv = document.createElement('div');
-  unitDiv.className = 'army-unit';
-
-  const header = document.createElement('div');
-  header.className = 'unit-header';
-  header.innerHTML = `<h4>${unit.name} (${unit.points} pts)</h4>`;
-  unitDiv.appendChild(header);
-
-  const details = document.createElement('div');
-  details.className = 'unit-details';
-
-  if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
-    unit.allowedUpgrades.forEach(typeKey => {
-      const filtered = filterUpgrades(unit, typeKey.toLowerCase());
-      const select = document.createElement('select');
-      select.innerHTML = `<option value="">Select ${typeKey}</option>`;
-      filtered.forEach(upg => {
-        const opt = document.createElement('option');
-        opt.value = upg.name;
-        opt.textContent = `${upg.name} (${upg.points || 0} pts)`;
-        if (unit.selectedUpgrades[typeKey] === upg.name) opt.selected = true;
-        select.appendChild(opt);
-      });
-      select.addEventListener('change', e => {
-        army[index].selectedUpgrades[typeKey] = e.target.value;
-        renderArmy();
-      });
-      details.appendChild(select);
-    });
-  }
-
-  header.addEventListener('click', () => unitDiv.classList.toggle('expanded'));
-
-  const removeBtn = document.createElement('button');
-  removeBtn.textContent = 'Remove';
-  removeBtn.addEventListener('click', () => {
-    army.splice(index, 1);
-    renderArmy();
-  });
-  unitDiv.appendChild(details);
-  unitDiv.appendChild(removeBtn);
-
-  return unitDiv;
 }
 
 // === Render Army ===
@@ -235,15 +184,11 @@ function renderArmy() {
       unit.allowedUpgrades.forEach(typeKey => {
         const filteredUpgrades = filterUpgrades(unit, typeKey.toLowerCase());
         const selectedArray = unit.selectedUpgrades[typeKey] || [];
-
-        // Determine how many slots we should render for this upgrade type
         const maxSlots = unit.upgradeSlots?.[typeKey] || 1;
 
         for (let slot = 0; slot < maxSlots; slot++) {
           const select = document.createElement('select');
           select.innerHTML = `<option value="">Select ${typeKey} ${slot + 1}</option>`;
-
-          // Only include upgrades not already selected in other slots
           filteredUpgrades.forEach(upg => {
             if (!selectedArray.includes(upg.name)) {
               const opt = document.createElement('option');
@@ -252,23 +197,14 @@ function renderArmy() {
               select.appendChild(opt);
             }
           });
-
-          // Set the current value if one is selected
           if (selectedArray[slot]) select.value = selectedArray[slot];
-
           select.addEventListener('change', e => {
-            const val = e.target.value;
-
-            // Update selected upgrades array
             if (!unit.selectedUpgrades[typeKey]) unit.selectedUpgrades[typeKey] = [];
-            unit.selectedUpgrades[typeKey][slot] = val;
-
-            renderArmy(); // re-render to update points and filter other dropdowns
+            unit.selectedUpgrades[typeKey][slot] = e.target.value;
+            renderArmy();
           });
-
           upgradeContainer.appendChild(select);
 
-          // Add points for already selected upgrade
           const selectedUpgrade = filteredUpgrades.find(u => u.name === selectedArray[slot]);
           if (selectedUpgrade) totalPoints += selectedUpgrade.points || 0;
         }
@@ -304,8 +240,6 @@ function renderArmy() {
     <div class="errors">${errors.length ? errors.join('<br>') : '<span style="color:lime;">Valid list</span>'}</div>
   `;
 }
-
-
 
 // === Buttons ===
 newArmyBtn.addEventListener('click', showFactionModal);
