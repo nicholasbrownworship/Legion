@@ -26,7 +26,33 @@
     "factions": ["rebels"],
     "text": "This unit gains INSPIRE 1.",
     "isUnique": false
-  }
+  },
+    {
+      "id": "anger",
+      "name": "Anger",
+      "type": "force",
+      "points": 3,
+      "factions": ["imperials"],
+      "text": "When this unit suffers 1 or more Wounds, after the effect is reolved, it gains 1 Aim Token.",
+      "isUnique": false
+    },
+    {
+      "id": "burst_of_speed",
+      "name": "Burst of Speed",
+      "type": "force",
+      "points": 10,
+      "factions": ["rebels", "imperials"],
+      "text": "At the start of this unit's Activation, you may EXPEND this card to treat this unit's maximum Speed as 3 until the end of the Round. If you do, during the End Phase, this unit gains 1 Immobilize token.",
+      "isUnique": false
+    },
+    {
+      "id": "fear",
+      "name": "Fear",
+      "type": "force",
+      "points": 3,
+      "factions": ["imperials"],
+      "text": "This unit gains Demoralize 1.",
+      "isUnique": false
 ]
 }
 
