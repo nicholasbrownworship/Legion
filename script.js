@@ -1,6 +1,5 @@
-// === Full Army Builder Script ===
+// === Full Army Builder Script with Faction Display Names ===
 
-// Wrap only the initialization in DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
 
   // === Global Elements ===
@@ -21,6 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
   let selectedFaction = null;
   const upgradesData = {};
   const rankOrder = ["commander", "operative", "corps", "specialforces", "support", "heavy"];
+
+  // Faction display mapping
+  const factionDisplayNames = {
+    rebels: "Rebels",
+    imperials: "Imperials",
+    cis: "CIS",
+    gar: "Republic"
+  };
 
   // === Load all upgrade JSONs dynamically ===
   function loadAllUpgradeFiles() {
@@ -82,8 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
       .filter(u => Array.isArray(u.faction) ? u.faction.includes(faction) : u.faction.toLowerCase() === faction.toLowerCase())
       .sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
+    const displayName = factionDisplayNames[faction] || capitalize(faction);
+
     if (filtered.length === 0) {
-      unitGridEl.innerHTML = `<p>No units found for ${capitalize(faction === 'gar' ? 'Republic' : faction)}.</p>`;
+      unitGridEl.innerHTML = `<p>No units found for ${displayName}.</p>`;
       return;
     }
 
