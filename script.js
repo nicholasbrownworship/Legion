@@ -94,7 +94,6 @@ function getOrCreateRankSection(rank) {
     list.classList.add('rank-list');
     rankSection.appendChild(list);
 
-    // Insert rankSection in correct order
     const rankIndex = rankOrder.indexOf(rank);
     let inserted = false;
     document.querySelectorAll('.rank-section').forEach(section => {
@@ -111,7 +110,7 @@ function getOrCreateRankSection(rank) {
 
 function addUnitToArmy(unit) {
   const armyUnit = JSON.parse(JSON.stringify(unit)); // deep copy
-  armyUnit.selectedUpgrades = {};
+  armyUnit.selectedUpgrades = {}; // one per upgrade type
   armyUnit.currentPoints = armyUnit.points;
   currentArmy.push(armyUnit);
 
@@ -121,7 +120,6 @@ function addUnitToArmy(unit) {
   const unitEl = document.createElement('div');
   unitEl.classList.add('army-unit');
 
-  // Unit image
   const img = document.createElement('img');
   img.src = armyUnit.image;
   img.alt = armyUnit.name;
@@ -130,7 +128,6 @@ function addUnitToArmy(unit) {
   img.style.marginRight = "10px";
   unitEl.appendChild(img);
 
-  // Info container
   const infoDiv = document.createElement('div');
   infoDiv.classList.add('unit-info');
   infoDiv.style.display = "inline-block";
@@ -140,12 +137,10 @@ function addUnitToArmy(unit) {
   namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
   infoDiv.appendChild(namePts);
 
-  // Upgrades container
   const upgradesContainer = document.createElement('div');
   upgradesContainer.classList.add('unit-upgrades');
   upgradesContainer.style.marginTop = "5px";
 
-  // Upgrade images container
   const upgradeImagesDiv = document.createElement('div');
   upgradeImagesDiv.classList.add('upgrade-images');
   upgradeImagesDiv.style.marginTop = "5px";
@@ -182,28 +177,30 @@ function addUnitToArmy(unit) {
         btn.textContent = `${upg.name} (+${upg.points} pts)`;
 
         btn.addEventListener('click', () => {
-          armyUnit.selectedUpgrades[upgType] = armyUnit.selectedUpgrades[upgType] || new Set();
-          const isSelected = armyUnit.selectedUpgrades[upgType].has(upg.id);
-
-          if (isSelected) {
-            armyUnit.selectedUpgrades[upgType].delete(upg.id);
-            armyUnit.currentPoints -= upg.points;
-            btn.classList.remove('selected');
-            const imgEl = upgradeImagesDiv.querySelector(`img[data-upgrade="${upg.id}"]`);
-            if (imgEl) upgradeImagesDiv.removeChild(imgEl);
-          } else {
-            armyUnit.selectedUpgrades[upgType].add(upg.id);
-            armyUnit.currentPoints += upg.points;
-            btn.classList.add('selected');
-            const upgImg = document.createElement('img');
-            upgImg.src = upg.image || ''; // placeholder, set in JSON
-            upgImg.alt = upg.name;
-            upgImg.dataset.upgrade = upg.id;
-            upgImg.style.width = "30px";
-            upgImg.style.height = "30px";
-            upgImg.style.marginRight = "5px";
-            upgradeImagesDiv.appendChild(upgImg);
+          // deselect previous upgrade of this type
+          const prevId = armyUnit.selectedUpgrades[upgType];
+          if (prevId) {
+            const prevBtn = menu.querySelector(`button[data-upgrade="${prevId}"]`);
+            if (prevBtn) prevBtn.classList.remove('selected');
+            const prevImg = upgradeImagesDiv.querySelector(`img[data-upgrade="${prevId}"]`);
+            if (prevImg) upgradeImagesDiv.removeChild(prevImg);
+            const prevUpgrade = availableUpgrades.find(u => u.id === prevId);
+            if (prevUpgrade) armyUnit.currentPoints -= prevUpgrade.points;
           }
+
+          // select new upgrade
+          armyUnit.selectedUpgrades[upgType] = upg.id;
+          armyUnit.currentPoints += upg.points;
+          btn.classList.add('selected');
+
+          const upgImg = document.createElement('img');
+          upgImg.src = upg.image || ''; // placeholder, set in JSON
+          upgImg.alt = upg.name;
+          upgImg.dataset.upgrade = upg.id;
+          upgImg.style.width = "30px";
+          upgImg.style.height = "30px";
+          upgImg.style.marginRight = "5px";
+          upgradeImagesDiv.appendChild(upgImg);
 
           namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
           updateArmySummary();
