@@ -1,23 +1,35 @@
-[
+{
+  "upgrades": [
   {
     "id": "force_push",
     "name": "Force Push",
-    "type": "Force",
-    "points": 10,
+    "type": "force",
+    "points": 40,
     "factions": ["Rebels", "Imperials"],
     "restrictions": ["Force User"],
-    "text": "After you perform a move, choose an enemy trooper at range 1 and push it.",
+    "text": ">Choose an enemy Trooper unit within RANGE 1 of this unit. The chosen unit makes a Speed-1 Move, even if it is Engaged. You resolve this Move.",
     "isUnique": false
   },
   {
     "id": "force_reflexes",
     "name": "Force Reflexes",
     "type": "Force",
-    "points": 10,
+    "points": 5,
     "factions": ["Rebels", "Imperials"],
     "restrictions": ["Force User"],
     "text": "Gain a dodge token; exhaust after use.",
     "isUnique": false
-  }
+  },
+   {
+    "id": "hope",
+    "name": "Hope",
+    "type": "Force",
+    "points": 10,
+    "factions": ["Rebels"],
+    "restrictions": ["Force User"],
+    "text": "This unit gains INSPIRE 1.",
+    "isUnique": false
+  },
 ]
+}
 
