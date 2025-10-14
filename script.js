@@ -3,255 +3,143 @@ const factionListEl = document.getElementById('faction-list');
 const unitGridEl = document.getElementById('unit-grid');
 const armyContainerEl = document.getElementById('army-container');
 const armySummaryEl = document.getElementById('army-summary');
-const saveArmyBtn = document.getElementById('save-army');
-const loadArmyBtn = document.getElementById('load-army');
 const newArmyBtn = document.getElementById('new-army');
 const resetArmyBtn = document.getElementById('reset-army');
-const factionModal = document.getElementById('faction-modal');
+const saveArmyBtn = document.getElementById('save-army');
+const loadArmyBtn = document.getElementById('load-army');
 
-// === Global Variables ===
-let allUnits = [];
-let allUpgrades = {};
-let army = [];
-let currentFaction = null;
-let initComplete = false;
+// === Global Data ===
+let units = [];
+let currentArmy = [];
+let selectedFaction = null;
 
-// === Army Rules ===
-const LIST_RULES = {
-  commander: { min: 1, max: 2 },
-  operative: { min: 0, max: 2 },
-  corps: { min: 3, max: 6 },
-  specialforces: { min: 0, max: 3 },
-  support: { min: 0, max: 3 },
-  heavy: { min: 0, max: 2 },
-};
-const MAX_POINTS = 1000;
+// === Load Unit Data ===
+fetch('units.json')
+  .then(res => res.json())
+  .then(data => {
+    units = data.units;
+    populateFactionList();
+  })
+  .catch(err => console.error('Error loading unit data:', err));
 
-// === Upgrade Files ===
-const upgradeFileMap = {
-  armament: 'upgrades_armament.json',
-  command: 'upgrades_command.json',
-  crew: 'upgrades_crew.json',
-  gear: 'upgrades_gear.json',
-  force: 'upgrades_force.json',
-  comms: 'upgrades_comms.json',
-  generator: 'upgrades_generator.json',
-  hardpoint: 'upgrades_hardpoint.json',
-  ordnance: 'upgrades_ordnance.json',
-  personnel: 'upgrades_personnel.json',
-  pilot: 'upgrades_pilot.json',
-  protocol: 'upgrades_protocol.json',
-  training: 'upgrades_training.json',
-  grenades: 'upgrades_grenades.json',
-  heavyweapon: 'upgrades_heavyweapon.json'
-};
-
-// === JSON Loader ===
-async function loadJSON(path) {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`Failed to load ${path}`);
-  return await res.json();
-}
-
-// === Normalize Upgrades ===
-function normalizeUpgrades(upgrades, typeKey) {
-  return (upgrades || []).map(up => ({
-    ...up,
-    typeKey: typeKey.toLowerCase(),
-    type: typeKey.toLowerCase(),
-    factions: (up.factions || []).map(f => f.toLowerCase()),
-    restrictions: (up.restrictions || []).map(r => r.toLowerCase())
-  }));
-}
-
-// === Filter upgrades for a unit ===
-function filterUpgrades(unit, typeKey) {
-  const allOfType = allUpgrades[typeKey] || [];
-  const unitFaction = unit.faction.toLowerCase();
-  const unitRank = unit.rank.toLowerCase();
-  const unitType = unit.unitType?.toLowerCase();
-
-  return allOfType.filter(up => {
-    const upgradeFactions = (up.factions || []).map(f => f.toLowerCase());
-    const upgradeRestrictions = (up.restrictions || []).map(r => r.toLowerCase());
-    const factionOK = upgradeFactions.length === 0 || upgradeFactions.includes(unitFaction);
-    const restrictionOK =
-      upgradeRestrictions.length === 0 ||
-      upgradeRestrictions.some(r => r === unitRank || r === unitType);
-    return factionOK && restrictionOK;
+// === Populate Faction List ===
+function populateFactionList() {
+  const factions = [...new Set(units.map(u => u.faction))];
+  factions.forEach(faction => {
+    const btn = document.createElement('button');
+    btn.textContent = faction;
+    btn.addEventListener('click', () => {
+      selectedFaction = faction;
+      displayUnits(faction);
+    });
+    factionListEl.appendChild(btn);
   });
 }
 
-// === Initialization ===
-async function init() {
-  try {
-    const unitData = await loadJSON('data/units.json');
-    allUnits = (unitData.units || []).map(u => ({
-      ...u,
-      unitType: u.keywords?.[0]?.toLowerCase() || ''
-    }));
-
-    for (const [typeKey, file] of Object.entries(upgradeFileMap)) {
-      try {
-        const data = await loadJSON(`data/${file}`);
-        allUpgrades[typeKey] = normalizeUpgrades(data.upgrades, typeKey);
-      } catch {
-        allUpgrades[typeKey] = [];
-      }
-    }
-
-    initComplete = true;
-    newArmyBtn.disabled = false; // Enable New Army
-  } catch (err) {
-    console.error('Initialization failed', err);
-  }
-}
-
-// === Show Faction Modal ===
-function showFactionModal() {
-  if (!initComplete) return alert('Data still loading, please wait.');
-  currentFaction = null; // reset previous selection
-  army = [];
-  factionModal.style.display = 'block';
-}
-
-// === Faction Modal Buttons ===
-factionModal.querySelectorAll('button[data-faction]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    currentFaction = btn.dataset.faction;
-    factionModal.style.display = 'none';
-    renderUnits();
-    renderArmy();
-  });
-});
-
-// === Render Units ===
-function renderUnits() {
-  if (!currentFaction) return;
-  const units = allUnits.filter(u => u.faction.toLowerCase() === currentFaction.toLowerCase());
-
+// === Display Units for Selected Faction ===
+function displayUnits(faction) {
   unitGridEl.innerHTML = '';
-  units.forEach(unit => {
+  const filtered = units.filter(u => u.faction === faction);
+  filtered.forEach(unit => {
     const card = document.createElement('div');
-    card.className = 'unit-card';
+    card.classList.add('unit-card');
     card.innerHTML = `
-      <img src="${unit.image || 'images/placeholder_unit.png'}" alt="${unit.name}">
-      <h3>${unit.name}</h3>
-      <p>Type: ${unit.rank} | Points: ${unit.points}</p>
-      <button>Add to Army</button>
+      <h4>${unit.name}</h4>
+      <p>${unit.rank}</p>
+      <p>${unit.points} pts</p>
+      <button class="add-unit">Add</button>
     `;
-    card.querySelector('button').addEventListener('click', () => addUnitToArmy(unit));
+
+    card.querySelector('.add-unit').addEventListener('click', () => {
+      addUnitToArmy(unit);
+    });
+
     unitGridEl.appendChild(card);
   });
 }
 
-// === Add Unit ===
-function addUnitToArmy(unit) {
-  const unitCopy = { ...unit, selectedUpgrades: {} };
-  if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
-    unit.allowedUpgrades.forEach(typeKey => unitCopy.selectedUpgrades[typeKey] = '');
+// === Rank Section Management ===
+function getOrCreateRankSection(rank) {
+  let rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
+  if (!rankSection) {
+    rankSection = document.createElement('div');
+    rankSection.classList.add('rank-section');
+    rankSection.dataset.rank = rank;
+
+    const header = document.createElement('h3');
+    header.textContent = rank;
+    rankSection.appendChild(header);
+
+    const list = document.createElement('div');
+    list.classList.add('rank-list');
+    rankSection.appendChild(list);
+
+    armyContainerEl.appendChild(rankSection);
   }
-  army.push(unitCopy);
-  renderArmy();
+  return rankSection.querySelector('.rank-list');
 }
 
-// === Render Army ===
-function renderArmy() {
-  armyContainerEl.innerHTML = '';
-  let totalPoints = 0;
-  const typeCounts = {};
+function addUnitToArmy(unit) {
+  const rankList = getOrCreateRankSection(unit.rank);
 
-  army.forEach((unit, index) => {
-    totalPoints += unit.points;
-    const rankKey = unit.rank.toLowerCase();
-    typeCounts[rankKey] = (typeCounts[rankKey] || 0) + 1;
+  const unitEl = document.createElement('div');
+  unitEl.classList.add('army-unit');
+  unitEl.textContent = `${unit.name} (${unit.points} pts)`;
 
-    const unitDiv = document.createElement('div');
-    unitDiv.className = 'army-unit';
-    unitDiv.innerHTML = `
-      <img src="${unit.image || 'images/placeholder_unit.png'}" alt="${unit.name}">
-      <h3>${unit.name} (${unit.points} pts)</h3>
-      <p>Rank: ${unit.rank}</p>
-    `;
-
-    const upgradeContainer = document.createElement('div');
-    upgradeContainer.className = 'upgrades';
-    if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
-      unit.allowedUpgrades.forEach(typeKey => {
-        const filtered = filterUpgrades(unit, typeKey.toLowerCase());
-        const select = document.createElement('select');
-        select.innerHTML = `<option value="">Select ${typeKey}</option>`;
-        filtered.forEach(upg => {
-          const opt = document.createElement('option');
-          opt.value = upg.name;
-          opt.textContent = `${upg.name} (${upg.points || 0} pts)`;
-          if (unit.selectedUpgrades[typeKey] === upg.name) opt.selected = true;
-          select.appendChild(opt);
-        });
-        select.addEventListener('change', e => {
-          army[index].selectedUpgrades[typeKey] = e.target.value;
-          renderArmy();
-        });
-        upgradeContainer.appendChild(select);
-      });
-    }
-
-    unitDiv.appendChild(upgradeContainer);
-
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = 'Remove';
-    removeBtn.addEventListener('click', () => {
-      army.splice(index, 1);
-      renderArmy();
-    });
-    unitDiv.appendChild(removeBtn);
-
-    armyContainerEl.appendChild(unitDiv);
+  const removeBtn = document.createElement('button');
+  removeBtn.textContent = '✕';
+  removeBtn.classList.add('remove-unit');
+  removeBtn.addEventListener('click', () => {
+    unitEl.remove();
+    currentArmy = currentArmy.filter(u => u !== unit);
+    checkEmptyRankSections();
+    updateArmySummary();
   });
 
-  // === Validation & Summary ===
-  const errors = [];
-  for (const [type, rule] of Object.entries(LIST_RULES)) {
-    const count = typeCounts[type] || 0;
-    if (count < rule.min) errors.push(`Need at least ${rule.min} ${type} unit(s).`);
-    if (count > rule.max) errors.push(`Too many ${type} units (max ${rule.max}).`);
-  }
-  if (totalPoints > MAX_POINTS) errors.push(`Army exceeds ${MAX_POINTS} points (${totalPoints}).`);
-
-  armySummaryEl.innerHTML = `
-    <div><strong>Total Points:</strong> ${totalPoints} / ${MAX_POINTS}</div>
-    <div><strong>Composition:</strong></div>
-    <ul>${Object.entries(typeCounts).map(([type, count]) => `<li>${type}: ${count}</li>`).join('')}</ul>
-    <div class="errors">${errors.length ? errors.join('<br>') : '<span style="color:lime;">Valid list</span>'}</div>
-  `;
+  unitEl.appendChild(removeBtn);
+  rankList.appendChild(unitEl);
+  currentArmy.push(unit);
+  updateArmySummary();
 }
 
-// === Buttons ===
-newArmyBtn.addEventListener('click', showFactionModal);
+function checkEmptyRankSections() {
+  document.querySelectorAll('.rank-section').forEach(section => {
+    const list = section.querySelector('.rank-list');
+    if (!list.children.length) section.remove();
+  });
+}
+
+// === Update Summary ===
+function updateArmySummary() {
+  const totalPoints = currentArmy.reduce((sum, u) => sum + u.points, 0);
+  const totalUnits = currentArmy.length;
+  armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
+}
+
+// === Army Management Buttons ===
+newArmyBtn.addEventListener('click', () => {
+  currentArmy = [];
+  armyContainerEl.innerHTML = '';
+  armySummaryEl.textContent = 'Total Units: 0 | Total Points: 0';
+});
 
 resetArmyBtn.addEventListener('click', () => {
-  army = [];
-  renderArmy();
+  if (confirm('Clear current army?')) {
+    currentArmy = [];
+    armyContainerEl.innerHTML = '';
+    armySummaryEl.textContent = 'Total Units: 0 | Total Points: 0';
+  }
 });
 
 saveArmyBtn.addEventListener('click', () => {
-  localStorage.setItem('savedArmy', JSON.stringify({ faction: currentFaction, army }));
+  localStorage.setItem('savedArmy', JSON.stringify(currentArmy));
   alert('Army saved!');
 });
 
 loadArmyBtn.addEventListener('click', () => {
-  const saved = JSON.parse(localStorage.getItem('savedArmy'));
-  if (saved) {
-    currentFaction = saved.faction;
-    army = saved.army;
-    renderUnits();
-    renderArmy();
-    alert('Army loaded!');
-  }
-});
-
-// === Initialize ===
-document.addEventListener('DOMContentLoaded', async () => {
-  newArmyBtn.disabled = true; // disable until init complete
-  await init();
+  const saved = JSON.parse(localStorage.getItem('savedArmy') || '[]');
+  if (!saved.length) return alert('No saved army found!');
+  currentArmy = [];
+  armyContainerEl.innerHTML = '';
+  saved.forEach(unit => addUnitToArmy(unit));
 });
