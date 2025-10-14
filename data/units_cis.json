@@ -1,0 +1,18 @@
+{
+  "faction": "cis",
+  "units": [
+{
+      "id": "b1_battle_droid",
+      "name": "B1 Battle Droid",
+      "faction": "cis",
+      "points": 34,
+      "min": 6,
+      "max": 8,
+      "rank": "corps",
+      "unitType": "trooper",
+      "allowedUpgrades": ["grenades", "personnel", "heavyweapon", "gear"],
+      "restrictions": [],
+      "keywords": ["trooper"],
+      "image": "images/rebels/infantry_squad.png"
+    }
+]
