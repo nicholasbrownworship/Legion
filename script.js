@@ -162,69 +162,93 @@ function addUnitToArmy(unit) {
   renderArmy();
 }
 
+// === Helper to create unit element ===
+function createArmyUnitElement(unit, index) {
+  const unitDiv = document.createElement('div');
+  unitDiv.className = 'army-unit';
+
+  const header = document.createElement('div');
+  header.className = 'unit-header';
+  header.innerHTML = `<h4>${unit.name} (${unit.points} pts)</h4>`;
+  unitDiv.appendChild(header);
+
+  const details = document.createElement('div');
+  details.className = 'unit-details';
+
+  if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
+    unit.allowedUpgrades.forEach(typeKey => {
+      const filtered = filterUpgrades(unit, typeKey.toLowerCase());
+      const select = document.createElement('select');
+      select.innerHTML = `<option value="">Select ${typeKey}</option>`;
+      filtered.forEach(upg => {
+        const opt = document.createElement('option');
+        opt.value = upg.name;
+        opt.textContent = `${upg.name} (${upg.points || 0} pts)`;
+        if (unit.selectedUpgrades[typeKey] === upg.name) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', e => {
+        army[index].selectedUpgrades[typeKey] = e.target.value;
+        renderArmy();
+      });
+      details.appendChild(select);
+    });
+  }
+
+  header.addEventListener('click', () => unitDiv.classList.toggle('expanded'));
+
+  const removeBtn = document.createElement('button');
+  removeBtn.textContent = 'Remove';
+  removeBtn.addEventListener('click', () => {
+    army.splice(index, 1);
+    renderArmy();
+  });
+  unitDiv.appendChild(details);
+  unitDiv.appendChild(removeBtn);
+
+  return unitDiv;
+}
+
 // === Render Army ===
 function renderArmy() {
+  // Sort army by rank
+  const rankOrder = ['commander', 'operative', 'corps', 'specialforces', 'support', 'heavy'];
+  army.sort((a, b) => rankOrder.indexOf(a.rank.toLowerCase()) - rankOrder.indexOf(b.rank.toLowerCase()));
+
+  // Group by rank
+  const ranks = {};
+  army.forEach((unit, idx) => {
+    const rank = unit.rank.toLowerCase();
+    if (!ranks[rank]) ranks[rank] = [];
+    ranks[rank].push({ unit, index: idx });
+  });
+
   armyContainerEl.innerHTML = '';
   let totalPoints = 0;
   const typeCounts = {};
 
-  army.forEach((unit, index) => {
-    totalPoints += unit.points;
-    const rankKey = unit.rank.toLowerCase();
-    typeCounts[rankKey] = (typeCounts[rankKey] || 0) + 1;
+  for (const rank of rankOrder) {
+    if (!ranks[rank]) continue;
+    const section = document.createElement('div');
+    section.className = 'army-rank-section';
+    section.innerHTML = `<h3>${rank.toUpperCase()}</h3>`;
 
-    const unitDiv = document.createElement('div');
-    unitDiv.className = 'army-unit';
+    ranks[rank].forEach(({ unit, index }) => {
+      section.appendChild(createArmyUnitElement(unit, index));
 
-    // Main header
-    const header = document.createElement('div');
-    header.className = 'unit-header';
-    header.innerHTML = `<h3>${unit.name} (${unit.points} pts)</h3>`;
-    unitDiv.appendChild(header);
+      totalPoints += unit.points;
+      typeCounts[rank] = (typeCounts[rank] || 0) + 1;
 
-    // Details (upgrades)
-    const details = document.createElement('div');
-    details.className = 'unit-details';
-
-    if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
-      unit.allowedUpgrades.forEach(typeKey => {
-        const filtered = filterUpgrades(unit, typeKey.toLowerCase());
-        const select = document.createElement('select');
-        select.innerHTML = `<option value="">Select ${typeKey}</option>`;
-        filtered.forEach(upg => {
-          const opt = document.createElement('option');
-          opt.value = upg.name;
-          opt.textContent = `${upg.name} (${upg.points || 0} pts)`;
-          if (unit.selectedUpgrades[typeKey] === upg.name) opt.selected = true;
-          select.appendChild(opt);
+      if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
+        unit.allowedUpgrades.forEach(typeKey => {
+          const selectedUpgrade = allUpgrades[typeKey]?.find(u => u.name === unit.selectedUpgrades[typeKey]);
+          if (selectedUpgrade) totalPoints += selectedUpgrade.points || 0;
         });
-        select.addEventListener('change', e => {
-          army[index].selectedUpgrades[typeKey] = e.target.value;
-          renderArmy();
-        });
-        details.appendChild(select);
-
-        const selectedUpgrade = filtered.find(u => u.name === unit.selectedUpgrades[typeKey]);
-        if (selectedUpgrade) totalPoints += selectedUpgrade.points || 0;
-      });
-    }
-
-    unitDiv.appendChild(details);
-
-    // Expand/collapse
-    header.addEventListener('click', () => unitDiv.classList.toggle('expanded'));
-
-    // Remove button
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = 'Remove';
-    removeBtn.addEventListener('click', () => {
-      army.splice(index, 1);
-      renderArmy();
+      }
     });
-    unitDiv.appendChild(removeBtn);
 
-    armyContainerEl.appendChild(unitDiv);
-  });
+    armyContainerEl.appendChild(section);
+  }
 
   // === Validation ===
   const errors = [];
@@ -245,12 +269,12 @@ function renderArmy() {
 
 // === Buttons ===
 newArmyBtn.addEventListener('click', showFactionModal);
+
 resetArmyBtn.addEventListener('click', () => {
   army = [];
   renderArmy();
 });
 
-// Save / Load
 saveArmyBtn.addEventListener('click', () => {
   localStorage.setItem('savedArmy', JSON.stringify({ faction: currentFaction, army }));
   alert('Army saved!');
