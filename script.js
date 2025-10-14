@@ -12,7 +12,6 @@ const modalContentEl = factionModalEl.querySelector('.modal-content');
 
 // === Global Data ===
 let units = [];
-let factions = [];
 let currentArmy = [];
 let selectedFaction = null;
 
@@ -21,39 +20,32 @@ fetch('units.json')
   .then(res => res.json())
   .then(data => {
     units = data.units;
-    factions = data.factions; // top-level factions
     console.log("Units loaded:", units);
-    console.log("Factions loaded:", factions);
+    newArmyBtn.disabled = false; // enable New Army button
     populateSidebarFactionList();
-    populateFactionModal();
-    newArmyBtn.disabled = false;
+    setupModalFactionButtons();
   })
   .catch(err => console.error('Error loading unit data:', err));
 
-// === Populate Faction Modal Dynamically ===
-function populateFactionModal() {
-  // Remove old buttons
-  modalContentEl.querySelectorAll('button[data-faction]').forEach(btn => btn.remove());
-
-  factions.forEach(faction => {
-    const btn = document.createElement('button');
-    btn.dataset.faction = faction;
-    btn.textContent = capitalize(faction);
+// === Setup hard-coded modal buttons ===
+function setupModalFactionButtons() {
+  const modalButtons = modalContentEl.querySelectorAll('button[data-faction]');
+  modalButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      selectedFaction = faction;
+      selectedFaction = btn.dataset.faction;
       factionModalEl.style.display = 'none';
       displayUnits(selectedFaction);
     });
-    modalContentEl.appendChild(btn);
   });
 }
 
 // === Sidebar Faction Buttons ===
 function populateSidebarFactionList() {
+  const factions = ['rebels', 'imperials', 'cis', 'gar']; // hard-coded sidebar
   factionListEl.innerHTML = '';
   factions.forEach(faction => {
     const btn = document.createElement('button');
-    btn.textContent = capitalize(faction);
+    btn.textContent = capitalize(faction === 'gar' ? 'Republic' : faction);
     btn.addEventListener('click', () => {
       selectedFaction = faction;
       displayUnits(selectedFaction);
@@ -70,7 +62,7 @@ function displayUnits(faction) {
   console.log("Units found:", filtered.map(u => u.name));
 
   if (filtered.length === 0) {
-    unitGridEl.innerHTML = `<p>No units found for ${capitalize(faction)}.</p>`;
+    unitGridEl.innerHTML = `<p>No units found for ${capitalize(faction === 'gar' ? 'Republic' : faction)}.</p>`;
     return;
   }
 
