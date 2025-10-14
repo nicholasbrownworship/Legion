@@ -51,7 +51,7 @@ function populateSidebarFactionList() {
 // === Display Units for Selected Faction ===
 function displayUnits(faction) {
   unitGridEl.innerHTML = '';
-  const filtered = units.filter(u => u.faction === faction);
+  const filtered = units.filter(u => u.faction.toLowerCase() === faction.toLowerCase());
   filtered.forEach(unit => {
     const card = document.createElement('div');
     card.classList.add('unit-card');
