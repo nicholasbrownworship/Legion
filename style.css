@@ -198,8 +198,8 @@ main {
 
 .army-unit {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
   padding: 3px 0;
   border-bottom: 1px solid rgba(0,255,242,0.2);
 }
@@ -216,6 +216,82 @@ main {
 .remove-unit:hover {
   text-shadow: 0 0 8px #ff6060;
   transform: scale(1.1);
+}
+
+/* === Upgrade Dropdown & Category Styling === */
+.upgrade-type-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: rgba(0, 255, 242, 0.25);
+  border: 1px solid #00fff2;
+  color: #00fff2;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  padding: 6px 10px;
+  margin: 3px 0;
+  cursor: pointer;
+  border-radius: 4px;
+  text-shadow: 0 0 3px rgba(0,255,242,0.6);
+  transition: all 0.3s ease;
+}
+
+.upgrade-type-btn:hover {
+  background: rgba(0, 255, 242, 0.45);
+  color: #000;
+  text-shadow: 0 0 4px rgba(0,255,242,0.8);
+}
+
+.upgrade-type-btn .arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  color: #00fff2;
+}
+
+.upgrade-type-btn.active .arrow {
+  transform: rotate(90deg);
+}
+
+.upgrade-menu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.35s ease;
+  opacity: 0;
+  margin-left: 6px;
+  padding-left: 6px;
+}
+
+.upgrade-menu.show {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.upgrade-btn {
+  display: block;
+  width: 100%;
+  background: rgba(0,255,242,0.15);
+  border: 1px solid #00fff2;
+  color: #00fff2;
+  padding: 5px 8px;
+  margin: 2px 0;
+  border-radius: 4px;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 500;
+  text-shadow: 0 0 2px rgba(0,255,242,0.6);
+  transition: all 0.2s ease;
+}
+
+.upgrade-btn:hover {
+  background: rgba(0,255,242,0.35);
+  color: #000;
+}
+
+.upgrade-btn.selected {
+  background: #00fff2;
+  color: #000;
+  font-weight: bold;
 }
 
 /* === Summary Display === */
@@ -277,71 +353,4 @@ main {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-/* === Upgrade Dropdown & Category === */
-.upgrade-type-btn {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  background: rgba(0, 255, 242, 0.2);
-  border: 1px solid #00fff2;
-  color: #00fff2;
-  font-family: 'Orbitron', sans-serif;
-  padding: 4px 10px;
-  margin: 3px 0;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.upgrade-type-btn:hover {
-  background: rgba(0,255,242,0.35);
-}
-
-.upgrade-type-btn .arrow {
-  display: inline-block;
-  transition: transform 0.3s ease;
-}
-
-.upgrade-type-btn.active .arrow {
-  transform: rotate(90deg);
-}
-
-.upgrade-menu {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.35s ease, opacity 0.35s ease;
-  opacity: 0;
-  margin-left: 8px;
-}
-
-.upgrade-menu.show {
-  max-height: 500px; /* arbitrary max for animation */
-  opacity: 1;
-}
-
-.upgrade-btn {
-  display: block;
-  width: 100%;
-  background: rgba(0,255,242,0.1);
-  border: 1px solid #00fff2;
-  color: #00fff2;
-  padding: 4px 6px;
-  margin: 2px 0;
-  border-radius: 4px;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.upgrade-btn:hover {
-  background: rgba(0,255,242,0.3);
-}
-
-.upgrade-btn.selected {
-  background: #00fff2;
-  color: #000;
-  font-weight: bold;
 }
