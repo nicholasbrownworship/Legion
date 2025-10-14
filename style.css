@@ -199,12 +199,12 @@ main {
 .army-unit {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 3px 0;
   border-bottom: 1px solid rgba(0,255,242,0.2);
+  flex-wrap: wrap;
 }
 
-/* === Remove Unit Button === */
 .remove-unit {
   background: transparent;
   color: #ff6060;
@@ -225,9 +225,9 @@ main {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  background: #007788; /* stronger solid cyan for type */
+  background: #0099bb; /* solid cyan for upgrade type */
   border: 1px solid #00fff2;
-  color: #ffffff; /* white text for readability */
+  color: #ffffff;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.9rem;
   padding: 6px 10px;
@@ -239,7 +239,7 @@ main {
 }
 
 .upgrade-type-btn:hover {
-  background: #00ffff; 
+  background: #00ffff;
   color: #000;
   text-shadow: 0 0 4px #00fff2;
 }
@@ -261,9 +261,10 @@ main {
   opacity: 0;
   margin-left: 6px;
   padding-left: 6px;
-  background: rgba(0,0,0,0.95); /* dark solid background */
+  background: #001f35; /* dark solid background for visibility */
   border-left: 2px solid #00fff2;
   border-radius: 0 6px 6px 0;
+  box-shadow: 0 0 8px rgba(0,255,242,0.4);
 }
 
 .upgrade-menu.show {
@@ -274,11 +275,11 @@ main {
 .upgrade-btn {
   display: block;
   width: 100%;
-  background: #111; /* solid dark background for readability */
+  background: #00314d; /* solid dark for contrast */
   border: 1px solid #00fff2;
-  color: #ffffff; /* bright text */
+  color: #ffffff; /* readable text */
   padding: 6px 10px;
-  margin: 2px 0;
+  margin: 4px 0;
   border-radius: 4px;
   text-align: left;
   cursor: pointer;
@@ -288,8 +289,8 @@ main {
 }
 
 .upgrade-btn:hover {
-  background: #00ffff; 
-  color: #000; /* readable hover */
+  background: #00ffff; /* neon cyan highlight */
+  color: #000; /* readable on hover */
 }
 
 .upgrade-btn.selected {
