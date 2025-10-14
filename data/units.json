@@ -81,7 +81,7 @@
       "max": 2,
       "rank": "commander",
       "unitType": "force user",
-      "allowedUpgrades": ["force", "force", "force", "training"],
+      "allowedUpgrades": ["force", "gear", "comamand", "training"],
       "restrictions": [],
       "keywords": ["force user", "melee"],
       "image": "images/rebels/luke_skywalker.png"
