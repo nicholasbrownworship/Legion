@@ -5,7 +5,7 @@
     "name": "Impact Grenades",
     "type": "grenades",
     "points": 3,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["trooper"],
     "text": "Placeholder",
     "isUnique": false
@@ -15,7 +15,7 @@
     "name": "Concussion Grenades",
     "type": "grenades",
     "points": 3,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["trooper"],
     "text": "Placeholder",
     "isUnique": false
@@ -25,7 +25,7 @@
     "name": "EMP 'Droid Poppers'",
     "type": "grenades",
     "points": 3,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["trooper"],
     "text": "Placeholder",
     "isUnique": false
@@ -35,7 +35,7 @@
     "name": "Fragmentation Grenades",
     "type": "grenades",
     "points": 5,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["trooper"],
     "text": "Placeholder",
     "isUnique": false
@@ -45,7 +45,7 @@
     "name": "Smoke Grenades",
     "type": "grenades",
     "points": 3,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["trooper"],
     "text": "Placeholder",
     "isUnique": false
@@ -55,7 +55,7 @@
     "name": "Sonic Imploders",
     "type": "grenades",
     "points": 3,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["trooper"],
     "text": "Placeholder",
     "isUnique": false
