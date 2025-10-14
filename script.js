@@ -7,7 +7,7 @@ const newArmyBtn = document.getElementById('new-army');
 const resetArmyBtn = document.getElementById('reset-army');
 const saveArmyBtn = document.getElementById('save-army');
 const loadArmyBtn = document.getElementById('load-army');
-const factionModal = document.getElementById('faction-modal');
+const factionModalEl = document.getElementById('faction-modal');
 
 // === Global Data ===
 let units = [];
@@ -23,23 +23,9 @@ fetch('units.json')
   })
   .catch(err => console.error('Error loading unit data:', err));
 
-// === Populate Faction List in Modal ===
+// === Populate Faction List ===
 function populateFactionList() {
   const factions = [...new Set(units.map(u => u.faction))];
-  const modalButtons = factionModal.querySelectorAll('button[data-faction]');
-  modalButtons.forEach(btn => {
-    const faction = btn.dataset.faction;
-    if (!factions.includes(faction)) btn.style.display = 'none';
-    else btn.style.display = 'inline-block';
-    btn.addEventListener('click', () => {
-      selectedFaction = faction;
-      displayUnits(faction);
-      factionModal.style.display = 'none';
-    });
-  });
-
-  // Also populate the sidebar faction list for reference (optional)
-  factionListEl.innerHTML = '';
   factions.forEach(faction => {
     const btn = document.createElement('button');
     btn.textContent = faction;
@@ -131,29 +117,36 @@ function updateArmySummary() {
   armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
 }
 
-// === Army Management Buttons ===
+// === Modal Handling ===
+function openFactionModal() {
+  factionModalEl.style.display = 'flex';
+}
 
-// New Army -> opens faction modal
+function closeFactionModal() {
+  factionModalEl.style.display = 'none';
+}
+
+// === Army Management Buttons ===
 newArmyBtn.addEventListener('click', () => {
-  factionModal.style.display = 'flex';
+  currentArmy = [];
+  armyContainerEl.innerHTML = '';
+  armySummaryEl.textContent = 'Total Units: 0 | Total Points: 0';
+  openFactionModal();
 });
 
-// Reset Army -> clears army after confirmation
 resetArmyBtn.addEventListener('click', () => {
   if (confirm('Clear current army?')) {
     currentArmy = [];
     armyContainerEl.innerHTML = '';
-    updateArmySummary();
+    armySummaryEl.textContent = 'Total Units: 0 | Total Points: 0';
   }
 });
 
-// Save Army -> localStorage
 saveArmyBtn.addEventListener('click', () => {
   localStorage.setItem('savedArmy', JSON.stringify(currentArmy));
   alert('Army saved!');
 });
 
-// Load Army -> localStorage
 loadArmyBtn.addEventListener('click', () => {
   const saved = JSON.parse(localStorage.getItem('savedArmy') || '[]');
   if (!saved.length) return alert('No saved army found!');
@@ -162,9 +155,11 @@ loadArmyBtn.addEventListener('click', () => {
   saved.forEach(unit => addUnitToArmy(unit));
 });
 
-// Optional: Close modal if user clicks outside content
-factionModal.addEventListener('click', (e) => {
-  if (e.target === factionModal) {
-    factionModal.style.display = 'none';
-  }
+// === Modal Faction Buttons ===
+document.querySelectorAll('#faction-modal button[data-faction]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedFaction = btn.dataset.faction;
+    displayUnits(selectedFaction);
+    closeFactionModal();
+  });
 });
