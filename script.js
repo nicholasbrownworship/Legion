@@ -15,6 +15,7 @@ let allUpgrades = {}; // cache by typeKey
 let army = [];
 let currentFaction = null;
 let initComplete = false;
+let dragSrcIndex = null;
 
 // === Army Rules ===
 const LIST_RULES = {
@@ -67,9 +68,9 @@ function normalizeUpgrades(upgrades, typeKey) {
 // === Filter upgrades for a unit ===
 function filterUpgrades(unit, typeKey) {
   const allOfType = allUpgrades[typeKey] || [];
-  const unitFaction = unit.faction.toLowerCase();
-  const unitRank = unit.rank.toLowerCase();
-  const unitType = unit.unitType?.toLowerCase();
+  const unitFaction = (unit.faction || '').toLowerCase();
+  const unitRank = (unit.rank || '').toLowerCase();
+  const unitType = (unit.unitType || '').toLowerCase();
 
   return allOfType.filter(up => {
     const upgradeFactions = (up.factions || []).map(f => f.toLowerCase());
@@ -91,7 +92,7 @@ async function init() {
     const unitData = await loadJSON('data/units.json');
     allUnits = (unitData.units || []).map(u => ({
       ...u,
-      unitType: u.keywords[0]?.toLowerCase() || '' // set unitType early
+      unitType: u.keywords && u.keywords.length ? u.keywords[0].toLowerCase() : '' // set unitType early
     }));
 
     // Load upgrades
@@ -108,167 +109,4 @@ async function init() {
       }
     }
 
-    initComplete = true;
-    newArmyBtn.disabled = false;
-  } catch (err) {
-    console.error('Initialization failed', err);
-  }
-}
-
-// === Show faction modal ===
-function showFactionModal() {
-  if (!initComplete) return alert('Data still loading, please wait.');
-  factionModal.style.display = 'block';
-}
-
-// === Faction Buttons ===
-factionModal.querySelectorAll('button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    currentFaction = btn.dataset.faction.toLowerCase();
-    factionModal.style.display = 'none';
-    army = [];
-    renderUnits();
-    renderArmy();
-  });
-});
-
-// === Render Unit List ===
-function renderUnits() {
-  if (!currentFaction) return;
-  const units = allUnits.filter(u => u.faction.toLowerCase() === currentFaction);
-
-  unitGridEl.innerHTML = '';
-  units.forEach(unit => {
-    const card = document.createElement('div');
-    card.className = 'unit-card';
-    card.innerHTML = `
-      <img src="${unit.image || 'images/placeholder_unit.png'}" alt="${unit.name}">
-      <h3>${unit.name}</h3>
-      <p>Type: ${unit.rank} | Points: ${unit.points}</p>
-      <button>Add to Army</button>
-    `;
-    card.querySelector('button').addEventListener('click', () => addUnitToArmy(unit));
-    unitGridEl.appendChild(card);
-  });
-}
-
-// === Add Unit to Army ===
-function addUnitToArmy(unit) {
-  const unitCopy = { ...unit, selectedUpgrades: {} };
-
-  if (unitCopy.allowedUpgrades && unitCopy.allowedUpgrades.length) {
-    unitCopy.allowedUpgrades.forEach(typeKey => {
-      const filtered = filterUpgrades(unitCopy, typeKey.toLowerCase());
-      unitCopy.selectedUpgrades[typeKey] = filtered.length ? '' : '';
-    });
-  }
-
-  army.push(unitCopy);
-  renderArmy();
-}
-
-// === Render Army ===
-function renderArmy() {
-  armyContainerEl.innerHTML = '';
-  let totalPoints = 0;
-  const typeCounts = {};
-
-  army.forEach((unit, index) => {
-    totalPoints += unit.points;
-    const rankKey = unit.rank.toLowerCase();
-    typeCounts[rankKey] = (typeCounts[rankKey] || 0) + 1;
-
-    const unitDiv = document.createElement('div');
-    unitDiv.className = 'army-unit';
-    unitDiv.innerHTML = `
-      <img src="${unit.image || 'images/placeholder_unit.png'}" alt="${unit.name}">
-      <h3>${unit.name} (${unit.points} pts)</h3>
-      <p>Rank: ${unit.rank}</p>
-    `;
-
-    const upgradeContainer = document.createElement('div');
-    upgradeContainer.className = 'upgrades';
-
-    if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
-      unit.allowedUpgrades.forEach(typeKey => {
-        const filtered = filterUpgrades(unit, typeKey.toLowerCase());
-
-        const select = document.createElement('select');
-        select.innerHTML = `<option value="">Select ${typeKey}</option>`;
-
-        filtered.forEach(upg => {
-          const opt = document.createElement('option');
-          opt.value = upg.name;
-          opt.textContent = `${upg.name} (${upg.points || 0} pts)`;
-          if (unit.selectedUpgrades[typeKey] === upg.name) opt.selected = true;
-          select.appendChild(opt);
-        });
-
-        select.addEventListener('change', e => {
-          army[index].selectedUpgrades[typeKey] = e.target.value;
-          renderArmy();
-        });
-
-        upgradeContainer.appendChild(select);
-
-        const selectedUpgrade = filtered.find(u => u.name === unit.selectedUpgrades[typeKey]);
-        if (selectedUpgrade) totalPoints += selectedUpgrade.points || 0;
-      });
-    }
-
-    unitDiv.appendChild(upgradeContainer);
-
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = 'Remove';
-    removeBtn.addEventListener('click', () => {
-      army.splice(index, 1);
-      renderArmy();
-    });
-    unitDiv.appendChild(removeBtn);
-
-    armyContainerEl.appendChild(unitDiv);
-  });
-
-  // === Validation ===
-  const errors = [];
-  for (const [type, rule] of Object.entries(LIST_RULES)) {
-    const count = typeCounts[type] || 0;
-    if (count < rule.min) errors.push(`Need at least ${rule.min} ${type} unit(s).`);
-    if (count > rule.max) errors.push(`Too many ${type} units (max ${rule.max}).`);
-  }
-  if (totalPoints > MAX_POINTS) errors.push(`Army exceeds ${MAX_POINTS} points (${totalPoints}).`);
-
-  armySummaryEl.innerHTML = `
-    <div><strong>Total Points:</strong> ${totalPoints} / ${MAX_POINTS}</div>
-    <div><strong>Composition:</strong></div>
-    <ul>${Object.entries(typeCounts).map(([type, count]) => `<li>${type}: ${count}</li>`).join('')}</ul>
-    <div class="errors">${errors.length ? errors.join('<br>') : '<span style="color:lime;">Valid list</span>'}</div>
-  `;
-}
-
-// === Buttons ===
-newArmyBtn.addEventListener('click', showFactionModal);
-resetArmyBtn.addEventListener('click', () => {
-  army = [];
-  renderArmy();
-});
-
-saveArmyBtn.addEventListener('click', () => {
-  localStorage.setItem('savedArmy', JSON.stringify(army));
-  alert('Army saved!');
-});
-
-loadArmyBtn.addEventListener('click', () => {
-  const saved = localStorage.getItem('savedArmy');
-  if (saved) {
-    army = JSON.parse(saved);
-    renderArmy();
-    alert('Army loaded!');
-  }
-});
-
-// === Initialize ===
-document.addEventListener('DOMContentLoaded', async () => {
-  newArmyBtn.disabled = true;
-  await init();
-});
+    // If there's a saved army in
