@@ -74,10 +74,12 @@ function filterUpgrades(unit, typeKey) {
   return allOfType.filter(up => {
     const upgradeFactions = (up.factions || []).map(f => f.toLowerCase());
     const upgradeRestrictions = (up.restrictions || []).map(r => r.toLowerCase());
+
     const factionOK = upgradeFactions.length === 0 || upgradeFactions.includes(unitFaction);
     const restrictionOK =
       upgradeRestrictions.length === 0 ||
       upgradeRestrictions.some(r => r === unitRank || r === unitType);
+
     return factionOK && restrictionOK;
   });
 }
@@ -85,20 +87,38 @@ function filterUpgrades(unit, typeKey) {
 // === Initialization ===
 async function init() {
   try {
+    // Load units
     const unitData = await loadJSON('data/units.json');
-    allUnits = (unitData.units || []).map(u => ({
-      ...u,
-      unitType: u.keywords?.[0]?.toLowerCase() || '',
-      upgradeSlots: u.upgradeSlots || {} // allows specifying multiple slots per upgrade type
-    }));
+    allUnits = (unitData.units || []).map(u => {
+      const unitType = u.keywords?.[0]?.toLowerCase() || '';
 
+      // Default upgrade slots and selectedUpgrades
+      const upgradeSlots = {};
+      const selectedUpgrades = {};
+      if (u.allowedUpgrades && u.allowedUpgrades.length) {
+        u.allowedUpgrades.forEach(typeKey => {
+          const key = typeKey.toLowerCase();
+          upgradeSlots[key] = key === 'force' ? 3 : 1;
+          selectedUpgrades[key] = new Array(upgradeSlots[key]).fill('');
+        });
+      }
+
+      return {
+        ...u,
+        unitType,
+        upgradeSlots,
+        selectedUpgrades
+      };
+    });
+
+    // Load upgrades
     for (const [typeKey, file] of Object.entries(upgradeFileMap)) {
       try {
         const data = await loadJSON(`data/${file}`);
-        allUpgrades[typeKey] = normalizeUpgrades(data.upgrades, typeKey);
+        allUpgrades[typeKey.toLowerCase()] = normalizeUpgrades(data.upgrades, typeKey);
       } catch (err) {
         console.warn(`No upgrades loaded for ${typeKey}`, err);
-        allUpgrades[typeKey] = [];
+        allUpgrades[typeKey.toLowerCase()] = [];
       }
     }
 
@@ -130,6 +150,7 @@ factionModal.querySelectorAll('button').forEach(btn => {
 function renderUnits() {
   if (!currentFaction) return;
   const units = allUnits.filter(u => u.faction.toLowerCase() === currentFaction);
+
   unitGridEl.innerHTML = '';
   units.forEach(unit => {
     const card = document.createElement('div');
@@ -147,13 +168,7 @@ function renderUnits() {
 
 // === Add Unit to Army ===
 function addUnitToArmy(unit) {
-  const unitCopy = { ...unit, selectedUpgrades: {} };
-  if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
-    unit.allowedUpgrades.forEach(typeKey => {
-      const maxSlots = unit.upgradeSlots?.[typeKey] || 1;
-      unitCopy.selectedUpgrades[typeKey] = Array(maxSlots).fill('');
-    });
-  }
+  const unitCopy = JSON.parse(JSON.stringify(unit)); // deep copy
   army.push(unitCopy);
   renderArmy();
 }
@@ -182,30 +197,36 @@ function renderArmy() {
 
     if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
       unit.allowedUpgrades.forEach(typeKey => {
-        const filteredUpgrades = filterUpgrades(unit, typeKey.toLowerCase());
-        const selectedArray = unit.selectedUpgrades[typeKey] || [];
-        const maxSlots = unit.upgradeSlots?.[typeKey] || 1;
+        const key = typeKey.toLowerCase();
+        const filteredUpgrades = filterUpgrades(unit, key);
+        const maxSlots = unit.upgradeSlots[key] || 1;
 
         for (let slot = 0; slot < maxSlots; slot++) {
           const select = document.createElement('select');
           select.innerHTML = `<option value="">Select ${typeKey} ${slot + 1}</option>`;
+
           filteredUpgrades.forEach(upg => {
-            if (!selectedArray.includes(upg.name)) {
+            // Only show options not already selected in other slots
+            if (!unit.selectedUpgrades[key].includes(upg.name)) {
               const opt = document.createElement('option');
               opt.value = upg.name;
               opt.textContent = `${upg.name} (${upg.points || 0} pts)`;
               select.appendChild(opt);
             }
           });
-          if (selectedArray[slot]) select.value = selectedArray[slot];
+
+          // Set currently selected value
+          if (unit.selectedUpgrades[key][slot]) select.value = unit.selectedUpgrades[key][slot];
+
           select.addEventListener('change', e => {
-            if (!unit.selectedUpgrades[typeKey]) unit.selectedUpgrades[typeKey] = [];
-            unit.selectedUpgrades[typeKey][slot] = e.target.value;
-            renderArmy();
+            unit.selectedUpgrades[key][slot] = e.target.value;
+            renderArmy(); // re-render to update points and dropdown options
           });
+
           upgradeContainer.appendChild(select);
 
-          const selectedUpgrade = filteredUpgrades.find(u => u.name === selectedArray[slot]);
+          // Add points for already selected upgrades
+          const selectedUpgrade = filteredUpgrades.find(u => u.name === unit.selectedUpgrades[key][slot]);
           if (selectedUpgrade) totalPoints += selectedUpgrade.points || 0;
         }
       });
