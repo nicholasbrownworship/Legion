@@ -211,44 +211,89 @@ function createArmyUnitElement(unit, index) {
 
 // === Render Army ===
 function renderArmy() {
-  // Sort army by rank
-  const rankOrder = ['commander', 'operative', 'corps', 'specialforces', 'support', 'heavy'];
-  army.sort((a, b) => rankOrder.indexOf(a.rank.toLowerCase()) - rankOrder.indexOf(b.rank.toLowerCase()));
-
-  // Group by rank
-  const ranks = {};
-  army.forEach((unit, idx) => {
-    const rank = unit.rank.toLowerCase();
-    if (!ranks[rank]) ranks[rank] = [];
-    ranks[rank].push({ unit, index: idx });
-  });
-
   armyContainerEl.innerHTML = '';
   let totalPoints = 0;
   const typeCounts = {};
 
-  for (const rank of rankOrder) {
-    if (!ranks[rank]) continue;
-    const section = document.createElement('div');
-    section.className = 'army-rank-section';
-    section.innerHTML = `<h3>${rank.toUpperCase()}</h3>`;
+  army.forEach((unit, index) => {
+    totalPoints += unit.points;
+    const rankKey = unit.rank.toLowerCase();
+    typeCounts[rankKey] = (typeCounts[rankKey] || 0) + 1;
 
-    ranks[rank].forEach(({ unit, index }) => {
-      section.appendChild(createArmyUnitElement(unit, index));
+    const unitDiv = document.createElement('div');
+    unitDiv.className = 'army-unit';
+    unitDiv.innerHTML = `
+      <img src="${unit.image || 'images/placeholder_unit.png'}" alt="${unit.name}">
+      <h3>${unit.name} (${unit.points} pts)</h3>
+      <p>Rank: ${unit.rank}</p>
+    `;
 
-      totalPoints += unit.points;
-      typeCounts[rank] = (typeCounts[rank] || 0) + 1;
+    const upgradeContainer = document.createElement('div');
+    upgradeContainer.className = 'upgrades';
 
-      if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
-        unit.allowedUpgrades.forEach(typeKey => {
-          const selectedUpgrade = allUpgrades[typeKey]?.find(u => u.name === unit.selectedUpgrades[typeKey]);
-          if (selectedUpgrade) totalPoints += selectedUpgrade.points || 0;
+    // === Upgrades ===
+    if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
+      unit.allowedUpgrades.forEach(typeKey => {
+        const filtered = filterUpgrades(unit, typeKey.toLowerCase());
+
+        // Create multi-select dropdown
+        const select = document.createElement('select');
+        select.setAttribute('multiple', 'multiple'); // allow multiple selections
+        select.size = Math.min(filtered.length, 5); // show up to 5 options
+
+        // Optional placeholder as first disabled option
+        const placeholderOpt = document.createElement('option');
+        placeholderOpt.textContent = `Select ${typeKey}`;
+        placeholderOpt.disabled = true;
+        select.appendChild(placeholderOpt);
+
+        // Populate options
+        filtered.forEach(upg => {
+          const opt = document.createElement('option');
+          opt.value = upg.name;
+          opt.textContent = `${upg.name} (${upg.points || 0} pts)`;
+
+          // mark selected if previously chosen
+          if ((unit.selectedUpgrades[typeKey] || []).includes(upg.name)) {
+            opt.selected = true;
+          }
+
+          select.appendChild(opt);
         });
-      }
-    });
 
-    armyContainerEl.appendChild(section);
-  }
+        // Event listener
+        select.addEventListener('change', e => {
+          const selected = Array.from(e.target.selectedOptions)
+            .map(opt => opt.value)
+            .filter(v => v !== `Select ${typeKey}`); // ignore placeholder
+          army[index].selectedUpgrades[typeKey] = selected;
+          renderArmy();
+        });
+
+        upgradeContainer.appendChild(select);
+
+        // Add points for selected upgrades
+        const selectedUpgrades = unit.selectedUpgrades[typeKey] || [];
+        selectedUpgrades.forEach(selName => {
+          const upg = filtered.find(u => u.name === selName);
+          if (upg) totalPoints += upg.points || 0;
+        });
+      });
+    }
+
+    unitDiv.appendChild(upgradeContainer);
+
+    // Remove button
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = 'Remove';
+    removeBtn.addEventListener('click', () => {
+      army.splice(index, 1);
+      renderArmy();
+    });
+    unitDiv.appendChild(removeBtn);
+
+    armyContainerEl.appendChild(unitDiv);
+  });
 
   // === Validation ===
   const errors = [];
@@ -259,6 +304,7 @@ function renderArmy() {
   }
   if (totalPoints > MAX_POINTS) errors.push(`Army exceeds ${MAX_POINTS} points (${totalPoints}).`);
 
+  // === Update army summary ===
   armySummaryEl.innerHTML = `
     <div><strong>Total Points:</strong> ${totalPoints} / ${MAX_POINTS}</div>
     <div><strong>Composition:</strong></div>
@@ -266,6 +312,7 @@ function renderArmy() {
     <div class="errors">${errors.length ? errors.join('<br>') : '<span style="color:lime;">Valid list</span>'}</div>
   `;
 }
+
 
 // === Buttons ===
 newArmyBtn.addEventListener('click', showFactionModal);
