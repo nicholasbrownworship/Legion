@@ -1,4 +1,4 @@
-// === Full Army Builder Script with Faction Display Names ===
+// === Full Army Builder Script ===
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -21,12 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const upgradesData = {};
   const rankOrder = ["commander", "operative", "corps", "specialforces", "support", "heavy"];
 
-  // Faction display mapping
   const factionDisplayNames = {
-    rebels: "Rebels",
-    imperials: "Imperials",
-    cis: "CIS",
-    gar: "Republic"
+    "rebels": "Rebels",
+    "imperials": "Imperials",
+    "cis": "CIS",
+    "gar": "Republic" // JSON still uses 'gar'
   };
 
   // === Load all upgrade JSONs dynamically ===
@@ -34,69 +33,68 @@ document.addEventListener('DOMContentLoaded', () => {
     const types = ["gear", "force", "command", "training", "personnel", "heavyweapon", "hardpoint", "armament", "crew", "grenades", "generator"];
     types.forEach(type => {
       fetch(`data/upgrades_${type}.json`)
-        .then(res => {
-          if (!res.ok) throw new Error(`No upgrades file for ${type}`);
-          return res.json();
-        })
+        .then(res => res.ok ? res.json() : Promise.reject(`No upgrades file for ${type}`))
         .then(data => {
           upgradesData[type] = data.upgrades || [];
           console.log(`Loaded ${type} upgrades`, upgradesData[type]);
         })
-        .catch(err => console.debug(`Skipping upgrades_${type}.json: ${err.message}`));
+        .catch(err => console.debug(`Skipping upgrades_${type}.json: ${err}`));
     });
   }
 
-  // === Load Faction Units ===
-  function loadFactionUnits(faction) {
-    fetch(`data/units_${faction}.json`)
+  // === Load Units From JSON File ===
+  function loadFactionUnits(factionFile) {
+    fetch(`data/units_${factionFile}.json`)
       .then(res => res.json())
       .then(data => {
         units = data.units || [];
-        console.log(`Units loaded for ${faction}:`, units);
+        console.log(`Units loaded from data/units_${factionFile}.json:`, units);
 
+        // Load multi-faction units
         fetch('data/units_multi.json')
           .then(res => res.json())
           .then(multiData => {
             const multiUnitsForFaction = multiData.units.filter(u =>
-              Array.isArray(u.faction) ? u.faction.includes(faction) : u.faction === faction
+              Array.isArray(u.faction) ? u.faction.includes(factionFile) : u.faction === factionFile
             );
             units = units.concat(multiUnitsForFaction);
-            console.log(`Merged multi-faction units for ${faction}:`, multiUnitsForFaction);
+            console.log(`Merged multi-faction units for ${factionFile}:`, multiUnitsForFaction);
           })
           .catch(() => console.log('No multi-faction units found, skipping.'))
           .finally(() => {
-            displayUnits(faction);
+            displayUnits(); // now just display all loaded units
             newArmyBtn.disabled = false;
             loadAllUpgradeFiles();
           });
       })
-      .catch(err => console.error(`Error loading units for faction "${faction}":`, err));
+      .catch(err => console.error(`Error loading units from "${factionFile}":`, err));
   }
 
-  // === Faction modal selection ===
+  // === Modal Button Selection ===
   modalFactionButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       selectedFaction = btn.dataset.faction;
       factionModalEl.classList.remove('active');
+
+      // Update header or display names if needed
+      const displayName = factionDisplayNames[selectedFaction] || selectedFaction;
+      console.log(`Selected Faction: ${displayName}`);
+
       loadFactionUnits(selectedFaction);
     });
   });
 
-  // === Display Units for Selected Faction ===
-  function displayUnits(faction) {
+  // === Display Units ===
+  function displayUnits() {
     unitGridEl.innerHTML = '';
-    const filtered = units
-      .filter(u => Array.isArray(u.faction) ? u.faction.includes(faction) : u.faction.toLowerCase() === faction.toLowerCase())
-      .sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
-
-    const displayName = factionDisplayNames[faction] || capitalize(faction);
-
-    if (filtered.length === 0) {
-      unitGridEl.innerHTML = `<p>No units found for ${displayName}.</p>`;
+    if (!units.length) {
+      unitGridEl.innerHTML = `<p>No units available.</p>`;
       return;
     }
 
-    filtered.forEach(unit => {
+    units.sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
+
+    units.forEach(unit => {
       const card = document.createElement('div');
       card.classList.add('unit-card');
 
@@ -111,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <p>Points: ${unit.points}</p>
         <button class="add-unit">Add</button>
       `;
+
       card.querySelector('.add-unit').addEventListener('click', () => addUnitToArmy(unit));
       unitGridEl.appendChild(card);
     });
