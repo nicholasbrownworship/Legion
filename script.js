@@ -12,6 +12,7 @@ const modalContentEl = factionModalEl.querySelector('.modal-content');
 
 // === Global Data ===
 let units = [];
+let factions = [];
 let currentArmy = [];
 let selectedFaction = null;
 
@@ -20,19 +21,20 @@ fetch('units.json')
   .then(res => res.json())
   .then(data => {
     units = data.units;
+    factions = data.factions; // top-level factions
     console.log("Units loaded:", units);
+    console.log("Factions loaded:", factions);
     populateSidebarFactionList();
     populateFactionModal();
-    newArmyBtn.disabled = false; // enable after units loaded
+    newArmyBtn.disabled = false;
   })
   .catch(err => console.error('Error loading unit data:', err));
 
 // === Populate Faction Modal Dynamically ===
 function populateFactionModal() {
-  // remove old buttons
+  // Remove old buttons
   modalContentEl.querySelectorAll('button[data-faction]').forEach(btn => btn.remove());
 
-  const factions = [...new Set(units.map(u => u.faction))]; // unique factions
   factions.forEach(faction => {
     const btn = document.createElement('button');
     btn.dataset.faction = faction;
@@ -49,7 +51,6 @@ function populateFactionModal() {
 // === Sidebar Faction Buttons ===
 function populateSidebarFactionList() {
   factionListEl.innerHTML = '';
-  const factions = [...new Set(units.map(u => u.faction))];
   factions.forEach(faction => {
     const btn = document.createElement('button');
     btn.textContent = capitalize(faction);
@@ -67,6 +68,11 @@ function displayUnits(faction) {
   const filtered = units.filter(u => u.faction.toLowerCase() === faction.toLowerCase());
   console.log("Selected faction:", faction);
   console.log("Units found:", filtered.map(u => u.name));
+
+  if (filtered.length === 0) {
+    unitGridEl.innerHTML = `<p>No units found for ${capitalize(faction)}.</p>`;
+    return;
+  }
 
   filtered.forEach(unit => {
     const card = document.createElement('div');
@@ -91,7 +97,7 @@ function getOrCreateRankSection(rank) {
     rankSection.dataset.rank = rank;
 
     const header = document.createElement('h3');
-    header.textContent = `${rank} (0)`;
+    header.textContent = `${capitalize(rank)} (0)`;
     rankSection.appendChild(header);
 
     const list = document.createElement('div');
@@ -136,7 +142,7 @@ function updateRankCount(rank) {
   const rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
   if (!rankSection) return;
   const count = currentArmy.filter(u => u.rank === rank).length;
-  rankSection.querySelector('h3').textContent = `${rank} (${count})`;
+  rankSection.querySelector('h3').textContent = `${capitalize(rank)} (${count})`;
 }
 
 function checkEmptyRankSections() {
