@@ -30,7 +30,7 @@ fetch('data/units.json')
 
 // === Load all upgrade JSONs dynamically ===
 function loadAllUpgradeFiles() {
-  const types = ["gear", "force", "command"]; // extend this array as needed
+  const types = ["gear", "force", "command"]; // extend as needed
   types.forEach(type => {
     fetch(`data/upgrades_${type}.json`)
       .then(res => res.json())
@@ -58,7 +58,7 @@ function displayUnits(faction) {
     .filter(u => u.faction.toLowerCase() === faction.toLowerCase())
     .sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
-  if (filtered.length === 0) {
+  if (!filtered.length) {
     unitGridEl.innerHTML = `<p>No units found for ${capitalize(faction === 'gar' ? 'Republic' : faction)}.</p>`;
     return;
   }
@@ -110,9 +110,11 @@ function getOrCreateRankSection(rank) {
 }
 
 function addUnitToArmy(unit) {
-  currentArmy.push(unit);
+  const armyUnit = JSON.parse(JSON.stringify(unit)); // deep copy to store upgrades per instance
+  armyUnit.selectedUpgrades = {}; 
+  currentArmy.push(armyUnit);
 
-  const rankSection = getOrCreateRankSection(unit.rank);
+  const rankSection = getOrCreateRankSection(armyUnit.rank);
   const rankList = rankSection.querySelector('.rank-list');
 
   const unitEl = document.createElement('div');
@@ -120,8 +122,8 @@ function addUnitToArmy(unit) {
 
   // Unit image
   const img = document.createElement('img');
-  img.src = unit.image;
-  img.alt = unit.name;
+  img.src = armyUnit.image;
+  img.alt = armyUnit.name;
   img.style.width = "60px";
   img.style.height = "60px";
   img.style.marginRight = "10px";
@@ -134,16 +136,36 @@ function addUnitToArmy(unit) {
   infoDiv.style.verticalAlign = "top";
 
   const namePts = document.createElement('span');
-  namePts.textContent = `${unit.name} (${unit.points} pts)`;
+  namePts.textContent = `${armyUnit.name} (${armyUnit.points} pts)`;
   infoDiv.appendChild(namePts);
 
   // Upgrades container
-  const upgradesDiv = document.createElement('div');
-  upgradesDiv.classList.add('unit-upgrades');
-  upgradesDiv.style.marginTop = "5px";
+  const upgradesContainer = document.createElement('div');
+  upgradesContainer.classList.add('unit-upgrades');
+  upgradesContainer.style.marginTop = "5px";
 
-  if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
-    unit.allowedUpgrades.forEach(upgType => {
+  if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
+    armyUnit.allowedUpgrades.forEach(upgType => {
+      const upgradeSection = document.createElement('div');
+      upgradeSection.classList.add('upgrade-section');
+
+      // Header to toggle dropdown
+      const header = document.createElement('div');
+      header.textContent = capitalize(upgType);
+      header.classList.add('upgrade-header');
+      header.style.cursor = "pointer";
+      header.style.fontWeight = "bold";
+      header.style.marginTop = "5px";
+
+      const menu = document.createElement('div');
+      menu.classList.add('upgrade-menu');
+      menu.style.display = "none";
+      menu.style.marginTop = "3px";
+
+      header.addEventListener('click', () => {
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+      });
+
       const availableUpgrades = upgradesData[upgType] || [];
       availableUpgrades.forEach(upg => {
         const btn = document.createElement('button');
@@ -151,15 +173,26 @@ function addUnitToArmy(unit) {
         btn.dataset.upgrade = upg.id;
         btn.textContent = upg.name;
         btn.addEventListener('click', () => {
-          btn.classList.toggle('selected');
-          console.log(`Toggled upgrade "${upg.name}" for ${unit.name}`);
+          armyUnit.selectedUpgrades[upgType] = armyUnit.selectedUpgrades[upgType] || new Set();
+          if (armyUnit.selectedUpgrades[upgType].has(upg.id)) {
+            armyUnit.selectedUpgrades[upgType].delete(upg.id);
+            btn.classList.remove('selected');
+          } else {
+            armyUnit.selectedUpgrades[upgType].add(upg.id);
+            btn.classList.add('selected');
+          }
+          console.log(`Unit ${armyUnit.name} upgrades:`, armyUnit.selectedUpgrades);
         });
-        upgradesDiv.appendChild(btn);
+        menu.appendChild(btn);
       });
+
+      upgradeSection.appendChild(header);
+      upgradeSection.appendChild(menu);
+      upgradesContainer.appendChild(upgradeSection);
     });
   }
 
-  infoDiv.appendChild(upgradesDiv);
+  infoDiv.appendChild(upgradesContainer);
   unitEl.appendChild(infoDiv);
 
   // Remove button
@@ -167,9 +200,9 @@ function addUnitToArmy(unit) {
   removeBtn.textContent = '✕';
   removeBtn.classList.add('remove-unit');
   removeBtn.addEventListener('click', () => {
-    currentArmy = currentArmy.filter(u => u !== unit);
+    currentArmy = currentArmy.filter(u => u !== armyUnit);
     unitEl.remove();
-    updateRankCount(unit.rank);
+    updateRankCount(armyUnit.rank);
     checkEmptyRankSections();
     updateArmySummary();
   });
@@ -178,7 +211,7 @@ function addUnitToArmy(unit) {
 
   rankList.appendChild(unitEl);
 
-  updateRankCount(unit.rank);
+  updateRankCount(armyUnit.rank);
   updateArmySummary();
 }
 
