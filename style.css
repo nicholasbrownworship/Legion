@@ -225,28 +225,28 @@ main {
   align-items: center;
   width: 100%;
   background: rgba(0, 255, 242, 0.25);
-  border: 1px solid #00fff2;
-  color: #00fff2;
+  border: 1px solid #00b8c5; /* darker cyan border */
+  color: #00e5ff; /* brighter cyan for header text */
   font-family: 'Orbitron', sans-serif;
   font-size: 0.9rem;
   padding: 6px 10px;
   margin: 3px 0;
   cursor: pointer;
   border-radius: 4px;
-  text-shadow: 0 0 3px rgba(0,255,242,0.6);
+  text-shadow: 0 0 4px rgba(0,229,255,0.8); /* subtle neon glow */
   transition: all 0.3s ease;
 }
 
 .upgrade-type-btn:hover {
-  background: rgba(0, 255, 242, 0.45);
+  background: rgba(0, 229, 255, 0.4);
   color: #000;
-  text-shadow: 0 0 4px rgba(0,255,242,0.8);
+  text-shadow: 0 0 6px rgba(0,229,255,0.9);
 }
 
 .upgrade-type-btn .arrow {
   display: inline-block;
   transition: transform 0.3s ease;
-  color: #00fff2;
+  color: #00e5ff;
 }
 
 .upgrade-type-btn.active .arrow {
@@ -270,29 +270,30 @@ main {
 .upgrade-btn {
   display: block;
   width: 100%;
-  background: rgba(0,255,242,0.15);
-  border: 1px solid #00fff2;
-  color: #00fff2;
+  background: rgba(0,255,255,0.1);
+  border: 1px solid rgba(0,229,255,0.3);
+  color: #ffffff; /* bright white for readability */
   padding: 5px 8px;
   margin: 2px 0;
   border-radius: 4px;
   text-align: left;
   cursor: pointer;
   font-weight: 500;
-  text-shadow: 0 0 2px rgba(0,255,242,0.6);
+  text-shadow: 0 0 3px rgba(0,255,255,0.5);
   transition: all 0.2s ease;
 }
 
 .upgrade-btn:hover {
-  background: rgba(0,255,242,0.35);
-  color: #000;
+  background: rgba(0,255,255,0.3);
+  color: #000; /* invert for hover readability */
 }
 
 .upgrade-btn.selected {
-  background: #00fff2;
+  background: #00e5ff;
   color: #000;
   font-weight: bold;
 }
+
 
 /* === Summary Display === */
 #army-summary {
