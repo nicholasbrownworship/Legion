@@ -8,6 +8,7 @@ const resetArmyBtn = document.getElementById('reset-army');
 const saveArmyBtn = document.getElementById('save-army');
 const loadArmyBtn = document.getElementById('load-army');
 const factionModalEl = document.getElementById('faction-modal');
+const modalContentEl = factionModalEl.querySelector('.modal-content');
 
 // === Global Data ===
 let units = [];
@@ -20,18 +21,32 @@ fetch('units.json')
   .then(data => {
     units = data.units;
     populateSidebarFactionList();
+    populateFactionModal(); // dynamically create modal buttons
   })
   .catch(err => console.error('Error loading unit data:', err));
 
-// === Modal Functionality ===
-const modalFactionButtons = factionModalEl.querySelectorAll('button[data-faction]');
-modalFactionButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    selectedFaction = btn.dataset.faction;
-    factionModalEl.style.display = 'none';
-    displayUnits(selectedFaction);
+// === Dynamic Faction Modal ===
+function populateFactionModal() {
+  const factions = [...new Set(units.map(u => u.faction))]; // unique factions
+  const fragment = document.createDocumentFragment();
+
+  // Clear old buttons
+  modalContentEl.querySelectorAll('button[data-faction]').forEach(btn => btn.remove());
+
+  factions.forEach(faction => {
+    const btn = document.createElement('button');
+    btn.dataset.faction = faction;
+    btn.textContent = faction;
+    btn.addEventListener('click', () => {
+      selectedFaction = faction;
+      factionModalEl.style.display = 'none';
+      displayUnits(selectedFaction);
+    });
+    fragment.appendChild(btn);
   });
-});
+
+  modalContentEl.appendChild(fragment);
+}
 
 // === Sidebar Faction Buttons ===
 function populateSidebarFactionList() {
@@ -52,6 +67,10 @@ function populateSidebarFactionList() {
 function displayUnits(faction) {
   unitGridEl.innerHTML = '';
   const filtered = units.filter(u => u.faction.toLowerCase() === faction.toLowerCase());
+
+  console.log("Selected faction:", faction);
+  console.log("Units found:", filtered.length, filtered.map(u => u.name));
+
   filtered.forEach(unit => {
     const card = document.createElement('div');
     card.classList.add('unit-card');
@@ -62,9 +81,7 @@ function displayUnits(faction) {
       <button class="add-unit">Add</button>
     `;
 
-    card.querySelector('.add-unit').addEventListener('click', () => {
-      addUnitToArmy(unit);
-    });
+    card.querySelector('.add-unit').addEventListener('click', () => addUnitToArmy(unit));
 
     unitGridEl.appendChild(card);
   });
@@ -79,7 +96,7 @@ function getOrCreateRankSection(rank) {
     rankSection.dataset.rank = rank;
 
     const header = document.createElement('h3');
-    header.textContent = `${rank} (0)`; // count included
+    header.textContent = `${rank} (0)`;
     rankSection.appendChild(header);
 
     const list = document.createElement('div');
@@ -94,11 +111,9 @@ function getOrCreateRankSection(rank) {
 function addUnitToArmy(unit) {
   currentArmy.push(unit);
 
-  // Get or create rank section
   const rankSection = getOrCreateRankSection(unit.rank);
   const rankList = rankSection.querySelector('.rank-list');
 
-  // Create unit element
   const unitEl = document.createElement('div');
   unitEl.classList.add('army-unit');
   unitEl.textContent = `${unit.name} (${unit.points} pts)`;
@@ -121,7 +136,7 @@ function addUnitToArmy(unit) {
   updateArmySummary();
 }
 
-// === Update Rank Counts ===
+// === Rank & Summary Updates ===
 function updateRankCount(rank) {
   const rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
   if (!rankSection) return;
@@ -136,7 +151,6 @@ function checkEmptyRankSections() {
   });
 }
 
-// === Update Army Summary ===
 function updateArmySummary() {
   const totalUnits = currentArmy.length;
   const totalPoints = currentArmy.reduce((sum, u) => sum + u.points, 0);
@@ -144,9 +158,7 @@ function updateArmySummary() {
 }
 
 // === Army Buttons ===
-newArmyBtn.addEventListener('click', () => {
-  factionModalEl.style.display = 'flex'; // show modal
-});
+newArmyBtn.addEventListener('click', () => factionModalEl.style.display = 'flex');
 
 resetArmyBtn.addEventListener('click', () => {
   if (confirm('Clear current army?')) {
