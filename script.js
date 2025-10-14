@@ -15,6 +15,9 @@ let units = [];
 let currentArmy = [];
 let selectedFaction = null;
 
+// Define rank priority for correct ordering
+const rankOrder = ["commander", "operative", "corps", "specialforces", "support", "heavy"];
+
 // === Load Unit Data ===
 fetch('data/units.json')
   .then(res => res.json())
@@ -50,8 +53,9 @@ function displayUnits(faction) {
     const card = document.createElement('div');
     card.classList.add('unit-card');
     card.innerHTML = `
+      <img src="${unit.image}" alt="${unit.name}" />
       <h4>${unit.name}</h4>
-      <p>Rank: ${unit.rank}</p>
+      <p>Rank: ${capitalize(unit.rank)}</p>
       <p>Points: ${unit.points}</p>
       <button class="add-unit">Add</button>
     `;
@@ -76,7 +80,17 @@ function getOrCreateRankSection(rank) {
     list.classList.add('rank-list');
     rankSection.appendChild(list);
 
-    armyContainerEl.appendChild(rankSection);
+    // Insert rankSection in correct order
+    const rankIndex = rankOrder.indexOf(rank);
+    let inserted = false;
+    document.querySelectorAll('.rank-section').forEach(section => {
+      const existingIndex = rankOrder.indexOf(section.dataset.rank);
+      if (!inserted && rankIndex < existingIndex) {
+        armyContainerEl.insertBefore(rankSection, section);
+        inserted = true;
+      }
+    });
+    if (!inserted) armyContainerEl.appendChild(rankSection);
   }
   return rankSection;
 }
@@ -89,8 +103,47 @@ function addUnitToArmy(unit) {
 
   const unitEl = document.createElement('div');
   unitEl.classList.add('army-unit');
-  unitEl.textContent = `${unit.name} (${unit.points} pts)`;
 
+  // Unit image
+  const img = document.createElement('img');
+  img.src = unit.image;
+  img.alt = unit.name;
+  img.style.width = "60px";
+  img.style.height = "60px";
+  img.style.marginRight = "10px";
+  unitEl.appendChild(img);
+
+  // Info container
+  const infoDiv = document.createElement('div');
+  infoDiv.classList.add('unit-info');
+  infoDiv.style.display = "inline-block";
+  infoDiv.style.verticalAlign = "top";
+
+  const namePts = document.createElement('span');
+  namePts.textContent = `${unit.name} (${unit.points} pts)`;
+  infoDiv.appendChild(namePts);
+
+  // Upgrades container
+  const upgradesDiv = document.createElement('div');
+  upgradesDiv.classList.add('unit-upgrades');
+  upgradesDiv.style.marginTop = "5px";
+
+  unit.allowedUpgrades.forEach(upg => {
+    const btn = document.createElement('button');
+    btn.classList.add('upgrade-btn');
+    btn.dataset.upgrade = upg;
+    btn.textContent = capitalize(upg);
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('selected');
+      console.log(`Toggled upgrade "${upg}" for ${unit.name}`);
+    });
+    upgradesDiv.appendChild(btn);
+  });
+
+  infoDiv.appendChild(upgradesDiv);
+  unitEl.appendChild(infoDiv);
+
+  // Remove button
   const removeBtn = document.createElement('button');
   removeBtn.textContent = '✕';
   removeBtn.classList.add('remove-unit');
@@ -101,8 +154,9 @@ function addUnitToArmy(unit) {
     checkEmptyRankSections();
     updateArmySummary();
   });
-
+  removeBtn.style.marginLeft = "10px";
   unitEl.appendChild(removeBtn);
+
   rankList.appendChild(unitEl);
 
   updateRankCount(unit.rank);
