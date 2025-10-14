@@ -1,60 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tabletop Admiral Clone</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galactic Battle Builder</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- === Top Toolbar === -->
-  <div id="top-toolbar">
-    <button id="new-army">New Army</button>
-    <button id="reset-army">Reset</button>
+<div id="top-toolbar">
+  <button id="new-army">New Army</button>
+  <button id="reset-army">Reset</button>
+  <button id="save-army">Save Army</button>
+  <button id="load-army">Load Army</button>
+</div>
+
+<header>
+  <h1>Galactic Battle Builder</h1>
+</header>
+
+<div id="content">
+  <aside class="sidebar">
+    <h2>Factions</h2>
+    <div id="faction-list"></div>
+    <div id="army-summary" class="army-summary">Total Units: 0 | Total Points: 0</div>
+  </aside>
+
+  <main>
+    <section class="controls">
+      <input type="text" id="search-input" placeholder="Search units...">
+    </section>
+
+    <section class="unit-grid" id="unit-grid">
+      <!-- Units dynamically loaded here -->
+    </section>
+
+    <section class="army-builder">
+      <h2>Your Army</h2>
+      <div id="army-container"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Faction modal -->
+<div id="faction-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h2>Select a Faction</h2>
+    <button data-faction="Rebels">Rebels</button>
+    <button data-faction="Imperials">Imperials</button>
   </div>
+</div>
 
-  <header>
-    <h1>Tabletop Admiral Clone</h1>
-  </header>
-
-  <!-- === Main Layout === -->
-  <div id="content">
-    <aside class="sidebar">
-      <h2>Factions</h2>
-      <div id="faction-list"></div>
-      <div id="army-summary" class="army-summary"></div>
-    </aside>
-
-    <main>
-      <section class="controls">
-        <input type="text" id="search-input" placeholder="Search units..." />
-      </section>
-
-      <section class="unit-grid" id="unit-grid">
-        <!-- Units dynamically loaded here -->
-      </section>
-
-      <section class="army-builder">
-        <h2>Your Army</h2>
-        <div id="army-container"></div>
-        <button id="save-army">Save Army</button>
-        <button id="load-army">Load Army</button>
-      </section>
-    </main>
-  </div>
-
-  <!-- === Faction Selection Modal === -->
-  <div id="faction-modal" class="modal">
-    <div class="modal-content">
-      <h2>Select a Faction</h2>
-      <div class="faction-buttons">
-        <button data-faction="Rebels">Rebels</button>
-        <button data-faction="Imperials">Imperials</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
