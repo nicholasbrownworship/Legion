@@ -204,6 +204,7 @@ main {
   border-bottom: 1px solid rgba(0,255,242,0.2);
 }
 
+/* === Remove Unit Button === */
 .remove-unit {
   background: transparent;
   color: #ff6060;
@@ -224,23 +225,23 @@ main {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  background: rgba(0, 200, 220, 0.35); /* slightly stronger cyan */
-  border: 1px solid #00b8c5;
-  color: #00ffff; /* bright cyan for header text */
+  background: #007788; /* stronger solid cyan for type */
+  border: 1px solid #00fff2;
+  color: #ffffff; /* white text for readability */
   font-family: 'Orbitron', sans-serif;
   font-size: 0.9rem;
   padding: 6px 10px;
   margin: 3px 0;
   cursor: pointer;
   border-radius: 4px;
-  text-shadow: 0 0 4px rgba(0,255,255,0.8);
+  text-shadow: 0 0 2px #00ffff;
   transition: all 0.3s ease;
 }
 
 .upgrade-type-btn:hover {
-  background: rgba(0, 255, 255, 0.6);
+  background: #00ffff; 
   color: #000;
-  text-shadow: 0 0 6px rgba(0,255,255,0.9);
+  text-shadow: 0 0 4px #00fff2;
 }
 
 .upgrade-type-btn .arrow {
@@ -260,7 +261,7 @@ main {
   opacity: 0;
   margin-left: 6px;
   padding-left: 6px;
-  background: rgba(0,0,0,0.8); /* dark solid background for readability */
+  background: rgba(0,0,0,0.95); /* dark solid background */
   border-left: 2px solid #00fff2;
   border-radius: 0 6px 6px 0;
 }
@@ -273,22 +274,22 @@ main {
 .upgrade-btn {
   display: block;
   width: 100%;
-  background: rgba(20, 20, 30, 0.95); /* darker, solid background */
-  border: 1px solid rgba(0,255,255,0.2);
-  color: #ffffff; /* bright white for readability */
+  background: #111; /* solid dark background for readability */
+  border: 1px solid #00fff2;
+  color: #ffffff; /* bright text */
   padding: 6px 10px;
   margin: 2px 0;
   border-radius: 4px;
   text-align: left;
   cursor: pointer;
   font-weight: 500;
-  text-shadow: 0 0 3px rgba(0,255,255,0.5);
+  text-shadow: 0 0 2px #00fff2;
   transition: all 0.2s ease;
 }
 
 .upgrade-btn:hover {
-  background: rgba(0, 255, 255, 0.25); /* neon cyan highlight */
-  color: #000; /* readable on hover */
+  background: #00ffff; 
+  color: #000; /* readable hover */
 }
 
 .upgrade-btn.selected {
@@ -296,7 +297,6 @@ main {
   color: #000;
   font-weight: bold;
 }
-
 
 /* === Summary Display === */
 #army-summary {
