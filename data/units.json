@@ -2,7 +2,6 @@
   "factions": ["rebels", "imperials", "cis", "gar"],
 
   "units": [
-    //Rebellion
     {
       "id": "rebel_infantry_squad",
       "name": "Rebel Troopers",
@@ -46,7 +45,6 @@
       "image": "images/rebels/luke_skywalker.png"
     },
 
-    //Imperials
     {
       "id": "imperial_speeder_bike",
       "name": "Imperial Speeder Bike Unit",
@@ -93,7 +91,6 @@
       "image": "images/imperials/darth_vader.png"
     },
 
-    //CIS
     {
       "id": "b1_battle_droid",
       "name": "B1 Battle Droid",
@@ -108,6 +105,5 @@
       "keywords": ["trooper"],
       "image": "images/rebels/infantry_squad.png"
     }
-    //GAR
   ]
 }
