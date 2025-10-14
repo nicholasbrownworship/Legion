@@ -91,7 +91,7 @@ async function init() {
     const unitData = await loadJSON('data/units.json');
     allUnits = (unitData.units || []).map(u => ({
       ...u,
-      unitType: u.unitType?.toLowerCase() || ''
+      unitType: u.keywords?.[0]?.toLowerCase() || ''
     }));
 
     // Load upgrades
@@ -112,11 +112,10 @@ async function init() {
   }
 }
 
-// === Show Faction Modal & Reset Army ===
+// === Show Faction Modal ===
 function showFactionModal() {
-  army = []; // clear previous army
-  renderArmy(); // update display
-  factionModal.style.display = 'flex';
+  if (!initComplete) return alert('Data still loading, please wait.');
+  factionModal.style.display = 'block';
 }
 
 // === Faction Buttons ===
@@ -124,9 +123,9 @@ factionModal.querySelectorAll('button').forEach(btn => {
   btn.addEventListener('click', () => {
     currentFaction = btn.dataset.faction.toLowerCase();
     factionModal.style.display = 'none';
-    army = []; // ensure army is cleared when selecting new faction
-    renderUnits(); // show units for chosen faction
-    renderArmy(); // refresh army container
+    army = []; // clear the army
+    renderUnits();
+    renderArmy();
   });
 });
 
@@ -153,17 +152,11 @@ function renderUnits() {
 // === Add Unit to Army ===
 function addUnitToArmy(unit) {
   const unitCopy = { ...unit, selectedUpgrades: {} };
-
-  // Determine max slots for upgrades (default 1 if not specified)
   if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
     unit.allowedUpgrades.forEach(typeKey => {
-      const filtered = filterUpgrades(unitCopy, typeKey.toLowerCase());
       unitCopy.selectedUpgrades[typeKey] = [];
-      const maxSlots = unit.upgradeSlots?.[typeKey] || 1;
-      for (let i = 0; i < maxSlots; i++) unitCopy.selectedUpgrades[typeKey].push('');
     });
   }
-
   army.push(unitCopy);
   renderArmy();
 }
@@ -181,7 +174,6 @@ function renderArmy() {
 
     const unitDiv = document.createElement('div');
     unitDiv.className = 'army-unit';
-
     unitDiv.innerHTML = `
       <img src="${unit.image || 'images/placeholder_unit.png'}" alt="${unit.name}">
       <h3>${unit.name} (${unit.points} pts)</h3>
@@ -195,13 +187,11 @@ function renderArmy() {
       unit.allowedUpgrades.forEach(typeKey => {
         const filteredUpgrades = filterUpgrades(unit, typeKey.toLowerCase());
         const selectedArray = unit.selectedUpgrades[typeKey] || [];
-
-        const maxSlots = unit.upgradeSlots?.[typeKey] || 1;
+        const maxSlots = 3; // Allow up to 3 upgrades per type for demonstration
 
         for (let slot = 0; slot < maxSlots; slot++) {
           const select = document.createElement('select');
           select.innerHTML = `<option value="">Select ${typeKey} ${slot + 1}</option>`;
-
           filteredUpgrades.forEach(upg => {
             if (!selectedArray.includes(upg.name)) {
               const opt = document.createElement('option');
@@ -211,11 +201,11 @@ function renderArmy() {
             }
           });
 
-          // Preselect if already chosen
           if (selectedArray[slot]) select.value = selectedArray[slot];
 
           select.addEventListener('change', e => {
             const val = e.target.value;
+            if (!unit.selectedUpgrades[typeKey]) unit.selectedUpgrades[typeKey] = [];
             unit.selectedUpgrades[typeKey][slot] = val;
             renderArmy();
           });
@@ -241,7 +231,7 @@ function renderArmy() {
     armyContainerEl.appendChild(unitDiv);
   });
 
-  // === Validation ===
+  // Validation
   const errors = [];
   for (const [type, rule] of Object.entries(LIST_RULES)) {
     const count = typeCounts[type] || 0;
@@ -258,7 +248,18 @@ function renderArmy() {
   `;
 }
 
-// === Save / Load Army ===
+// === Buttons ===
+newArmyBtn.addEventListener('click', () => {
+  army = [];
+  renderArmy();
+  showFactionModal();
+});
+
+resetArmyBtn.addEventListener('click', () => {
+  army = [];
+  renderArmy();
+});
+
 saveArmyBtn.addEventListener('click', () => {
   localStorage.setItem('savedArmy', JSON.stringify({ faction: currentFaction, army }));
   alert('Army saved!');
@@ -273,14 +274,6 @@ loadArmyBtn.addEventListener('click', () => {
     renderArmy();
     alert('Army loaded!');
   }
-});
-
-// === Buttons ===
-newArmyBtn.addEventListener('click', showFactionModal);
-
-resetArmyBtn.addEventListener('click', () => {
-  army = [];
-  renderArmy();
 });
 
 // === Initialize ===
