@@ -1,5 +1,4 @@
 // === Global Elements ===
-const factionListEl = document.getElementById('faction-list');
 const unitGridEl = document.getElementById('unit-grid');
 const armyContainerEl = document.getElementById('army-container');
 const armySummaryEl = document.getElementById('army-summary');
@@ -23,7 +22,6 @@ fetch('data/units.json')
     units = data.units;
     console.log("Units loaded:", units);
     newArmyBtn.disabled = false; // enable New Army button
-    populateSidebarFactionList();
   })
   .catch(err => console.error('Error loading unit data:', err));
 
@@ -31,25 +29,10 @@ fetch('data/units.json')
 modalFactionButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     selectedFaction = btn.dataset.faction;
-    factionModalEl.classList.remove('active'); // use class toggle instead of style
+    factionModalEl.classList.remove('active'); // hide modal
     displayUnits(selectedFaction);
   });
 });
-
-// === Sidebar Faction Buttons ===
-function populateSidebarFactionList() {
-  const factions = ['rebels', 'imperials', 'cis', 'gar']; // hard-coded sidebar
-  factionListEl.innerHTML = '';
-  factions.forEach(faction => {
-    const btn = document.createElement('button');
-    btn.textContent = capitalize(faction === 'gar' ? 'Republic' : faction);
-    btn.addEventListener('click', () => {
-      selectedFaction = faction;
-      displayUnits(selectedFaction);
-    });
-    factionListEl.appendChild(btn);
-  });
-}
 
 // === Display Units for Selected Faction ===
 function displayUnits(faction) {
@@ -149,7 +132,7 @@ function updateArmySummary() {
 
 // === Army Buttons ===
 newArmyBtn.addEventListener('click', () => {
-  factionModalEl.classList.add('active'); // use class toggle
+  factionModalEl.classList.add('active'); // show modal
 });
 
 resetArmyBtn.addEventListener('click', () => {
