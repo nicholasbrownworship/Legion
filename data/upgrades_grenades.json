@@ -1,7 +1,65 @@
 {
   "upgrades": [
-    { "name": "Impact Grenades", "points": 5, "description": "Gain Impact 1.", "factions": ["Rebels", "Imperials"] },
-    { "name": "Concussion Grenades", "points": 5, "description": "Gain Blast.", "factions": ["Rebels", "Imperials"] }
+    {
+    "id": "impact_grenades",
+    "name": "Impact Grenades",
+    "type": "grenades",
+    "points": 3,
+    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "restrictions": ["trooper"],
+    "text": "Placeholder",
+    "isUnique": false
+  },
+    {
+    "id": "concussion_grenades",
+    "name": "Concussion Grenades",
+    "type": "grenades",
+    "points": 3,
+    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "restrictions": ["trooper"],
+    "text": "Placeholder",
+    "isUnique": false
+  },
+    {
+    "id": "emp_droid_poppers",
+    "name": "EMP 'Droid Poppers'",
+    "type": "grenades",
+    "points": 3,
+    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "restrictions": ["trooper"],
+    "text": "Placeholder",
+    "isUnique": false
+  },
+    {
+    "id": "fragmentation_grenades",
+    "name": "Fragmentation Grenades",
+    "type": "grenades",
+    "points": 5,
+    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "restrictions": ["trooper"],
+    "text": "Placeholder",
+    "isUnique": false
+  },
+    {
+    "id": "smoke_grenades",
+    "name": "Smoke Grenades",
+    "type": "grenades",
+    "points": 3,
+    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "restrictions": ["trooper"],
+    "text": "Placeholder",
+    "isUnique": false
+  },
+    {
+    "id": "sonic_imploders",
+    "name": "Sonic Imploders",
+    "type": "grenades",
+    "points": 3,
+    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "restrictions": ["trooper"],
+    "text": "Placeholder",
+    "isUnique": false
+  },
   ]
 }
 
