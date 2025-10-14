@@ -23,22 +23,20 @@ fetch('units.json')
     console.log("Units loaded:", units);
     populateSidebarFactionList();
     populateFactionModal();
+    newArmyBtn.disabled = false; // enable after units loaded
   })
   .catch(err => console.error('Error loading unit data:', err));
 
-// === Modal Functionality ===
+// === Populate Faction Modal Dynamically ===
 function populateFactionModal() {
-  const factions = [...new Set(units.map(u => u.faction))]; // unique factions
-  console.log("Factions for modal:", factions);
-
-  // Remove old buttons
+  // remove old buttons
   modalContentEl.querySelectorAll('button[data-faction]').forEach(btn => btn.remove());
 
-  // Create buttons
+  const factions = [...new Set(units.map(u => u.faction))]; // unique factions
   factions.forEach(faction => {
     const btn = document.createElement('button');
     btn.dataset.faction = faction;
-    btn.textContent = faction;
+    btn.textContent = capitalize(faction);
     btn.addEventListener('click', () => {
       selectedFaction = faction;
       factionModalEl.style.display = 'none';
@@ -50,11 +48,11 @@ function populateFactionModal() {
 
 // === Sidebar Faction Buttons ===
 function populateSidebarFactionList() {
-  const factions = [...new Set(units.map(u => u.faction))];
   factionListEl.innerHTML = '';
+  const factions = [...new Set(units.map(u => u.faction))];
   factions.forEach(faction => {
     const btn = document.createElement('button');
-    btn.textContent = faction;
+    btn.textContent = capitalize(faction);
     btn.addEventListener('click', () => {
       selectedFaction = faction;
       displayUnits(selectedFaction);
@@ -67,9 +65,8 @@ function populateSidebarFactionList() {
 function displayUnits(faction) {
   unitGridEl.innerHTML = '';
   const filtered = units.filter(u => u.faction.toLowerCase() === faction.toLowerCase());
-
   console.log("Selected faction:", faction);
-  console.log("Units found:", filtered.length, filtered.map(u => u.name));
+  console.log("Units found:", filtered.map(u => u.name));
 
   filtered.forEach(unit => {
     const card = document.createElement('div');
@@ -80,7 +77,6 @@ function displayUnits(faction) {
       <p>Points: ${unit.points}</p>
       <button class="add-unit">Add</button>
     `;
-
     card.querySelector('.add-unit').addEventListener('click', () => addUnitToArmy(unit));
     unitGridEl.appendChild(card);
   });
@@ -184,3 +180,8 @@ loadArmyBtn.addEventListener('click', () => {
 window.addEventListener('click', e => {
   if (e.target === factionModalEl) factionModalEl.style.display = 'none';
 });
+
+// === Utility ===
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
