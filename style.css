@@ -254,6 +254,7 @@ main {
   transform: rotate(90deg);
 }
 
+/* === FIXED UPGRADE DROPDOWN OPTIONS === */
 .upgrade-menu {
   max-height: 0;
   overflow: hidden;
@@ -275,9 +276,9 @@ main {
 .upgrade-btn {
   display: block;
   width: 100%;
-  background: #00314d; /* solid dark for contrast */
+  background: #004466; /* solid dark for contrast */
   border: 1px solid #00fff2;
-  color: #ffffff; /* readable text */
+  color: #ffffff; /* bright text for readability */
   padding: 6px 10px;
   margin: 4px 0;
   border-radius: 4px;
@@ -290,7 +291,7 @@ main {
 
 .upgrade-btn:hover {
   background: #00ffff; /* neon cyan highlight */
-  color: #000; /* readable on hover */
+  color: #000;
 }
 
 .upgrade-btn.selected {
