@@ -20,19 +20,21 @@ fetch('units.json')
   .then(res => res.json())
   .then(data => {
     units = data.units;
+    console.log("Units loaded:", units);
     populateSidebarFactionList();
-    populateFactionModal(); // dynamically create modal buttons
+    populateFactionModal();
   })
   .catch(err => console.error('Error loading unit data:', err));
 
-// === Dynamic Faction Modal ===
+// === Modal Functionality ===
 function populateFactionModal() {
   const factions = [...new Set(units.map(u => u.faction))]; // unique factions
-  const fragment = document.createDocumentFragment();
+  console.log("Factions for modal:", factions);
 
-  // Clear old buttons
+  // Remove old buttons
   modalContentEl.querySelectorAll('button[data-faction]').forEach(btn => btn.remove());
 
+  // Create buttons
   factions.forEach(faction => {
     const btn = document.createElement('button');
     btn.dataset.faction = faction;
@@ -42,10 +44,8 @@ function populateFactionModal() {
       factionModalEl.style.display = 'none';
       displayUnits(selectedFaction);
     });
-    fragment.appendChild(btn);
+    modalContentEl.appendChild(btn);
   });
-
-  modalContentEl.appendChild(fragment);
 }
 
 // === Sidebar Faction Buttons ===
@@ -57,7 +57,7 @@ function populateSidebarFactionList() {
     btn.textContent = faction;
     btn.addEventListener('click', () => {
       selectedFaction = faction;
-      displayUnits(faction);
+      displayUnits(selectedFaction);
     });
     factionListEl.appendChild(btn);
   });
@@ -82,7 +82,6 @@ function displayUnits(faction) {
     `;
 
     card.querySelector('.add-unit').addEventListener('click', () => addUnitToArmy(unit));
-
     unitGridEl.appendChild(card);
   });
 }
