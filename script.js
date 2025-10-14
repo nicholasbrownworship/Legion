@@ -94,6 +94,7 @@ function getOrCreateRankSection(rank) {
     list.classList.add('rank-list');
     rankSection.appendChild(list);
 
+    // Insert rankSection in correct order
     const rankIndex = rankOrder.indexOf(rank);
     let inserted = false;
     document.querySelectorAll('.rank-section').forEach(section => {
@@ -109,72 +110,71 @@ function getOrCreateRankSection(rank) {
 }
 
 function addUnitToArmy(unit) {
-  const armyUnit = JSON.parse(JSON.stringify(unit)); // deep copy
-  armyUnit.selectedUpgrades = {}; // one per upgrade type
-  armyUnit.currentPoints = armyUnit.points;
-  currentArmy.push(armyUnit);
+  const armyUnit = {
+    ...unit,
+    selectedUpgrades: {},
+    currentPoints: unit.points
+  };
 
-  const rankSection = getOrCreateRankSection(armyUnit.rank);
+  currentArmy.push(armyUnit);
+  const rankSection = getOrCreateRankSection(unit.rank);
   const rankList = rankSection.querySelector('.rank-list');
 
   const unitEl = document.createElement('div');
   unitEl.classList.add('army-unit');
+  unitEl.style.display = "flex";
+  unitEl.style.alignItems = "flex-start";
+  unitEl.style.marginBottom = "10px";
 
+  // Unit image
   const img = document.createElement('img');
-  img.src = armyUnit.image;
-  img.alt = armyUnit.name;
+  img.src = unit.image;
+  img.alt = unit.name;
   img.style.width = "60px";
   img.style.height = "60px";
   img.style.marginRight = "10px";
   unitEl.appendChild(img);
 
+  // Info container
   const infoDiv = document.createElement('div');
   infoDiv.classList.add('unit-info');
-  infoDiv.style.display = "inline-block";
-  infoDiv.style.verticalAlign = "top";
 
   const namePts = document.createElement('span');
-  namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
+  namePts.textContent = `${unit.name} (${armyUnit.currentPoints} pts)`;
   infoDiv.appendChild(namePts);
 
-  const upgradesContainer = document.createElement('div');
-  upgradesContainer.classList.add('unit-upgrades');
-  upgradesContainer.style.marginTop = "5px";
-
+  // Upgrade images container
   const upgradeImagesDiv = document.createElement('div');
   upgradeImagesDiv.classList.add('upgrade-images');
   upgradeImagesDiv.style.marginTop = "5px";
-  upgradeImagesDiv.style.display = "flex";
-  upgradeImagesDiv.style.flexWrap = "wrap";
   infoDiv.appendChild(upgradeImagesDiv);
 
-  if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
-    armyUnit.allowedUpgrades.forEach(upgType => {
-      const upgradeSection = document.createElement('div');
-      upgradeSection.classList.add('upgrade-section');
+  // Upgrades dropdowns
+  if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
+    unit.allowedUpgrades.forEach(upgType => {
+      const typeContainer = document.createElement('div');
+      typeContainer.classList.add('upgrade-type');
+      typeContainer.style.marginTop = "5px";
 
-      const header = document.createElement('div');
-      header.textContent = capitalize(upgType);
-      header.classList.add('upgrade-header');
-      header.style.cursor = "pointer";
-      header.style.fontWeight = "bold";
-      header.style.marginTop = "5px";
+      const typeBtn = document.createElement('button');
+      typeBtn.textContent = capitalize(upgType);
+      typeBtn.classList.add('upgrade-type-btn');
+      typeBtn.style.marginBottom = "2px";
 
       const menu = document.createElement('div');
       menu.classList.add('upgrade-menu');
-      menu.style.display = "none";
-      menu.style.marginTop = "3px";
-
-      header.addEventListener('click', () => {
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-      });
+      menu.style.maxHeight = "0";
+      menu.style.overflow = "hidden";
+      menu.style.transition = "max-height 0.3s ease";
 
       const availableUpgrades = upgradesData[upgType] || [];
       availableUpgrades.forEach(upg => {
         const btn = document.createElement('button');
         btn.classList.add('upgrade-btn');
         btn.dataset.upgrade = upg.id;
-        btn.textContent = `${upg.name} (+${upg.points} pts)`;
+        btn.textContent = upg.name;
+        btn.style.display = "block";
+        btn.style.marginBottom = "2px";
 
         btn.addEventListener('click', () => {
           // deselect previous upgrade of this type
@@ -194,7 +194,7 @@ function addUnitToArmy(unit) {
           btn.classList.add('selected');
 
           const upgImg = document.createElement('img');
-          upgImg.src = upg.image || ''; // placeholder, set in JSON
+          upgImg.src = upg.image || '';
           upgImg.alt = upg.name;
           upgImg.dataset.upgrade = upg.id;
           upgImg.style.width = "30px";
@@ -204,27 +204,38 @@ function addUnitToArmy(unit) {
 
           namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
           updateArmySummary();
+
+          // close menu after selection with smooth collapse
+          menu.style.maxHeight = "0";
         });
 
         menu.appendChild(btn);
       });
 
-      upgradeSection.appendChild(header);
-      upgradeSection.appendChild(menu);
-      upgradesContainer.appendChild(upgradeSection);
+      typeBtn.addEventListener('click', () => {
+        if (menu.style.maxHeight === "0px" || menu.style.maxHeight === "") {
+          menu.style.maxHeight = menu.scrollHeight + "px";
+        } else {
+          menu.style.maxHeight = "0";
+        }
+      });
+
+      typeContainer.appendChild(typeBtn);
+      typeContainer.appendChild(menu);
+      infoDiv.appendChild(typeContainer);
     });
   }
 
-  infoDiv.appendChild(upgradesContainer);
   unitEl.appendChild(infoDiv);
 
+  // Remove button
   const removeBtn = document.createElement('button');
   removeBtn.textContent = '✕';
   removeBtn.classList.add('remove-unit');
   removeBtn.addEventListener('click', () => {
     currentArmy = currentArmy.filter(u => u !== armyUnit);
     unitEl.remove();
-    updateRankCount(armyUnit.rank);
+    updateRankCount(unit.rank);
     checkEmptyRankSections();
     updateArmySummary();
   });
@@ -233,7 +244,7 @@ function addUnitToArmy(unit) {
 
   rankList.appendChild(unitEl);
 
-  updateRankCount(armyUnit.rank);
+  updateRankCount(unit.rank);
   updateArmySummary();
 }
 
