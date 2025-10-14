@@ -1,0 +1,47 @@
+{
+  "faction": "rebels",
+  "units": [
+{
+      "id": "rebel_infantry_squad",
+      "name": "Rebel Troopers",
+      "faction": "rebels",
+      "points": 40,
+      "min": 1,
+      "max": 6,
+      "rank": "corps",
+      "unitType": "trooper",
+      "allowedUpgrades": ["grenades", "personnel", "heavyweapon", "gear"],
+      "restrictions": [],
+      "keywords": ["trooper"],
+      "image": "images/rebels/infantry_squad.png"
+    },
+    {
+      "id": "rebel_sniper_team",
+      "name": "Rebel Sniper Team",
+      "faction": "rebels",
+      "points": 75,
+      "min": 0,
+      "max": 3,
+      "rank": "specialforces",
+      "unitType": "trooper",
+      "allowedUpgrades": ["grenades", "gear", "training", "heavyweapon"],
+      "restrictions": [],
+      "keywords": ["heavy weapon team", "scout"],
+      "image": "images/rebels/sniper_team.png"
+    },
+    {
+      "id": "luke_skywalker",
+      "name": "Luke Skywalker",
+      "faction": "rebels",
+      "points": 120,
+      "min": 1,
+      "max": 2,
+      "rank": "commander",
+      "unitType": "trooper",
+      "allowedUpgrades": ["force", "gear", "command", "training"],
+      "restrictions": [],
+      "keywords": ["trooper", "force user"],
+      "image": "images/rebels/luke_skywalker.png"
+    }
+
+  ]
