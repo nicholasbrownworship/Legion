@@ -231,59 +231,52 @@ function renderArmy() {
     const upgradeContainer = document.createElement('div');
     upgradeContainer.className = 'upgrades';
 
-    // === Upgrades ===
     if (unit.allowedUpgrades && unit.allowedUpgrades.length) {
       unit.allowedUpgrades.forEach(typeKey => {
-        const filtered = filterUpgrades(unit, typeKey.toLowerCase());
+        const filteredUpgrades = filterUpgrades(unit, typeKey.toLowerCase());
+        const selectedArray = unit.selectedUpgrades[typeKey] || [];
 
-        // Create multi-select dropdown
-        const select = document.createElement('select');
-        select.setAttribute('multiple', 'multiple'); // allow multiple selections
-        select.size = Math.min(filtered.length, 5); // show up to 5 options
+        // Determine how many slots we should render for this upgrade type
+        const maxSlots = unit.upgradeSlots?.[typeKey] || 1;
 
-        // Optional placeholder as first disabled option
-        const placeholderOpt = document.createElement('option');
-        placeholderOpt.textContent = `Select ${typeKey}`;
-        placeholderOpt.disabled = true;
-        select.appendChild(placeholderOpt);
+        for (let slot = 0; slot < maxSlots; slot++) {
+          const select = document.createElement('select');
+          select.innerHTML = `<option value="">Select ${typeKey} ${slot + 1}</option>`;
 
-        // Populate options
-        filtered.forEach(upg => {
-          const opt = document.createElement('option');
-          opt.value = upg.name;
-          opt.textContent = `${upg.name} (${upg.points || 0} pts)`;
+          // Only include upgrades not already selected in other slots
+          filteredUpgrades.forEach(upg => {
+            if (!selectedArray.includes(upg.name)) {
+              const opt = document.createElement('option');
+              opt.value = upg.name;
+              opt.textContent = `${upg.name} (${upg.points || 0} pts)`;
+              select.appendChild(opt);
+            }
+          });
 
-          // mark selected if previously chosen
-          if ((unit.selectedUpgrades[typeKey] || []).includes(upg.name)) {
-            opt.selected = true;
-          }
+          // Set the current value if one is selected
+          if (selectedArray[slot]) select.value = selectedArray[slot];
 
-          select.appendChild(opt);
-        });
+          select.addEventListener('change', e => {
+            const val = e.target.value;
 
-        // Event listener
-        select.addEventListener('change', e => {
-          const selected = Array.from(e.target.selectedOptions)
-            .map(opt => opt.value)
-            .filter(v => v !== `Select ${typeKey}`); // ignore placeholder
-          army[index].selectedUpgrades[typeKey] = selected;
-          renderArmy();
-        });
+            // Update selected upgrades array
+            if (!unit.selectedUpgrades[typeKey]) unit.selectedUpgrades[typeKey] = [];
+            unit.selectedUpgrades[typeKey][slot] = val;
 
-        upgradeContainer.appendChild(select);
+            renderArmy(); // re-render to update points and filter other dropdowns
+          });
 
-        // Add points for selected upgrades
-        const selectedUpgrades = unit.selectedUpgrades[typeKey] || [];
-        selectedUpgrades.forEach(selName => {
-          const upg = filtered.find(u => u.name === selName);
-          if (upg) totalPoints += upg.points || 0;
-        });
+          upgradeContainer.appendChild(select);
+
+          // Add points for already selected upgrade
+          const selectedUpgrade = filteredUpgrades.find(u => u.name === selectedArray[slot]);
+          if (selectedUpgrade) totalPoints += selectedUpgrade.points || 0;
+        }
       });
     }
 
     unitDiv.appendChild(upgradeContainer);
 
-    // Remove button
     const removeBtn = document.createElement('button');
     removeBtn.textContent = 'Remove';
     removeBtn.addEventListener('click', () => {
@@ -304,7 +297,6 @@ function renderArmy() {
   }
   if (totalPoints > MAX_POINTS) errors.push(`Army exceeds ${MAX_POINTS} points (${totalPoints}).`);
 
-  // === Update army summary ===
   armySummaryEl.innerHTML = `
     <div><strong>Total Points:</strong> ${totalPoints} / ${MAX_POINTS}</div>
     <div><strong>Composition:</strong></div>
@@ -312,6 +304,7 @@ function renderArmy() {
     <div class="errors">${errors.length ? errors.join('<br>') : '<span style="color:lime;">Valid list</span>'}</div>
   `;
 }
+
 
 
 // === Buttons ===
