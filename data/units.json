@@ -81,7 +81,7 @@
       "max": 2,
       "rank": "commander",
       "unitType": "trooper",
-      "allowedUpgrades": ["force", "gear", "comamand", "training"],
+      "allowedUpgrades": ["force", "gear", "command", "training"],
       "restrictions": [],
       "keywords": ["trooper", "force user"],
       "image": "images/rebels/luke_skywalker.png"
