@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // === Modal Button Selection ===
   modalFactionButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      selectedFaction = btn.dataset.faction;
+      selectedFaction = btn.dataset.faction.toLowerCase();
       factionModalEl.classList.remove('active');
 
       // Update header or display names if needed
