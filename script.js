@@ -30,7 +30,7 @@ fetch('data/units.json')
 
 // === Load all upgrade JSONs dynamically ===
 function loadAllUpgradeFiles() {
-  const types = ["gear", "force", "command", "training", "personnel", "heavyweapon", "hardpoint", "armament", "crew", "generator"]; // extend as needed
+  const types = ["gear", "force", "command", "training", "personnel", "heavyweapon", "hardpoint", "armament", "crew", "grenades", "generator"]; // extend as needed
   types.forEach(type => {
     fetch(`data/upgrades_${type}.json`)
       .then(res => {
