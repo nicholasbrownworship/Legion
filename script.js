@@ -17,17 +17,6 @@ let selectedFaction = null;
 const upgradesData = {}; // store loaded upgrades by type
 const rankOrder = ["commander", "operative", "corps", "specialforces", "support", "heavy"];
 
-// === Load Unit Data ===
-fetch('data/units.json')
-  .then(res => res.json())
-  .then(data => {
-    units = data.units;
-    console.log("Units loaded:", units);
-    newArmyBtn.disabled = false;
-    loadAllUpgradeFiles();
-  })
-  .catch(err => console.error('Error loading unit data:', err));
-
 // === Load all upgrade JSONs dynamically ===
 function loadAllUpgradeFiles() {
   const types = ["gear", "force", "command", "training", "personnel", "heavyweapon", "hardpoint", "armament", "crew", "grenades", "generator"]; // extend as needed
@@ -48,12 +37,42 @@ function loadAllUpgradeFiles() {
   });
 }
 
+// === Load Faction Units ===
+function loadFactionUnits(faction) {
+  fetch(`data/units_${faction}.json`)
+    .then(res => res.json())
+    .then(data => {
+      units = data.units || [];
+      console.log(`Units loaded for ${faction}:`, units);
+
+      // Optional: merge multi-faction units if needed
+      fetch('data/units_multi.json')
+        .then(res => res.json())
+        .then(multiData => {
+          const multiUnitsForFaction = multiData.units.filter(u =>
+            Array.isArray(u.faction) ? u.faction.includes(faction) : u.faction === faction
+          );
+          units = units.concat(multiUnitsForFaction);
+          console.log(`Merged multi-faction units for ${faction}:`, multiUnitsForFaction);
+        })
+        .catch(() => {
+          console.log('No multi-faction units found, skipping.');
+        })
+        .finally(() => {
+          displayUnits(faction);
+          newArmyBtn.disabled = false;
+          loadAllUpgradeFiles();
+        });
+    })
+    .catch(err => console.error(`Error loading units for faction "${faction}":`, err));
+}
+
 // === Faction modal selection ===
 modalFactionButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     selectedFaction = btn.dataset.faction;
     factionModalEl.classList.remove('active');
-    displayUnits(selectedFaction);
+    loadFactionUnits(selectedFaction); // <-- changed to use per-faction loader
   });
 });
 
@@ -61,7 +80,10 @@ modalFactionButtons.forEach(btn => {
 function displayUnits(faction) {
   unitGridEl.innerHTML = '';
   const filtered = units
-    .filter(u => u.faction.toLowerCase() === faction.toLowerCase())
+    .filter(u => {
+      if (Array.isArray(u.faction)) return u.faction.includes(faction);
+      return u.faction.toLowerCase() === faction.toLowerCase();
+    })
     .sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
   if (filtered.length === 0) {
@@ -120,9 +142,8 @@ function getOrCreateRankSection(rank) {
 }
 
 function addUnitToArmy(unit) {
-  // deep copy the unit so per-instance selections won't affect the master data
   const armyUnit = JSON.parse(JSON.stringify(unit));
-  armyUnit.selectedUpgrades = {}; // map upgradeType -> upgradeId (single-choice)
+  armyUnit.selectedUpgrades = {};
   armyUnit.currentPoints = armyUnit.points;
   currentArmy.push(armyUnit);
 
@@ -136,7 +157,6 @@ function addUnitToArmy(unit) {
   unitEl.style.alignItems = 'flex-start';
   unitEl.style.gap = '12px';
 
-  // Unit image
   const img = document.createElement('img');
   img.src = armyUnit.image || '';
   img.alt = armyUnit.name;
@@ -146,7 +166,6 @@ function addUnitToArmy(unit) {
   img.style.borderRadius = "6px";
   unitEl.appendChild(img);
 
-  // Info container
   const infoDiv = document.createElement('div');
   infoDiv.classList.add('unit-info');
   infoDiv.style.flex = '1';
@@ -157,7 +176,6 @@ function addUnitToArmy(unit) {
   namePts.style.color = '#dffaff';
   infoDiv.appendChild(namePts);
 
-  // Upgrade images container (selected upgrades' icons)
   const upgradeImagesDiv = document.createElement('div');
   upgradeImagesDiv.classList.add('upgrade-images');
   upgradeImagesDiv.style.display = 'flex';
@@ -166,7 +184,6 @@ function addUnitToArmy(unit) {
   upgradeImagesDiv.style.marginBottom = '6px';
   infoDiv.appendChild(upgradeImagesDiv);
 
-  // Upgrades dropdowns (category buttons + menu)
   if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
     armyUnit.allowedUpgrades.forEach(upgType => {
       const typeContainer = document.createElement('div');
@@ -179,7 +196,6 @@ function addUnitToArmy(unit) {
       typeBtn.type = 'button';
       typeBtn.textContent = capitalize(upgType);
 
-      // arrow span inside the button (so CSS can rotate)
       const arrow = document.createElement('span');
       arrow.classList.add('arrow');
       arrow.textContent = '▶';
@@ -188,11 +204,9 @@ function addUnitToArmy(unit) {
 
       const menu = document.createElement('div');
       menu.classList.add('upgrade-menu');
-      // ensure menu sits visually above nearby items
       menu.style.position = 'relative';
       menu.style.zIndex = '999';
 
-      // populate options from loaded upgrade data (if available)
       const availableUpgrades = upgradesData[upgType] || [];
       if (availableUpgrades.length === 0) {
         const note = document.createElement('div');
@@ -209,39 +223,27 @@ function addUnitToArmy(unit) {
           btn.textContent = `${upg.name} ${upg.points ? `(+${upg.points} pts)` : ''}`;
 
           btn.addEventListener('click', () => {
-            // If a previous upgrade is selected for this type, remove it
             const prevId = armyUnit.selectedUpgrades[upgType];
             if (prevId && prevId !== upg.id) {
-              // find previous upgrade object so we can subtract points
               const prevUpgrade = availableUpgrades.find(u => u.id === prevId);
-              if (prevUpgrade) {
-                armyUnit.currentPoints -= (prevUpgrade.points || 0);
-              }
-              // remove previous image
+              if (prevUpgrade) armyUnit.currentPoints -= (prevUpgrade.points || 0);
               const prevImgEl = upgradeImagesDiv.querySelector(`img[data-upgrade="${prevId}"]`);
               if (prevImgEl) prevImgEl.remove();
-              // unmark previous selected button if present
               const prevBtn = menu.querySelector(`button[data-upgrade="${prevId}"]`);
               if (prevBtn) prevBtn.classList.remove('selected');
             }
 
-            // If the clicked option is already selected (click again to deselect)
             if (armyUnit.selectedUpgrades[upgType] === upg.id) {
-              // deselect
               delete armyUnit.selectedUpgrades[upgType];
               armyUnit.currentPoints -= (upg.points || 0);
               btn.classList.remove('selected');
               const imgEl = upgradeImagesDiv.querySelector(`img[data-upgrade="${upg.id}"]`);
               if (imgEl) imgEl.remove();
             } else {
-              // select the clicked upgrade
               armyUnit.selectedUpgrades[upgType] = upg.id;
               armyUnit.currentPoints += (upg.points || 0);
-              // mark selected UI
               menu.querySelectorAll('.upgrade-btn').forEach(b => b.classList.remove('selected'));
               btn.classList.add('selected');
-
-              // add upgrade image (if provided in JSON)
               if (upg.image) {
                 const upgImg = document.createElement('img');
                 upgImg.src = upg.image;
@@ -255,25 +257,20 @@ function addUnitToArmy(unit) {
               }
             }
 
-            // update displayed points
             namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
             updateArmySummary();
-
-            // CLOSE THE MENU - set both maxHeight and opacity so it's visible/invisible properly
             menu.style.maxHeight = '0';
             menu.style.opacity = '0';
             typeBtn.classList.remove('active');
-          }); // btn click
+          });
 
           menu.appendChild(btn);
-        }); // availableUpgrades.forEach
+        });
       }
 
-      // Toggle menu open/close on typeBtn click; set both maxHeight and opacity
       typeBtn.addEventListener('click', () => {
         const isOpen = typeBtn.classList.toggle('active');
         if (isOpen) {
-          // set scrollHeight so max-height can animate correctly
           menu.style.opacity = '1';
           menu.style.maxHeight = menu.scrollHeight ? `${menu.scrollHeight}px` : '300px';
         } else {
@@ -290,7 +287,6 @@ function addUnitToArmy(unit) {
 
   unitEl.appendChild(infoDiv);
 
-  // Remove button
   const removeBtn = document.createElement('button');
   removeBtn.textContent = '✕';
   removeBtn.classList.add('remove-unit');
