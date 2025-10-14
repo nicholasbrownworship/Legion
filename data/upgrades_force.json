@@ -53,6 +53,7 @@
       "factions": ["imperials"],
       "text": "This unit gains Demoralize 1.",
       "isUnique": false
+    }
 ]
 }
 
