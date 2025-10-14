@@ -1,3 +1,4 @@
+/* ---------- base (your existing) ---------- */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -115,7 +116,7 @@ main {
   margin-top: 0.5rem;
 }
 
-/* Army builder */
+/* Army builder wrapper */
 .army-builder {
   margin-top: 2rem;
   background-color: #fff;
@@ -124,72 +125,157 @@ main {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
+/* New card layout for army list */
 #army-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.6rem;
   margin-bottom: 1rem;
 }
 
-.army-unit {
-  background-color: #eee;
-  border-radius: 6px;
-  padding: 0.5rem;
-  width: 180px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+/* Card */
+.army-unit.card {
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  padding: 8px;
+  width: 100%;
+  display: block;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  cursor: grab;
+  border: 1px solid rgba(0,0,0,0.06);
 }
 
-.army-unit img {
-  width: 100%;
-  height: 80px;
+.army-unit.card:active { cursor: grabbing; }
+
+/* dragging style */
+.army-unit.dragging {
+  opacity: 0.6;
+  transform: scale(0.99);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+
+/* header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-left {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.card-left img {
+  width: 84px;
+  height: 56px;
   object-fit: cover;
   border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.08);
 }
 
-.army-unit h3 {
-  margin: 0.5rem 0 0 0;
-  font-size: 1rem;
-  text-align: center;
-}
-
-.army-unit p {
-  margin: 0.25rem 0;
-  font-size: 0.85rem;
-}
-
-.army-unit .upgrades {
-  width: 100%;
+.card-title {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
+  font-size: 0.95rem;
 }
 
-.army-unit .upgrades select {
-  width: 100%;
-  padding: 4px;
+.card-sub {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* actions (toggle + drag hint) */
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-actions .toggle-details {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: none;
+  background: #2b6cb0;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.card-actions .toggle-details[aria-expanded="true"] {
+  background: #234e7a;
+}
+
+.drag-hint {
+  display: inline-block;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.06);
+  color: #333;
+  font-weight: 700;
+}
+
+/* details */
+.card-details {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed rgba(0,0,0,0.06);
+}
+
+.upgrades {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.select-wrap label {
+  min-width: 80px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.select-wrap select {
+  flex: 1;
+  padding: 6px;
   border-radius: 4px;
   border: 1px solid #ccc;
 }
 
-.army-unit button {
-  margin-top: 0.5rem;
-  padding: 4px 8px;
+/* buttons row */
+.card-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.card-buttons button {
+  padding: 6px 8px;
+  border-radius: 6px;
   border: none;
-  border-radius: 4px;
-  background-color: #c44;
-  color: white;
   cursor: pointer;
+  font-weight: 600;
 }
 
-.army-unit button:hover {
-  background-color: #e66;
+.duplicate-unit {
+  background: #4a5568;
+  color: white;
 }
 
-/* Army summary */
+.remove-unit {
+  background: #c44;
+  color: white;
+}
+
+/* Army summary (kept from before) */
 .army-summary {
   margin-top: 1rem;
 }
