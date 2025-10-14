@@ -8,6 +8,7 @@
 </head>
 <body>
 
+<!-- Top Toolbar -->
 <div id="top-toolbar">
   <button id="new-army" disabled>New Army</button>
   <button id="reset-army">Reset</button>
@@ -15,26 +16,33 @@
   <button id="load-army">Load Army</button>
 </div>
 
+<!-- Page Header -->
 <header>
   <h1>Galactic Battle Builder</h1>
 </header>
 
+<!-- Main Content -->
 <div id="content">
+  <!-- Sidebar -->
   <aside class="sidebar">
     <h2>Factions</h2>
-    <div id="faction-list"></div>
+    <!-- Faction buttons removed; only the header remains -->
     <div id="army-summary" class="army-summary">Total Units: 0 | Total Points: 0</div>
   </aside>
 
+  <!-- Main Area -->
   <main>
+    <!-- Search / Controls -->
     <section class="controls">
       <input type="text" id="search-input" placeholder="Search units...">
     </section>
 
+    <!-- Unit Grid -->
     <section class="unit-grid" id="unit-grid">
       <!-- Units dynamically loaded here -->
     </section>
 
+    <!-- Army Builder -->
     <section class="army-builder">
       <h2>Your Army</h2>
       <div id="army-container"></div>
@@ -42,7 +50,7 @@
   </main>
 </div>
 
-<!-- Faction modal -->
+<!-- Faction Selection Modal -->
 <div id="faction-modal" class="modal">
   <div class="modal-content">
     <h2>Select a Faction</h2>
@@ -52,8 +60,6 @@
     <button data-faction="gar">Republic</button>
   </div>
 </div>
-
-
 
 <script src="script.js"></script>
 </body>
