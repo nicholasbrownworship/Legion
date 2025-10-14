@@ -7,7 +7,6 @@ const newArmyBtn = document.getElementById('new-army');
 const resetArmyBtn = document.getElementById('reset-army');
 const saveArmyBtn = document.getElementById('save-army');
 const loadArmyBtn = document.getElementById('load-army');
-const searchInputEl = document.getElementById('search-input');
 const factionModalEl = document.getElementById('faction-modal');
 
 // === Global Data ===
@@ -20,31 +19,25 @@ fetch('units.json')
   .then(res => res.json())
   .then(data => {
     units = data.units;
-    populateFactionButtons();
+    populateFactionList(); // populate sidebar faction buttons
   })
   .catch(err => console.error('Error loading unit data:', err));
 
-// === Faction Modal Functions ===
-newArmyBtn.addEventListener('click', () => {
-  factionModalEl.style.display = 'flex';
+// === Modal Buttons Functionality ===
+const modalButtons = factionModalEl.querySelectorAll('button[data-faction]');
+modalButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedFaction = btn.dataset.faction;
+    factionModalEl.style.display = 'none';
+    displayUnits(selectedFaction);
+    updateFactionList(); // highlight or refresh sidebar if needed
+  });
 });
 
-function populateFactionButtons() {
-  const modalButtons = factionModalEl.querySelectorAll('button[data-faction]');
-  modalButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      selectedFaction = btn.dataset.faction;
-      factionModalEl.style.display = 'none';
-      displayUnits(selectedFaction);
-      updateFactionList(); // Update sidebar faction buttons
-    });
-  });
-}
-
 // === Populate Sidebar Faction List ===
-function updateFactionList() {
-  factionListEl.innerHTML = '';
+function populateFactionList() {
   const factions = [...new Set(units.map(u => u.faction))];
+  factionListEl.innerHTML = '';
   factions.forEach(faction => {
     const btn = document.createElement('button');
     btn.textContent = faction;
@@ -56,19 +49,11 @@ function updateFactionList() {
   });
 }
 
-// === Display Units ===
+// === Display Units for Selected Faction ===
 function displayUnits(faction) {
   unitGridEl.innerHTML = '';
-  let filteredUnits = units.filter(u => u.faction === faction);
-
-  const searchTerm = searchInputEl.value.trim().toLowerCase();
-  if (searchTerm) {
-    filteredUnits = filteredUnits.filter(u =>
-      u.name.toLowerCase().includes(searchTerm)
-    );
-  }
-
-  filteredUnits.forEach(unit => {
+  const filtered = units.filter(u => u.faction === faction);
+  filtered.forEach(unit => {
     const card = document.createElement('div');
     card.classList.add('unit-card');
     card.innerHTML = `
@@ -77,39 +62,32 @@ function displayUnits(faction) {
       <p>${unit.points} pts</p>
       <button class="add-unit">Add</button>
     `;
-
     card.querySelector('.add-unit').addEventListener('click', () => {
       addUnitToArmy(unit);
     });
-
     unitGridEl.appendChild(card);
   });
 }
 
-// === Search Units ===
-searchInputEl.addEventListener('input', () => {
-  if (selectedFaction) displayUnits(selectedFaction);
-});
-
-// === Army Management Functions ===
+// === Rank Section Management ===
 function getOrCreateRankSection(rank) {
-  let section = document.querySelector(`.rank-section[data-rank="${rank}"]`);
-  if (!section) {
-    section = document.createElement('div');
-    section.classList.add('rank-section');
-    section.dataset.rank = rank;
+  let rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
+  if (!rankSection) {
+    rankSection = document.createElement('div');
+    rankSection.classList.add('rank-section');
+    rankSection.dataset.rank = rank;
 
     const header = document.createElement('h3');
     header.textContent = rank;
-    section.appendChild(header);
+    rankSection.appendChild(header);
 
     const list = document.createElement('div');
     list.classList.add('rank-list');
-    section.appendChild(list);
+    rankSection.appendChild(list);
 
-    armyContainerEl.appendChild(section);
+    armyContainerEl.appendChild(rankSection);
   }
-  return section.querySelector('.rank-list');
+  return rankSection.querySelector('.rank-list');
 }
 
 function addUnitToArmy(unit) {
@@ -120,12 +98,12 @@ function addUnitToArmy(unit) {
   unitEl.textContent = `${unit.name} (${unit.points} pts)`;
 
   const removeBtn = document.createElement('button');
-  removeBtn.classList.add('remove-unit');
   removeBtn.textContent = '✕';
+  removeBtn.classList.add('remove-unit');
   removeBtn.addEventListener('click', () => {
     unitEl.remove();
     currentArmy = currentArmy.filter(u => u !== unit);
-    removeEmptyRankSections();
+    checkEmptyRankSections();
     updateArmySummary();
   });
 
@@ -135,25 +113,30 @@ function addUnitToArmy(unit) {
   updateArmySummary();
 }
 
-function removeEmptyRankSections() {
+function checkEmptyRankSections() {
   document.querySelectorAll('.rank-section').forEach(section => {
     const list = section.querySelector('.rank-list');
     if (!list.children.length) section.remove();
   });
 }
 
+// === Update Summary ===
 function updateArmySummary() {
   const totalPoints = currentArmy.reduce((sum, u) => sum + u.points, 0);
   const totalUnits = currentArmy.length;
   armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
 }
 
-// === Army Buttons ===
+// === Army Management Buttons ===
+newArmyBtn.addEventListener('click', () => {
+  factionModalEl.style.display = 'flex'; // show modal
+});
+
 resetArmyBtn.addEventListener('click', () => {
   if (confirm('Clear current army?')) {
     currentArmy = [];
     armyContainerEl.innerHTML = '';
-    updateArmySummary();
+    armySummaryEl.textContent = 'Total Units: 0 | Total Points: 0';
   }
 });
 
@@ -170,8 +153,8 @@ loadArmyBtn.addEventListener('click', () => {
   saved.forEach(unit => addUnitToArmy(unit));
 });
 
-// === Close Modal if Click Outside ===
-window.addEventListener('click', e => {
+// === Optional: Close Modal on Outside Click ===
+window.addEventListener('click', (e) => {
   if (e.target === factionModalEl) {
     factionModalEl.style.display = 'none';
   }
