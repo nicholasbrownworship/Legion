@@ -31,7 +31,7 @@ fetch('units.json')
 modalFactionButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     selectedFaction = btn.dataset.faction;
-    factionModalEl.style.display = 'none';
+    factionModalEl.classList.remove('active'); // use class toggle instead of style
     displayUnits(selectedFaction);
   });
 });
@@ -149,7 +149,7 @@ function updateArmySummary() {
 
 // === Army Buttons ===
 newArmyBtn.addEventListener('click', () => {
-  factionModalEl.style.display = 'flex';
+  factionModalEl.classList.add('active'); // use class toggle
 });
 
 resetArmyBtn.addEventListener('click', () => {
@@ -175,7 +175,7 @@ loadArmyBtn.addEventListener('click', () => {
 
 // === Close Modal on Outside Click ===
 window.addEventListener('click', e => {
-  if (e.target === factionModalEl) factionModalEl.style.display = 'none';
+  if (e.target === factionModalEl) factionModalEl.classList.remove('active');
 });
 
 // === Utility ===
