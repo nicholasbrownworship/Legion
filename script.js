@@ -1,160 +1,215 @@
-// === Global Elements ===
-const factionListEl = document.getElementById('faction-list');
-const unitGridEl = document.getElementById('unit-grid');
-const armyContainerEl = document.getElementById('army-container');
-const armySummaryEl = document.getElementById('army-summary');
-const newArmyBtn = document.getElementById('new-army');
-const resetArmyBtn = document.getElementById('reset-army');
-const saveArmyBtn = document.getElementById('save-army');
-const loadArmyBtn = document.getElementById('load-army');
-const factionModal = document.getElementById('faction-modal');
+/* === Font Imports === */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap');
 
-// === Global Data ===
-let units = [];
-let currentArmy = [];
-let selectedFaction = null;
-
-// === Load Unit Data ===
-fetch('units.json')
-  .then(res => res.json())
-  .then(data => {
-    units = data.units;
-    populateFactionList();
-  })
-  .catch(err => console.error('Error loading unit data:', err));
-
-// === Populate Faction List ===
-function populateFactionList() {
-  const factions = [...new Set(units.map(u => u.faction))];
-  factionListEl.innerHTML = '';
-  factions.forEach(faction => {
-    const btn = document.createElement('button');
-    btn.textContent = faction;
-    btn.dataset.faction = faction;
-    factionListEl.appendChild(btn);
-  });
+/* === Base Layout === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
 }
 
-// === Display Units for Selected Faction ===
-function displayUnits(faction) {
-  unitGridEl.innerHTML = '';
-  const filtered = units.filter(u => u.faction === faction);
-  filtered.forEach(unit => {
-    const card = document.createElement('div');
-    card.classList.add('unit-card');
-    card.innerHTML = `
-      <h4>${unit.name}</h4>
-      <p>${unit.rank}</p>
-      <p>${unit.points} pts</p>
-      <button class="add-unit">Add</button>
-    `;
-
-    card.querySelector('.add-unit').addEventListener('click', () => {
-      addUnitToArmy(unit);
-    });
-
-    unitGridEl.appendChild(card);
-  });
+body {
+  font-family: 'Rajdhani', sans-serif;
+  background: radial-gradient(ellipse at center, #02060f 0%, #000 100%);
+  color: #d0f0ff;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
 }
 
-// === Rank Section Management ===
-function getOrCreateRankSection(rank) {
-  let rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
-  if (!rankSection) {
-    rankSection = document.createElement('div');
-    rankSection.classList.add('rank-section');
-    rankSection.dataset.rank = rank;
-
-    const header = document.createElement('h3');
-    header.textContent = rank;
-    rankSection.appendChild(header);
-
-    const list = document.createElement('div');
-    list.classList.add('rank-list');
-    rankSection.appendChild(list);
-
-    armyContainerEl.appendChild(rankSection);
-  }
-  return rankSection.querySelector('.rank-list');
+/* Subtle scanline overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.02),
+    rgba(255,255,255,0.02) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  animation: scan 6s linear infinite;
+  opacity: 0.3;
 }
 
-function addUnitToArmy(unit) {
-  const rankList = getOrCreateRankSection(unit.rank);
-
-  const unitEl = document.createElement('div');
-  unitEl.classList.add('army-unit');
-  unitEl.textContent = `${unit.name} (${unit.points} pts)`;
-
-  const removeBtn = document.createElement('button');
-  removeBtn.textContent = '✕';
-  removeBtn.classList.add('remove-unit');
-  removeBtn.addEventListener('click', () => {
-    unitEl.remove();
-    currentArmy = currentArmy.filter(u => u !== unit);
-    checkEmptyRankSections();
-    updateArmySummary();
-  });
-
-  unitEl.appendChild(removeBtn);
-  rankList.appendChild(unitEl);
-  currentArmy.push(unit);
-  updateArmySummary();
+@keyframes scan {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
 }
 
-function checkEmptyRankSections() {
-  document.querySelectorAll('.rank-section').forEach(section => {
-    const list = section.querySelector('.rank-list');
-    if (!list.children.length) section.remove();
-  });
+/* === Toolbar === */
+#top-toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px;
+  background: rgba(0, 20, 30, 0.8);
+  border-bottom: 2px solid #00fff2;
+  box-shadow: 0 0 10px #00fff2;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-// === Update Summary ===
-function updateArmySummary() {
-  const totalPoints = currentArmy.reduce((sum, u) => sum + u.points, 0);
-  const totalUnits = currentArmy.length;
-  armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
+/* === Buttons === */
+button {
+  background: rgba(0, 255, 242, 0.15);
+  border: 1px solid #00fff2;
+  color: #00fff2;
+  padding: 6px 14px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  text-shadow: 0 0 4px #00fff2;
+  transition: all 0.2s ease;
 }
 
-// === Army Management Buttons ===
-newArmyBtn.addEventListener('click', () => {
-  currentArmy = [];
-  armyContainerEl.innerHTML = '';
-  armySummaryEl.textContent = 'Total Units: 0 | Total Points: 0';
-  if (factionModal) factionModal.style.display = 'flex';
-});
+button:hover {
+  background: rgba(0, 255, 242, 0.3);
+  box-shadow: 0 0 8px #00fff2;
+  transform: scale(1.05);
+}
 
-resetArmyBtn.addEventListener('click', () => {
-  if (confirm('Clear current army?')) {
-    currentArmy = [];
-    armyContainerEl.innerHTML = '';
-    armySummaryEl.textContent = 'Total Units: 0 | Total Points: 0';
-  }
-});
+/* === Grid Layout === */
+#unit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  padding: 20px;
+}
 
-saveArmyBtn.addEventListener('click', () => {
-  localStorage.setItem('savedArmy', JSON.stringify(currentArmy));
-  alert('Army saved!');
-});
+/* === Unit Cards === */
+.unit-card {
+  background: rgba(10, 25, 35, 0.7);
+  border: 1px solid #00fff2;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 0 6px rgba(0,255,242,0.3);
+  transition: all 0.2s ease;
+}
 
-loadArmyBtn.addEventListener('click', () => {
-  const saved = JSON.parse(localStorage.getItem('savedArmy') || '[]');
-  if (!saved.length) return alert('No saved army found!');
-  currentArmy = [];
-  armyContainerEl.innerHTML = '';
-  saved.forEach(unit => addUnitToArmy(unit));
-});
+.unit-card:hover {
+  background: rgba(20, 40, 50, 0.9);
+  transform: scale(1.02);
+  box-shadow: 0 0 12px #00fff2;
+}
 
-// === Modal Logic ===
-window.addEventListener('DOMContentLoaded', () => {
-  if (factionModal) factionModal.style.display = 'none';
-});
+.unit-card h4 {
+  font-family: 'Orbitron', sans-serif;
+  color: #00fff2;
+  margin-bottom: 4px;
+  text-shadow: 0 0 6px #00fff2;
+}
 
-// Event delegation for modal faction buttons
-document.addEventListener('click', (e) => {
-  if (e.target.matches('[data-faction]')) {
-    const faction = e.target.dataset.faction;
-    selectedFaction = faction;
-    if (factionModal) factionModal.style.display = 'none';
-    displayUnits(faction);
-  }
-});
+.unit-card p {
+  color: #aee3ff;
+  font-size: 0.9rem;
+  margin: 3px 0;
+}
+
+/* === Army Section === */
+#army-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rank-section {
+  border: 1px solid #00fff2;
+  border-radius: 10px;
+  background: rgba(0, 15, 25, 0.8);
+  box-shadow: 0 0 10px rgba(0,255,242,0.2);
+  padding: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+.rank-section h3 {
+  font-family: 'Orbitron', sans-serif;
+  color: #00fff2;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(0,255,242,0.4);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  text-shadow: 0 0 6px #00fff2;
+}
+
+.rank-list {
+  padding-left: 8px;
+}
+
+.army-unit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(0,255,242,0.2);
+}
+
+.remove-unit {
+  background: transparent;
+  color: #ff6060;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.remove-unit:hover {
+  text-shadow: 0 0 8px #ff6060;
+  transform: scale(1.1);
+}
+
+/* === Summary Display === */
+#army-summary {
+  text-align: right;
+  font-family: 'Orbitron', sans-serif;
+  color: #00fff2;
+  border-top: 1px solid rgba(0,255,242,0.4);
+  padding: 10px;
+  box-shadow: 0 0 8px rgba(0,255,242,0.4);
+}
+
+/* === Faction Modal === */
+#faction-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 10, 20, 0.9);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+}
+
+#faction-modal .modal-content {
+  background: rgba(5, 15, 25, 0.95);
+  border: 2px solid #00fff2;
+  box-shadow: 0 0 15px #00fff2;
+  border-radius: 10px;
+  padding: 20px 30px;
+  text-align: center;
+}
+
+#faction-modal h2 {
+  font-family: 'Orbitron', sans-serif;
+  color: #00fff2;
+  text-shadow: 0 0 10px #00fff2;
+  margin-bottom: 20px;
+}
+
+#faction-list button {
+  margin: 8px;
+  font-size: 1rem;
+  padding: 10px 18px;
+}
+
+/* === Animations === */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
