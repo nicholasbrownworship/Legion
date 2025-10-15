@@ -1,4 +1,4 @@
-// === Full Army Builder Script with Saved Armies Sidebar ===
+// === Full Army Builder Script with Saved Armies Sidebar & Image Zoom ===
 document.addEventListener('DOMContentLoaded', () => {
 
   // === Global Elements ===
@@ -51,12 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadFactionUnits(factionFile) {
     console.log(`🔍 Attempting to load units for faction: ${factionFile}`);
     fetch(`data/units_${factionFile}.json`)
-      .then(res => {
-        if (!res.ok) throw new Error(`❌ Could not load data/units_${factionFile}.json`);
-        return res.json();
-      })
+      .then(res => res.ok ? res.json() : Promise.reject(`❌ Could not load data/units_${factionFile}.json`))
       .then(data => {
-        console.log(`✅ Loaded data/units_${factionFile}.json:`, data);
         if (!data || !Array.isArray(data.units)) throw new Error(`⚠️ JSON format invalid — expected { units: [...] }`);
 
         units = data.units;
@@ -133,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.classList.add('unit-card');
 
       const imgHtml = unit.image
-        ? `<img src="${unit.image}" alt="${unit.name}" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
+        ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
         : `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`;
 
       card.innerHTML = `
@@ -150,7 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("✅ Units displayed successfully.");
   }
 
-  // === Army Management ===
+  // === Utility Functions ===
+  function capitalize(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
+
   function getOrCreateRankSection(rank) {
     let rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
     if (!rankSection) {
@@ -180,12 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return rankSection;
   }
 
-  // === Utility Functions ===
-  function capitalize(str) {
-    if (!str) return '';
-    return String(str).charAt(0).toUpperCase() + String(str).slice(1);
-  }
-
   function updateRankCount(rank) {
     const rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
     if (!rankSection) return;
@@ -206,179 +198,168 @@ document.addEventListener('DOMContentLoaded', () => {
     armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
   }
 
- // === Add Unit ===
-function addUnitToArmy(unit) {
-  const armyUnit = JSON.parse(JSON.stringify(unit));
-  armyUnit.selectedUpgrades = {};
-  armyUnit.currentPoints = armyUnit.points;
-  currentArmy.push(armyUnit);
+  // === Add Unit to Army ===
+  function addUnitToArmy(unit) {
+    const armyUnit = JSON.parse(JSON.stringify(unit));
+    armyUnit.selectedUpgrades = {};
+    armyUnit.currentPoints = armyUnit.points;
+    currentArmy.push(armyUnit);
 
-  const rankSection = getOrCreateRankSection(armyUnit.rank);
-  const rankList = rankSection.querySelector('.rank-list');
+    const rankSection = getOrCreateRankSection(armyUnit.rank);
+    const rankList = rankSection.querySelector('.rank-list');
 
-  const unitEl = document.createElement('div');
-  unitEl.classList.add('army-unit');
-  unitEl.style.display = 'flex';
-  unitEl.style.alignItems = 'flex-start';
-  unitEl.style.gap = '12px';
-  unitEl.style.marginBottom = '8px';
+    const unitEl = document.createElement('div');
+    unitEl.classList.add('army-unit');
+    unitEl.style.display = 'flex';
+    unitEl.style.alignItems = 'flex-start';
+    unitEl.style.gap = '12px';
+    unitEl.style.marginBottom = '8px';
 
-  const img = document.createElement('img');
-  img.src = armyUnit.image || '';
-  img.alt = armyUnit.name;
-  img.style.width = "60px";
-  img.style.height = "60px";
-  img.style.objectFit = "cover";
-  img.style.borderRadius = "6px";
-  unitEl.appendChild(img);
+    const img = document.createElement('img');
+    img.src = armyUnit.image || '';
+    img.alt = armyUnit.name;
+    img.classList.add('unit-image'); // zoomable
+    img.style.width = "60px";
+    img.style.height = "60px";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "6px";
+    unitEl.appendChild(img);
 
-  const infoDiv = document.createElement('div');
-  infoDiv.classList.add('unit-info');
-  infoDiv.style.flex = '1';
+    const infoDiv = document.createElement('div');
+    infoDiv.classList.add('unit-info');
+    infoDiv.style.flex = '1';
 
-  const namePts = document.createElement('div');
-  namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
-  namePts.style.marginBottom = '8px';
-  namePts.style.color = '#dffaff';
-  infoDiv.appendChild(namePts);
+    const namePts = document.createElement('div');
+    namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
+    namePts.style.marginBottom = '8px';
+    namePts.style.color = '#dffaff';
+    infoDiv.appendChild(namePts);
 
-  const upgradeImagesDiv = document.createElement('div');
-  upgradeImagesDiv.classList.add('upgrade-images');
-  upgradeImagesDiv.style.display = 'flex';
-  upgradeImagesDiv.style.gap = '6px';
-  upgradeImagesDiv.style.flexWrap = 'wrap';
-  upgradeImagesDiv.style.marginBottom = '6px';
-  infoDiv.appendChild(upgradeImagesDiv);
+    const upgradeImagesDiv = document.createElement('div');
+    upgradeImagesDiv.classList.add('upgrade-images');
+    upgradeImagesDiv.style.display = 'flex';
+    upgradeImagesDiv.style.gap = '6px';
+    upgradeImagesDiv.style.flexWrap = 'wrap';
+    upgradeImagesDiv.style.marginBottom = '6px';
+    infoDiv.appendChild(upgradeImagesDiv);
 
-  // === Upgrades Section (supports multi-slot upgrades) ===
-  if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
-    armyUnit.allowedUpgrades.forEach(upgType => {
-      const typeContainer = document.createElement('div');
-      typeContainer.classList.add('upgrade-type-container');
-      typeContainer.style.marginBottom = '6px';
-      typeContainer.style.position = 'relative';
+    // === Upgrades Section ===
+    if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
+      armyUnit.allowedUpgrades.forEach(upgType => {
+        const typeContainer = document.createElement('div');
+        typeContainer.classList.add('upgrade-type-container');
+        typeContainer.style.marginBottom = '6px';
+        typeContainer.style.position = 'relative';
 
-      const typeBtn = document.createElement('button');
-      typeBtn.classList.add('upgrade-type-btn');
-      typeBtn.type = 'button';
-      typeBtn.textContent = capitalize(upgType);
+        const typeBtn = document.createElement('button');
+        typeBtn.classList.add('upgrade-type-btn');
+        typeBtn.type = 'button';
+        typeBtn.textContent = capitalize(upgType);
 
-      const arrow = document.createElement('span');
-      arrow.textContent = '▶';
-      arrow.style.marginLeft = '8px';
-      typeBtn.appendChild(arrow);
+        const arrow = document.createElement('span');
+        arrow.textContent = '▶';
+        arrow.style.marginLeft = '8px';
+        typeBtn.appendChild(arrow);
 
-      const menu = document.createElement('div');
-      menu.classList.add('upgrade-menu');
-      menu.style.position = 'relative';
-      menu.style.zIndex = '999';
+        const menu = document.createElement('div');
+        menu.classList.add('upgrade-menu');
+        menu.style.position = 'relative';
+        menu.style.zIndex = '999';
 
-      const availableUpgrades = upgradesData[upgType] || [];
-      if (!availableUpgrades.length) {
-        const note = document.createElement('div');
-        note.textContent = 'No options';
-        note.style.padding = '6px';
-        note.style.color = '#9fdff0';
-        menu.appendChild(note);
-      } else {
-        availableUpgrades.forEach(upg => {
-          const btn = document.createElement('button');
-          btn.classList.add('upgrade-btn');
-          btn.type = 'button';
-          btn.dataset.upgrade = upg.id;
-          btn.textContent = `${upg.name} ${upg.points ? `(+${upg.points} pts)` : ''}`;
+        const availableUpgrades = upgradesData[upgType] || [];
+        if (!availableUpgrades.length) {
+          const note = document.createElement('div');
+          note.textContent = 'No options';
+          note.style.padding = '6px';
+          note.style.color = '#9fdff0';
+          menu.appendChild(note);
+        } else {
+          availableUpgrades.forEach(upg => {
+            const btn = document.createElement('button');
+            btn.classList.add('upgrade-btn');
+            btn.type = 'button';
+            btn.dataset.upgrade = upg.id;
+            btn.textContent = `${upg.name} ${upg.points ? `(+${upg.points} pts)` : ''}`;
 
-          btn.addEventListener('click', () => {
-            const maxSlots = armyUnit.upgradeSlots?.[upgType] || 1;
+            btn.addEventListener('click', () => {
+              const maxSlots = armyUnit.upgradeSlots?.[upgType] || 1;
+              if (!Array.isArray(armyUnit.selectedUpgrades[upgType])) armyUnit.selectedUpgrades[upgType] = [];
+              const selected = armyUnit.selectedUpgrades[upgType];
+              const index = selected.indexOf(upg.id);
 
-            if (!Array.isArray(armyUnit.selectedUpgrades[upgType])) {
-              armyUnit.selectedUpgrades[upgType] = [];
-            }
-
-            const selected = armyUnit.selectedUpgrades[upgType];
-            const index = selected.indexOf(upg.id);
-
-            if (index > -1) {
-              // Deselect upgrade
-              selected.splice(index, 1);
-              armyUnit.currentPoints -= upg.points || 0;
-              btn.classList.remove('selected');
-              const imgEl = upgradeImagesDiv.querySelector(`img[data-upgrade="${upg.id}"]`);
-              if (imgEl) imgEl.remove();
-            } else {
-              // Add upgrade if slots are available
-              if (selected.length >= maxSlots) {
-                alert(`Cannot select more than ${maxSlots} ${capitalize(upgType)} upgrades.`);
-                return;
+              if (index > -1) {
+                selected.splice(index, 1);
+                armyUnit.currentPoints -= upg.points || 0;
+                btn.classList.remove('selected');
+                const imgEl = upgradeImagesDiv.querySelector(`img[data-upgrade="${upg.id}"]`);
+                if (imgEl) imgEl.remove();
+              } else {
+                if (selected.length >= maxSlots) return alert(`Cannot select more than ${maxSlots} ${capitalize(upgType)} upgrades.`);
+                selected.push(upg.id);
+                armyUnit.currentPoints += upg.points || 0;
+                btn.classList.add('selected');
+                if (upg.image) {
+                  const upgImg = document.createElement('img');
+                  upgImg.src = upg.image;
+                  upgImg.alt = upg.name;
+                  upgImg.dataset.upgrade = upg.id;
+                  upgImg.style.width = '30px';
+                  upgImg.style.height = '30px';
+                  upgImg.style.objectFit = 'cover';
+                  upgImg.style.borderRadius = '4px';
+                  upgradeImagesDiv.appendChild(upgImg);
+                }
               }
-              selected.push(upg.id);
-              armyUnit.currentPoints += upg.points || 0;
-              btn.classList.add('selected');
-              if (upg.image) {
-                const upgImg = document.createElement('img');
-                upgImg.src = upg.image;
-                upgImg.alt = upg.name;
-                upgImg.dataset.upgrade = upg.id;
-                upgImg.style.width = '30px';
-                upgImg.style.height = '30px';
-                upgImg.style.objectFit = 'cover';
-                upgImg.style.borderRadius = '4px';
-                upgradeImagesDiv.appendChild(upgImg);
-              }
-            }
 
-            namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
+              namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
+              menu.style.maxHeight = '0';
+              menu.style.opacity = '0';
+              typeBtn.classList.remove('active');
+              updateArmySummary();
+            });
+
+            menu.appendChild(btn);
+          });
+        }
+
+        typeBtn.addEventListener('click', () => {
+          const isOpen = typeBtn.classList.toggle('active');
+          if (isOpen) {
+            menu.style.opacity = '1';
+            menu.style.maxHeight = menu.scrollHeight ? `${menu.scrollHeight}px` : '300px';
+          } else {
             menu.style.maxHeight = '0';
             menu.style.opacity = '0';
-            typeBtn.classList.remove('active');
-
-            console.log('Selected upgrades:', armyUnit.name, armyUnit.selectedUpgrades);
-            updateArmySummary();
-          });
-
-          menu.appendChild(btn);
+          }
         });
-      }
 
-      typeBtn.addEventListener('click', () => {
-        const isOpen = typeBtn.classList.toggle('active');
-        if (isOpen) {
-          menu.style.opacity = '1';
-          menu.style.maxHeight = menu.scrollHeight ? `${menu.scrollHeight}px` : '300px';
-        } else {
-          menu.style.maxHeight = '0';
-          menu.style.opacity = '0';
-        }
+        typeContainer.appendChild(typeBtn);
+        typeContainer.appendChild(menu);
+        infoDiv.appendChild(typeContainer);
       });
+    }
 
-      typeContainer.appendChild(typeBtn);
-      typeContainer.appendChild(menu);
-      infoDiv.appendChild(typeContainer);
+    unitEl.appendChild(infoDiv);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '✕';
+    removeBtn.classList.add('remove-unit');
+    removeBtn.addEventListener('click', () => {
+      currentArmy = currentArmy.filter(u => u !== armyUnit);
+      unitEl.remove();
+      updateRankCount(armyUnit.rank);
+      checkEmptyRankSections();
+      updateArmySummary();
     });
-  }
+    unitEl.appendChild(removeBtn);
 
-  unitEl.appendChild(infoDiv);
-
-  const removeBtn = document.createElement('button');
-  removeBtn.textContent = '✕';
-  removeBtn.classList.add('remove-unit');
-  removeBtn.addEventListener('click', () => {
-    currentArmy = currentArmy.filter(u => u !== armyUnit);
-    unitEl.remove();
+    rankList.appendChild(unitEl);
     updateRankCount(armyUnit.rank);
-    checkEmptyRankSections();
     updateArmySummary();
-  });
-  unitEl.appendChild(removeBtn);
-
-  rankList.appendChild(unitEl);
-  updateRankCount(armyUnit.rank);
-  updateArmySummary();
-}
+  }
 
   // === Army Buttons ===
   newArmyBtn.addEventListener('click', () => factionModalEl.classList.add('active'));
-
   resetArmyBtn.addEventListener('click', () => {
     if (confirm('Clear current army?')) {
       currentArmy = [];
@@ -386,23 +367,20 @@ function addUnitToArmy(unit) {
       updateArmySummary();
     }
   });
-
   saveArmyBtn.addEventListener('click', () => {
     const name = prompt('Enter a name for this army:');
     if (!name) return;
     const savedArmies = JSON.parse(localStorage.getItem('savedArmies') || '[]');
     savedArmies.push({ name, units: currentArmy });
     localStorage.setItem('savedArmies', JSON.stringify(savedArmies));
-    alert('Army saved!');
     renderSavedArmies();
   });
-
   loadArmyBtn.addEventListener('click', () => {
-    const saved = JSON.parse(localStorage.getItem('savedArmy') || '[]');
+    const saved = JSON.parse(localStorage.getItem('savedArmies') || '[]');
     if (!saved.length) return alert('No saved army found!');
     currentArmy = [];
     armyContainerEl.innerHTML = '';
-    saved.forEach(unit => addUnitToArmy(unit));
+    saved[0].units.forEach(unit => addUnitToArmy(unit));
   });
 
   // === Saved Armies Sidebar ===
@@ -449,36 +427,43 @@ function addUnitToArmy(unit) {
   renderSavedArmies();
 
   // === Close Modal on Outside Click ===
-  window.addEventListener('click', e => {
-    if (e.target === factionModalEl) factionModalEl.classList.remove('active');
+  window.addEventListener('click', e => { if (e.target === factionModalEl) factionModalEl.classList.remove('active'); });
+
+  // === Image Zoom Functionality (Event Delegation) ===
+  document.body.addEventListener('click', e => {
+    if (e.target.classList.contains('unit-image') || (e.target.parentElement && e.target.parentElement.classList.contains('upgrade-images'))) {
+      const overlay = document.createElement('div');
+      overlay.classList.add('img-zoom-overlay');
+      overlay.style.position = 'fixed';
+      overlay.style.top = '0';
+      overlay.style.left = '0';
+      overlay.style.width = '100vw';
+      overlay.style.height = '100vh';
+      overlay.style.backgroundColor = 'rgba(0,0,0,0.85)';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.zIndex = '9999';
+      overlay.style.cursor = 'zoom-out';
+      overlay.style.transition = 'opacity 0.3s ease';
+      overlay.style.opacity = '0';
+
+      const img = document.createElement('img');
+      img.src = e.target.src;
+      img.style.maxWidth = '90%';
+      img.style.maxHeight = '90%';
+      img.style.borderRadius = '8px';
+      img.style.boxShadow = '0 0 20px rgba(0,0,0,0.7)';
+      overlay.appendChild(img);
+
+      document.body.appendChild(overlay);
+      requestAnimationFrame(() => overlay.style.opacity = '1');
+
+      overlay.addEventListener('click', () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 300);
+      });
+    }
   });
 
-// === Image Zoom Functionality ===
-document.addEventListener('DOMContentLoaded', () => {
-  // Function to create overlay
-  function createZoomOverlay(src) {
-    const overlay = document.createElement('div');
-    overlay.classList.add('img-zoom-overlay');
-
-    const img = document.createElement('img');
-    img.src = src;
-
-    overlay.appendChild(img);
-    document.body.appendChild(overlay);
-
-    // Close overlay on click
-    overlay.addEventListener('click', () => {
-      overlay.remove();
-    });
-  }
-
-  // Select all unit and upgrade images
-  const zoomableImages = document.querySelectorAll('.unit-image, .upgrade-images img');
-
-  zoomableImages.forEach(img => {
-    img.addEventListener('click', () => {
-      createZoomOverlay(img.src);
-    });
-  });
-});
 });
