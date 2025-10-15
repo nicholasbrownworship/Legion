@@ -5,29 +5,29 @@
       "id": "imperial_speeder_bike",
       "name": "Imperial Speeder Bike Unit",
       "faction": "imperials",
-      "points": 60,
+      "points": 70,
       "min": 0,
       "max": 3,
       "rank": "support",
       "unitType": "vehicle",
-      "allowedUpgrades": ["hardpoint", "armament", "crew", "generator"],
+      "allowedUpgrades": ["comms",
       "restrictions": [],
       "keywords": ["speeder", "vehicle"],
-      "image": "images/imperials/speeder_bike.png"
+      "image": "data/images/units/74-z.png"
     },
     {
-      "id": "imperial_stormtrooper_squad",
+      "id": "stormtrooper_squad",
       "name": "Stormtrooper Squad",
       "faction": "imperials",
-      "points": 55,
-      "min": 3,
+      "points": 42,
+      "min": 1,
       "max": 6,
       "rank": "corps",
       "unitType": "trooper",
-      "allowedUpgrades": ["grenades", "heavyweapon", "training"],
+      "allowedUpgrades": ["personnel", "grenades", "heavyweapon", "training"],
       "restrictions": [],
       "keywords": ["trooper"],
-      "image": "images/imperials/stormtrooper_squad.png"
+      "image": "data/images/units/stormtrooper.png"
     },
     {
       "id": "darth_vader",
