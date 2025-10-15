@@ -1,5 +1,5 @@
 { 
-  "factions": "imperials",
+  "faction": "imperials",
   "units": [
 {
       "id": "imperial_speeder_bike",
