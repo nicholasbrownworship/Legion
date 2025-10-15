@@ -239,7 +239,6 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
 
     const availableUpgrades = upgradesData[upgType] || [];
     const filteredUpgrades = availableUpgrades.filter(upg => {
-      // Only include upgrade if restrictions are satisfied
       return !upg.restrictions || upg.restrictions.length === 0 ||
              upg.restrictions.every(r => armyUnit.keywords && armyUnit.keywords.includes(r));
     });
@@ -256,7 +255,7 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
         btn.classList.add('upgrade-btn');
         btn.type = 'button';
         btn.dataset.upgrade = upg.id;
-        btn.textContent = `${upg.name}${upg.points ? ` (+${upg.points} pts)` : ''}`;
+        btn.textContent = upg.name + (upg.points ? ' (+' + upg.points + ' pts)' : '');
 
         btn.addEventListener('click', () => {
           const maxSlots = armyUnit.upgradeSlots?.[upgType] || 1;
@@ -268,10 +267,10 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
             selected.splice(index, 1);
             armyUnit.currentPoints -= upg.points || 0;
             btn.classList.remove('selected');
-            const imgEl = upgradeImagesDiv.querySelector(`img[data-upgrade="${upg.id}"]`);
+            const imgEl = upgradeImagesDiv.querySelector('img[data-upgrade="' + upg.id + '"]');
             if (imgEl) imgEl.remove();
           } else {
-            if (selected.length >= maxSlots) return alert(`Cannot select more than ${maxSlots} ${capitalize(upgType)} upgrades.`);
+            if (selected.length >= maxSlots) return alert('Cannot select more than ' + maxSlots + ' ' + capitalize(upgType) + ' upgrades.');
             selected.push(upg.id);
             armyUnit.currentPoints += upg.points || 0;
             btn.classList.add('selected');
@@ -288,7 +287,7 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
             }
           }
 
-          namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
+          namePts.textContent = armyUnit.name + ' (' + armyUnit.currentPoints + ' pts)';
           menu.style.maxHeight = '0';
           menu.style.opacity = '0';
           typeBtn.classList.remove('active');
@@ -303,7 +302,7 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
       const isOpen = typeBtn.classList.toggle('active');
       if (isOpen) {
         menu.style.opacity = '1';
-        menu.style.maxHeight = menu.scrollHeight ? `${menu.scrollHeight}px` : '300px';
+        menu.style.maxHeight = menu.scrollHeight ? menu.scrollHeight + 'px' : '300px';
       } else {
         menu.style.maxHeight = '0';
         menu.style.opacity = '0';
@@ -315,6 +314,7 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
     infoDiv.appendChild(typeContainer);
   });
 }
+
 
   // === Army Buttons ===
   newArmyBtn.addEventListener('click', () => factionModalEl.classList.add('active'));
