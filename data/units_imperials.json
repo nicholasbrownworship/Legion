@@ -2,8 +2,8 @@
   "faction": "imperials",
   "units": [
 {
-      "id": "imperial_speeder_bike",
-      "name": "Imperial Speeder Bike Unit",
+      "id": "speeder_bike",
+      "name": "74-Z Speeder Bike",
       "faction": "imperials",
       "points": 70,
       "min": 0,
