@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(res => res.json())
       .then(data => {
         units = data.units || [];
-        console.log(`Units loaded from data/units_${factionFile}.json:`, units);
+        console.log(`✅ Units loaded from data/units_${factionFile}.json:`, units);
 
         // Load multi-faction units if available
         fetch('data/units_multi.json')
@@ -67,16 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
             loadAllUpgradeFiles();
           });
       })
-      .catch(err => console.error(`Error loading units from "${factionFile}":`, err));
+      .catch(err => console.error(`❌ Error loading units from "${factionFile}":`, err));
   }
 
-  // === Modal Button Selection ===
+  // === Modal Button Selection (FIXED) ===
   modalFactionButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const clickedFaction = btn.dataset.faction.toLowerCase();
       factionModalEl.classList.remove('active');
 
-      // Map button name to correct JSON filename
+      // ✅ Correct mapping between button name and JSON file
       const factionMap = {
         "rebels": "rebels",
         "empire": "imperials",
@@ -87,14 +87,14 @@ document.addEventListener('DOMContentLoaded', () => {
       selectedFaction = factionMap[clickedFaction];
 
       if (!selectedFaction) {
-        console.error(`Unknown faction "${clickedFaction}" clicked — check modal button data-faction values.`);
+        console.error(`Unknown faction "${clickedFaction}" clicked — check data-faction values.`);
         return;
       }
 
       const displayName = factionDisplayNames[selectedFaction] || selectedFaction;
-      console.log(`Selected Faction: ${displayName} -> loading data/units_${selectedFaction}.json`);
+      console.log(`🎯 Selected Faction: ${displayName} -> loading data/units_${selectedFaction}.json`);
 
-      // Clear old data
+      // Clear old army + UI
       units = [];
       currentArmy = [];
       armyContainerEl.innerHTML = '';
@@ -134,6 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
       card.querySelector('.add-unit').addEventListener('click', () => addUnitToArmy(unit));
       unitGridEl.appendChild(card);
     });
+
+    console.log("✅ Units displayed successfully.");
   }
 
   // === Army Management ===
