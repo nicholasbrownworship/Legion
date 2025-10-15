@@ -47,7 +47,7 @@
     "points": 10,
     "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": [],
-    "text": "During hte ISSUE ORDERS step of the COMMAND PHASE, you may EXHAUST this card. If you do, this unit may issue an Order to itself.",
+    "text": "During the ISSUE ORDERS step of the COMMAND PHASE, you may EXHAUST this card. If you do, this unit may issue an Order to itself.",
     "isUnique": false
   },
      {
