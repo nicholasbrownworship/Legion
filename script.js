@@ -465,13 +465,31 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
+   // === Toast System ===
+  const toastContainer = document.getElementById('toast-container');
+
+  function showToast(message, duration = 2500) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+
+    // Trigger show animation
+    setTimeout(() => toast.classList.add('show'), 50);
+
+    // Hide and remove after duration
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 400);
+    }, duration);
+  }
+
   // === Export / Import Army Feature ===
   const exportArmyBtn = document.getElementById('export-army');
   const exportAllBtn = document.getElementById('export-all');
   const importArmyBtn = document.getElementById('import-army-btn');
   const importArmyFile = document.getElementById('import-army-file');
 
-  // Helper: Save JSON file
   function downloadJSON(obj, filename) {
     const json = JSON.stringify(obj, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -485,7 +503,6 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   }
 
-  // Helper: Timestamped filename
   function makeFilename(baseName) {
     const d = new Date();
     const pad = n => String(n).padStart(2, '0');
@@ -496,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // === Export Current Army ===
   exportArmyBtn.addEventListener('click', () => {
     if (!currentArmy.length) {
-      alert('No army to export!');
+      showToast('⚠️ No army to export!', 2500);
       return;
     }
 
@@ -508,16 +525,18 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     downloadJSON(data, makeFilename('army_export'));
+    showToast('✅ Army exported successfully!');
   });
 
   // === Export All Saved Armies ===
   exportAllBtn.addEventListener('click', () => {
     const allArmies = JSON.parse(localStorage.getItem('savedArmies') || '[]');
     if (!allArmies.length) {
-      alert('No saved armies found to export.');
+      showToast('⚠️ No saved armies found to export.', 2500);
       return;
     }
     downloadJSON(allArmies, makeFilename('all_armies_export'));
+    showToast(`✅ Exported ${allArmies.length} armies!`);
   });
 
   // === Import Army ===
@@ -534,32 +553,30 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const data = JSON.parse(event.target.result);
 
-        // Support both single army and all-armies imports
         if (Array.isArray(data)) {
           // Import multiple armies
           localStorage.setItem('savedArmies', JSON.stringify(data));
           renderSavedArmies();
-          alert(`Imported ${data.length} armies successfully!`);
+          showToast(`✅ Imported ${data.length} armies!`);
         } else if (data.units) {
-          // Import a single army directly
-          if (!confirm('Import this army and overwrite your current one?')) return;
+          // Import single army
           currentArmy = [];
           armyContainerEl.innerHTML = '';
           (data.units || []).forEach(unit => addUnitToArmy(unit));
           updateArmySummary();
-          alert('Army imported successfully!');
+          showToast('✅ Army imported successfully!');
         } else {
-          alert('Invalid file format.');
+          showToast('❌ Invalid file format.', 2500);
         }
       } catch (err) {
         console.error('Error importing JSON:', err);
-        alert('Failed to import file — please ensure it is a valid army JSON.');
+        showToast('❌ Failed to import file.', 2500);
       }
     };
     reader.readAsText(file);
   });
 
-  console.log('✅ Export/Import Army feature loaded.');
+  console.log('✅ Export/Import Army feature with toasts loaded.');
 
   
 });
