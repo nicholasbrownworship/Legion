@@ -268,13 +268,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const availableUpgrades = upgradesData[upgType] || [];
         if (!availableUpgrades.length) {
+          // Filter upgrades by faction, restrictions, and keywords
+const filteredUpgrades = availableUpgrades.filter(upg => {
+  // Check faction eligibility (if defined)
+  const factionAllowed = !upg.factions || upg.factions.includes(armyUnit.faction);
+
+  // Check restrictions (if defined)
+  const restrictionOK = !upg.restrictions || upg.restrictions.length === 0 ||
+    upg.restrictions.every(r => armyUnit.keywords && armyUnit.keywords.includes(r));
+
+  return factionAllowed && restrictionOK;
+});
           const note = document.createElement('div');
           note.textContent = 'No options';
           note.style.padding = '6px';
           note.style.color = '#9fdff0';
           menu.appendChild(note);
         } else {
-          availableUpgrades.forEach(upg => {
+          filteredUPgrades.forEach(upg => {
             const btn = document.createElement('button');
             btn.classList.add('upgrade-btn');
             btn.type = 'button';
