@@ -1,4 +1,4 @@
-// === Full Army Builder Script ===
+// === Full Army Builder Script with Saved Armies Sidebar ===
 document.addEventListener('DOMContentLoaded', () => {
 
   // === Global Elements ===
@@ -12,6 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const factionModalEl = document.getElementById('faction-modal');
   const modalContentEl = factionModalEl.querySelector('.modal-content');
   const modalFactionButtons = modalContentEl.querySelectorAll('button[data-faction]');
+
+  const savedArmiesContainer = document.createElement('div');
+  savedArmiesContainer.id = 'saved-armies';
+  savedArmiesContainer.style.marginTop = '20px';
+  savedArmiesContainer.innerHTML = `<h3>Saved Armies</h3>`;
+  document.querySelector('.sidebar').appendChild(savedArmiesContainer);
 
   // === Global Data ===
   let units = [];
@@ -42,64 +48,56 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // === Load Units From JSON File ===
-function loadFactionUnits(factionFile) {
-  console.log(`🔍 Attempting to load units for faction: ${factionFile}`);
+  function loadFactionUnits(factionFile) {
+    console.log(`🔍 Attempting to load units for faction: ${factionFile}`);
+    fetch(`data/units_${factionFile}.json`)
+      .then(res => {
+        if (!res.ok) throw new Error(`❌ Could not load data/units_${factionFile}.json`);
+        return res.json();
+      })
+      .then(data => {
+        console.log(`✅ Loaded data/units_${factionFile}.json:`, data);
+        if (!data || !Array.isArray(data.units)) throw new Error(`⚠️ JSON format invalid — expected { units: [...] }`);
 
-  // Step 1: Try loading from correct faction file
-  fetch(`data/units_${factionFile}.json`)
-    .then(res => {
-      if (!res.ok) throw new Error(`❌ Could not load data/units_${factionFile}.json`);
-      return res.json();
-    })
-    .then(data => {
-      console.log(`✅ Loaded data/units_${factionFile}.json:`, data);
+        units = data.units;
+        console.log(`📦 ${units.length} units loaded for ${factionFile}`);
 
-      // Check JSON format
-      if (!data || !Array.isArray(data.units)) {
-        throw new Error(`⚠️ JSON format invalid — expected { units: [...] }`);
-      }
+        // Load multi-faction units
+        fetch('data/units_multi.json')
+          .then(res => res.ok ? res.json() : Promise.reject('No multi-faction file found.'))
+          .then(multiData => {
+            if (!multiData.units) {
+              console.warn('⚠️ units_multi.json found, but missing "units" array');
+              return;
+            }
+            const multiUnitsForFaction = multiData.units.filter(u =>
+              Array.isArray(u.faction)
+                ? u.faction.includes(factionFile)
+                : u.faction === factionFile
+            );
+            console.log(`🔄 Adding ${multiUnitsForFaction.length} multi-faction units for ${factionFile}`);
+            units = units.concat(multiUnitsForFaction);
+          })
+          .catch(err => console.log(`(optional) ${err}`))
+          .finally(() => {
+            console.log(`✅ Final unit list (${units.length} total):`, units.map(u => u.name));
+            displayUnits();
+            newArmyBtn.disabled = false;
+            loadAllUpgradeFiles();
+          });
+      })
+      .catch(err => {
+        console.error(`🚫 Error loading units for faction "${factionFile}":`, err);
+        unitGridEl.innerHTML = `<p style="color:red;">Failed to load ${factionFile} units. Check console for details.</p>`;
+      });
+  }
 
-      units = data.units;
-      console.log(`📦 ${units.length} units loaded for ${factionFile}`);
-
-      // Step 2: Load multi-faction units if available
-      fetch('data/units_multi.json')
-        .then(res => res.ok ? res.json() : Promise.reject('No multi-faction file found.'))
-        .then(multiData => {
-          if (!multiData.units) {
-            console.warn('⚠️ units_multi.json found, but missing "units" array');
-            return;
-          }
-          const multiUnitsForFaction = multiData.units.filter(u =>
-            Array.isArray(u.faction)
-              ? u.faction.includes(factionFile)
-              : u.faction === factionFile
-          );
-          console.log(`🔄 Adding ${multiUnitsForFaction.length} multi-faction units for ${factionFile}`);
-          units = units.concat(multiUnitsForFaction);
-        })
-        .catch(err => console.log(`(optional) ${err}`))
-        .finally(() => {
-          console.log(`✅ Final unit list (${units.length} total):`, units.map(u => u.name));
-          displayUnits();
-          newArmyBtn.disabled = false;
-          loadAllUpgradeFiles();
-        });
-    })
-    .catch(err => {
-      console.error(`🚫 Error loading units for faction "${factionFile}":`, err);
-      unitGridEl.innerHTML = `<p style="color:red;">Failed to load ${factionFile} units. Check console for details.</p>`;
-    });
-}
-
-
-  // === Modal Button Selection (FIXED) ===
+  // === Modal Button Selection ===
   modalFactionButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const clickedFaction = btn.dataset.faction.toLowerCase();
       factionModalEl.classList.remove('active');
 
-      // ✅ Correct mapping between button name and JSON file
       const factionMap = {
         "rebels": "rebels",
         "empire": "imperials",
@@ -108,16 +106,11 @@ function loadFactionUnits(factionFile) {
       };
 
       selectedFaction = factionMap[clickedFaction];
-
-      if (!selectedFaction) {
-        console.error(`Unknown faction "${clickedFaction}" clicked — check data-faction values.`);
-        return;
-      }
+      if (!selectedFaction) return console.error(`Unknown faction "${clickedFaction}" clicked — check data-faction values.`);
 
       const displayName = factionDisplayNames[selectedFaction] || selectedFaction;
       console.log(`🎯 Selected Faction: ${displayName} -> loading data/units_${selectedFaction}.json`);
 
-      // Clear old army + UI
       units = [];
       currentArmy = [];
       armyContainerEl.innerHTML = '';
@@ -131,10 +124,7 @@ function loadFactionUnits(factionFile) {
   // === Display Units ===
   function displayUnits() {
     unitGridEl.innerHTML = '';
-    if (!units.length) {
-      unitGridEl.innerHTML = `<p>No units available.</p>`;
-      return;
-    }
+    if (!units.length) return unitGridEl.innerHTML = `<p>No units available.</p>`;
 
     units.sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
@@ -153,7 +143,6 @@ function loadFactionUnits(factionFile) {
         <p>Points: ${unit.points}</p>
         <button class="add-unit">Add</button>
       `;
-
       card.querySelector('.add-unit').addEventListener('click', () => addUnitToArmy(unit));
       unitGridEl.appendChild(card);
     });
@@ -191,6 +180,32 @@ function loadFactionUnits(factionFile) {
     return rankSection;
   }
 
+  // === Utility Functions ===
+  function capitalize(str) {
+    if (!str) return '';
+    return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+  }
+
+  function updateRankCount(rank) {
+    const rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
+    if (!rankSection) return;
+    const count = currentArmy.filter(u => u.rank === rank).length;
+    rankSection.querySelector('h3').textContent = `${capitalize(rank)} (${count})`;
+  }
+
+  function checkEmptyRankSections() {
+    document.querySelectorAll('.rank-section').forEach(section => {
+      const list = section.querySelector('.rank-list');
+      if (!list.children.length) section.remove();
+    });
+  }
+
+  function updateArmySummary() {
+    const totalUnits = currentArmy.length;
+    const totalPoints = currentArmy.reduce((sum, u) => sum + (u.currentPoints || u.points || 0), 0);
+    armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
+  }
+
   // === Add Unit ===
   function addUnitToArmy(unit) {
     const armyUnit = JSON.parse(JSON.stringify(unit));
@@ -208,7 +223,6 @@ function loadFactionUnits(factionFile) {
     unitEl.style.gap = '12px';
     unitEl.style.marginBottom = '8px';
 
-    // === Image ===
     const img = document.createElement('img');
     img.src = armyUnit.image || '';
     img.alt = armyUnit.name;
@@ -218,7 +232,6 @@ function loadFactionUnits(factionFile) {
     img.style.borderRadius = "6px";
     unitEl.appendChild(img);
 
-    // === Info ===
     const infoDiv = document.createElement('div');
     infoDiv.classList.add('unit-info');
     infoDiv.style.flex = '1';
@@ -237,7 +250,7 @@ function loadFactionUnits(factionFile) {
     upgradeImagesDiv.style.marginBottom = '6px';
     infoDiv.appendChild(upgradeImagesDiv);
 
-    // === Upgrades ===
+    // Upgrades
     if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
       armyUnit.allowedUpgrades.forEach(upgType => {
         const typeContainer = document.createElement('div');
@@ -261,7 +274,7 @@ function loadFactionUnits(factionFile) {
         menu.style.zIndex = '999';
 
         const availableUpgrades = upgradesData[upgType] || [];
-        if (availableUpgrades.length === 0) {
+        if (!availableUpgrades.length) {
           const note = document.createElement('div');
           note.textContent = 'No options';
           note.style.padding = '6px';
@@ -340,7 +353,6 @@ function loadFactionUnits(factionFile) {
 
     unitEl.appendChild(infoDiv);
 
-    // === Remove Button ===
     const removeBtn = document.createElement('button');
     removeBtn.textContent = '✕';
     removeBtn.classList.add('remove-unit');
@@ -354,30 +366,8 @@ function loadFactionUnits(factionFile) {
     unitEl.appendChild(removeBtn);
 
     rankList.appendChild(unitEl);
-
     updateRankCount(armyUnit.rank);
     updateArmySummary();
-  }
-
-  // === Rank & Summary Updates ===
-  function updateRankCount(rank) {
-    const rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
-    if (!rankSection) return;
-    const count = currentArmy.filter(u => u.rank === rank).length;
-    rankSection.querySelector('h3').textContent = `${capitalize(rank)} (${count})`;
-  }
-
-  function checkEmptyRankSections() {
-    document.querySelectorAll('.rank-section').forEach(section => {
-      const list = section.querySelector('.rank-list');
-      if (!list.children.length) section.remove();
-    });
-  }
-
-  function updateArmySummary() {
-    const totalUnits = currentArmy.length;
-    const totalPoints = currentArmy.reduce((sum, u) => sum + (u.currentPoints || u.points || 0), 0);
-    armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
   }
 
   // === Army Buttons ===
@@ -392,8 +382,13 @@ function loadFactionUnits(factionFile) {
   });
 
   saveArmyBtn.addEventListener('click', () => {
-    localStorage.setItem('savedArmy', JSON.stringify(currentArmy));
+    const name = prompt('Enter a name for this army:');
+    if (!name) return;
+    const savedArmies = JSON.parse(localStorage.getItem('savedArmies') || '[]');
+    savedArmies.push({ name, units: currentArmy });
+    localStorage.setItem('savedArmies', JSON.stringify(savedArmies));
     alert('Army saved!');
+    renderSavedArmies();
   });
 
   loadArmyBtn.addEventListener('click', () => {
@@ -404,15 +399,52 @@ function loadFactionUnits(factionFile) {
     saved.forEach(unit => addUnitToArmy(unit));
   });
 
+  // === Saved Armies Sidebar ===
+  function renderSavedArmies() {
+    savedArmiesContainer.innerHTML = `<h3>Saved Armies</h3>`;
+    const savedArmies = JSON.parse(localStorage.getItem('savedArmies') || '[]');
+    if (!savedArmies.length) {
+      savedArmiesContainer.innerHTML += '<p>No saved armies.</p>';
+      return;
+    }
+    savedArmies.forEach((army, idx) => {
+      const div = document.createElement('div');
+      div.style.display = 'flex';
+      div.style.justifyContent = 'space-between';
+      div.style.alignItems = 'center';
+      div.style.marginBottom = '6px';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = army.name;
+      nameSpan.style.cursor = 'pointer';
+      nameSpan.addEventListener('click', () => {
+        if (!confirm(`Load army "${army.name}"? This will replace your current army.`)) return;
+        currentArmy = [];
+        armyContainerEl.innerHTML = '';
+        army.units.forEach(unit => addUnitToArmy(unit));
+      });
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✕';
+      delBtn.style.marginLeft = '8px';
+      delBtn.addEventListener('click', () => {
+        if (!confirm(`Delete army "${army.name}"?`)) return;
+        savedArmies.splice(idx, 1);
+        localStorage.setItem('savedArmies', JSON.stringify(savedArmies));
+        renderSavedArmies();
+      });
+
+      div.appendChild(nameSpan);
+      div.appendChild(delBtn);
+      savedArmiesContainer.appendChild(div);
+    });
+  }
+
+  renderSavedArmies();
+
   // === Close Modal on Outside Click ===
   window.addEventListener('click', e => {
     if (e.target === factionModalEl) factionModalEl.classList.remove('active');
   });
-
-  // === Utility ===
-  function capitalize(str) {
-    if (!str) return '';
-    return String(str).charAt(0).toUpperCase() + String(str).slice(1);
-  }
 
 });
