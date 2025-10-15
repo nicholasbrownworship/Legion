@@ -10,7 +10,7 @@
       "max": 3,
       "rank": "support",
       "unitType": "vehicle",
-      "allowedUpgrades": ["comms"]
+      "allowedUpgrades": ["comms"],
       "restrictions": [],
       "keywords": ["speeder", "vehicle"],
       "image": "data/images/units/74-z.png"
