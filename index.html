@@ -26,8 +26,21 @@
   <!-- Sidebar -->
   <aside class="sidebar">
     <h2>Factions</h2>
-    <!-- Faction buttons removed; only the header remains -->
+    <!-- Army Summary -->
     <div id="army-summary" class="army-summary">Total Units: 0 | Total Points: 0</div>
+
+    <!-- Saved Armies Tabs -->
+    <div id="saved-armies-tabs">
+      <button class="tab-btn active" data-faction="rebels">Rebels</button>
+      <button class="tab-btn" data-faction="imperials">Empire</button>
+      <button class="tab-btn" data-faction="cis">CIS</button>
+      <button class="tab-btn" data-faction="gar">Republic</button>
+    </div>
+
+    <!-- Saved Armies List -->
+    <div id="saved-armies-container">
+      <ul id="saved-armies-list"></ul>
+    </div>
   </aside>
 
   <!-- Main Area -->
