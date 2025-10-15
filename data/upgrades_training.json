@@ -15,9 +15,9 @@
       "name": "Duck and Cover",
       "type": "training",
       "points": 2,
-      "factions": ["rebels", "imperials", "cis", "gar"]
-      "restrictions": ["trooper"]
-      "text": "When this unit is defending against a Ranged attack, at the start of the Apply Dodge and Cover step, it may gain 1 Suppression Token."
+      "factions": ["rebels", "imperials", "cis", "gar"],
+      "restrictions": ["trooper"],
+      "text": "When this unit is defending against a Ranged attack, at the start of the Apply Dodge and Cover step, it may gain 1 Suppression Token.",
       "isUnique": false
     },
     {
@@ -25,9 +25,9 @@
       "name": "Endurance",
       "type": "training",
       "points": 6,
-      "factions": ["rebels", "imperials", "gar", "cis"]
-      "restrictions": ["trooper"]
-      "text": "This unit may remove 1 Suppression token at the end of the Suppression Token."
+      "factions": ["rebels", "imperials", "gar", "cis"],
+      "restrictions": ["trooper"],
+      "text": "This unit may remove 1 Suppression token at the end of the Suppression Token.",
       "isUnique": false
     },
     {
@@ -35,9 +35,9 @@
       "name": "Into the Fray",
       "type": "training",
       "points": 4,
-      "factions": ["rebels", "imperials", "cis", "gar"]
-      "restrictions": ["trooper"]
-      "text": "During the ACTIVATION PHASE, when an enemy unit starts its Activation within RANGE 1 of this unit, this unit may gain 1 Surge Token."
+      "factions": ["rebels", "imperials", "cis", "gar"],
+      "restrictions": ["trooper"],
+      "text": "During the ACTIVATION PHASE, when an enemy unit starts its Activation within RANGE 1 of this unit, this unit may gain 1 Surge Token.",
       "isUnique": false
     },
     {
@@ -45,9 +45,9 @@
       "name": "Mission Objective",
       "type": "training",
       "points": 6,
-      "factions": ["rebels", "imperials", "cis", "gar"]
-      "restrictions": ["trooper"]
-      "text": "When this unit attacks an enemy unit that is holding or contesting 1 or more Objective tokens, during the Reroll Dice Step, you may EXHAUST this card. If you do, this unit rerolls 1 attack die. /n/At the start of this unit's Activation, READY this card."
+      "factions": ["rebels", "imperials", "cis", "gar"],
+      "restrictions": ["trooper"],
+      "text": "When this unit attacks an enemy unit that is holding or contesting 1 or more Objective tokens, during the Reroll Dice Step, you may EXHAUST this card. If you do, this unit rerolls 1 attack die. /n/At the start of this unit's Activation, READY this card.",
       "isUnique": false
     },
     {
@@ -55,9 +55,9 @@
       "name": "On the Hunt",
       "type": "training",
       "points": 6,
-      "factions": ["rebels", "imperials", "gar", "cis"]
-      "restrictions": ["trooper"]
-      "text": "When this unit is attacking a Trooper unit that has 1 or more Wound tokens, during the Roll Attack Dice Step, this unit may gain 1 AIM token."
+      "factions": ["rebels", "imperials", "gar", "cis"],
+      "restrictions": ["trooper"],
+      "text": "When this unit is attacking a Trooper unit that has 1 or more Wound tokens, during the Roll Attack Dice Step, this unit may gain 1 AIM token.",
       "isUnique": false
     },
     {
@@ -65,9 +65,9 @@
       "name": "Overwatch",
       "type": "training",
       "points": 4,
-      "factions": ["rebels", "imperials", "gar", "cis"]
-      "restrictions": ["trooper"]
-      "text": "This unit gains SENTINEL."
+      "factions": ["rebels", "imperials", "gar", "cis"],
+      "restrictions": ["trooper"],
+      "text": "This unit gains SENTINEL.",
       "isUnique": false
     },
     {
@@ -75,9 +75,9 @@
       "name": "Protector",
       "type": "training",
       "points": 5,
-      "factions": ["rebels", "imperials", "gar", "cis"]
-      "restrictions": ["trooper"]
-      "text": "When this unit uses GUARDIAN X, you may EXHAUST this card to cancel CRIT results with GUARDIAN X, as if they were HIT results. /n/Ready this card in the END PHASE."
+      "factions": ["rebels", "imperials", "gar", "cis"],
+      "restrictions": ["trooper"],
+      "text": "When this unit uses GUARDIAN X, you may EXHAUST this card to cancel CRIT results with GUARDIAN X, as if they were HIT results. /n/Ready this card in the END PHASE.",
       "isUnique": false
     }
 ]
