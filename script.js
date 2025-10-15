@@ -1,4 +1,4 @@
-// === Full Army Builder Script with Saved Armies Sidebar & Image Zoom ===
+// === Full Army Builder Script with Saved Armies Sidebar, Image Zoom & Full Unit Export/Import ===
 document.addEventListener('DOMContentLoaded', () => {
 
   // === Global Elements ===
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // === Add Unit to Army ===
   function addUnitToArmy(unit) {
     const armyUnit = JSON.parse(JSON.stringify(unit));
-    armyUnit.selectedUpgrades = {};
+    armyUnit.selectedUpgrades = armyUnit.selectedUpgrades || {};
     armyUnit.currentPoints = armyUnit.points;
     currentArmy.push(armyUnit);
 
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const img = document.createElement('img');
     img.src = armyUnit.image || '';
     img.alt = armyUnit.name;
-    img.classList.add('unit-image'); // zoomable
+    img.classList.add('unit-image');
     img.style.width = "60px";
     img.style.height = "60px";
     img.style.objectFit = "cover";
@@ -465,19 +465,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
-   // === Toast System ===
-  const toastContainer = document.getElementById('toast-container');
 
+  // === Toast System ===
+  const toastContainer = document.getElementById('toast-container');
   function showToast(message, duration = 2500) {
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
     toastContainer.appendChild(toast);
 
-    // Trigger show animation
     setTimeout(() => toast.classList.add('show'), 50);
-
-    // Hide and remove after duration
     setTimeout(() => {
       toast.classList.remove('show');
       setTimeout(() => toast.remove(), 400);
@@ -519,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const data = {
       faction: selectedFaction || 'unknown',
-      units: currentArmy,
+      units: JSON.parse(JSON.stringify(currentArmy)), // full unit data
       totalPoints: currentArmy.reduce((sum, u) => sum + (u.currentPoints || u.points || 0), 0),
       exportedAt: new Date().toISOString()
     };
@@ -540,50 +537,46 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // === Import Army ===
-  importArmyBtn.addEventListener('click', () => {
-    importArmyFile.click();
+  importArmyBtn.addEventListener('click', () => importArmyFile.click());
+
+  importArmyFile.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = event => {
+      try {
+        const data = JSON.parse(event.target.result);
+
+        if (Array.isArray(data)) {
+          localStorage.setItem('savedArmies', JSON.stringify(data));
+          renderSavedArmies();
+          showToast(`✅ Imported ${data.length} armies!`);
+        } else if (data.units && Array.isArray(data.units)) {
+          if (!confirm(`Import "${data.faction || 'Army'}" and overwrite current army?`)) return;
+
+          currentArmy = [];
+          armyContainerEl.innerHTML = '';
+          data.units.forEach(unit => {
+            // Ensure selectedUpgrades exists
+            unit.selectedUpgrades = unit.selectedUpgrades || {};
+            addUnitToArmy(unit);
+          });
+          updateArmySummary();
+          showToast('✅ Army imported successfully!');
+        } else {
+          showToast('❌ Invalid file format.', 2500);
+        }
+      } catch (err) {
+        console.error('Error importing JSON:', err);
+        showToast('❌ Failed to import file.', 2500);
+      } finally {
+        importArmyFile.value = '';
+      }
+    };
+
+    reader.readAsText(file);
   });
 
-  importArmyFile.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    try {
-      const data = JSON.parse(event.target.result);
-
-      if (Array.isArray(data)) {
-        // Import multiple armies
-        localStorage.setItem('savedArmies', JSON.stringify(data));
-        renderSavedArmies();
-        showToast(`✅ Imported ${data.length} armies!`);
-      } else if (data.units && Array.isArray(data.units)) {
-        // Import single army
-        if (!confirm(`Import "${data.faction || 'Army'}" and overwrite current army?`)) return;
-
-        currentArmy = [];
-        armyContainerEl.innerHTML = '';
-        data.units.forEach(unit => addUnitToArmy(unit));
-        updateArmySummary();
-        showToast('✅ Army imported successfully!');
-      } else {
-        showToast('❌ Invalid file format.', 2500);
-      }
-    } catch (err) {
-      console.error('Error importing JSON:', err);
-      showToast('❌ Failed to import file.', 2500);
-    } finally {
-      // ✅ Reset file input so the same file can be imported again
-      importArmyFile.value = '';
-    }
-  };
-
-  reader.readAsText(file);
-});
-
-
-  console.log('✅ Export/Import Army feature with toasts loaded.');
-
-  
+  console.log('✅ Full Army Builder script loaded successfully.');
 });
