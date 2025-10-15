@@ -42,33 +42,56 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // === Load Units From JSON File ===
-  function loadFactionUnits(factionFile) {
-    console.log(`Attempting to load units for faction: ${factionFile}`);
-    fetch(`data/units_${factionFile}.json`)
-      .then(res => res.json())
-      .then(data => {
-        units = data.units || [];
-        console.log(`✅ Units loaded from data/units_${factionFile}.json:`, units);
+function loadFactionUnits(factionFile) {
+  console.log(`🔍 Attempting to load units for faction: ${factionFile}`);
 
-        // Load multi-faction units if available
-        fetch('data/units_multi.json')
-          .then(res => res.json())
-          .then(multiData => {
-            const multiUnitsForFaction = multiData.units.filter(u =>
-              Array.isArray(u.faction) ? u.faction.includes(factionFile) : u.faction === factionFile
-            );
-            units = units.concat(multiUnitsForFaction);
-            console.log(`Merged multi-faction units for ${factionFile}:`, multiUnitsForFaction);
-          })
-          .catch(() => console.log('No multi-faction units found, skipping.'))
-          .finally(() => {
-            displayUnits();
-            newArmyBtn.disabled = false;
-            loadAllUpgradeFiles();
-          });
-      })
-      .catch(err => console.error(`❌ Error loading units from "${factionFile}":`, err));
-  }
+  // Step 1: Try loading from correct faction file
+  fetch(`data/units_${factionFile}.json`)
+    .then(res => {
+      if (!res.ok) throw new Error(`❌ Could not load data/units_${factionFile}.json`);
+      return res.json();
+    })
+    .then(data => {
+      console.log(`✅ Loaded data/units_${factionFile}.json:`, data);
+
+      // Check JSON format
+      if (!data || !Array.isArray(data.units)) {
+        throw new Error(`⚠️ JSON format invalid — expected { units: [...] }`);
+      }
+
+      units = data.units;
+      console.log(`📦 ${units.length} units loaded for ${factionFile}`);
+
+      // Step 2: Load multi-faction units if available
+      fetch('data/units_multi.json')
+        .then(res => res.ok ? res.json() : Promise.reject('No multi-faction file found.'))
+        .then(multiData => {
+          if (!multiData.units) {
+            console.warn('⚠️ units_multi.json found, but missing "units" array');
+            return;
+          }
+          const multiUnitsForFaction = multiData.units.filter(u =>
+            Array.isArray(u.faction)
+              ? u.faction.includes(factionFile)
+              : u.faction === factionFile
+          );
+          console.log(`🔄 Adding ${multiUnitsForFaction.length} multi-faction units for ${factionFile}`);
+          units = units.concat(multiUnitsForFaction);
+        })
+        .catch(err => console.log(`(optional) ${err}`))
+        .finally(() => {
+          console.log(`✅ Final unit list (${units.length} total):`, units.map(u => u.name));
+          displayUnits();
+          newArmyBtn.disabled = false;
+          loadAllUpgradeFiles();
+        });
+    })
+    .catch(err => {
+      console.error(`🚫 Error loading units for faction "${factionFile}":`, err);
+      unitGridEl.innerHTML = `<p style="color:red;">Failed to load ${factionFile} units. Check console for details.</p>`;
+    });
+}
+
 
   // === Modal Button Selection (FIXED) ===
   modalFactionButtons.forEach(btn => {
