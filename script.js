@@ -481,4 +481,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-
+});
