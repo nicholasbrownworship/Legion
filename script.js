@@ -1,5 +1,4 @@
 // === Full Army Builder Script ===
-
 document.addEventListener('DOMContentLoaded', () => {
 
   // === Global Elements ===
@@ -23,9 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const factionDisplayNames = {
     "rebels": "Rebels",
-    "imperials": "Imperials",
+    "imperials": "Empire",
     "cis": "CIS",
-    "gar": "Republic" // JSON still uses 'gar'
+    "gar": "Republic"
   };
 
   // === Load all upgrade JSONs dynamically ===
@@ -44,13 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // === Load Units From JSON File ===
   function loadFactionUnits(factionFile) {
+    console.log(`Attempting to load units for faction: ${factionFile}`);
     fetch(`data/units_${factionFile}.json`)
       .then(res => res.json())
       .then(data => {
         units = data.units || [];
         console.log(`Units loaded from data/units_${factionFile}.json:`, units);
 
-        // Load multi-faction units
+        // Load multi-faction units if available
         fetch('data/units_multi.json')
           .then(res => res.json())
           .then(multiData => {
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
           })
           .catch(() => console.log('No multi-faction units found, skipping.'))
           .finally(() => {
-            displayUnits(); // now just display all loaded units
+            displayUnits();
             newArmyBtn.disabled = false;
             loadAllUpgradeFiles();
           });
@@ -73,12 +73,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // === Modal Button Selection ===
   modalFactionButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      selectedFaction = btn.dataset.faction.toLowerCase();
+      const clickedFaction = btn.dataset.faction.toLowerCase();
       factionModalEl.classList.remove('active');
 
-      // Update header or display names if needed
+      // Map button name to correct JSON filename
+      const factionMap = {
+        "rebels": "rebels",
+        "empire": "imperials",
+        "cis": "cis",
+        "republic": "gar"
+      };
+
+      selectedFaction = factionMap[clickedFaction];
+
+      if (!selectedFaction) {
+        console.error(`Unknown faction "${clickedFaction}" clicked — check modal button data-faction values.`);
+        return;
+      }
+
       const displayName = factionDisplayNames[selectedFaction] || selectedFaction;
-      console.log(`Selected Faction: ${displayName}`);
+      console.log(`Selected Faction: ${displayName} -> loading data/units_${selectedFaction}.json`);
+
+      // Clear old data
+      units = [];
+      currentArmy = [];
+      armyContainerEl.innerHTML = '';
+      unitGridEl.innerHTML = '';
+      armySummaryEl.textContent = '';
 
       loadFactionUnits(selectedFaction);
     });
@@ -157,11 +178,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const unitEl = document.createElement('div');
     unitEl.classList.add('army-unit');
-    unitEl.style.width = '100%';
     unitEl.style.display = 'flex';
     unitEl.style.alignItems = 'flex-start';
     unitEl.style.gap = '12px';
+    unitEl.style.marginBottom = '8px';
 
+    // === Image ===
     const img = document.createElement('img');
     img.src = armyUnit.image || '';
     img.alt = armyUnit.name;
@@ -171,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     img.style.borderRadius = "6px";
     unitEl.appendChild(img);
 
+    // === Info ===
     const infoDiv = document.createElement('div');
     infoDiv.classList.add('unit-info');
     infoDiv.style.flex = '1';
@@ -189,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     upgradeImagesDiv.style.marginBottom = '6px';
     infoDiv.appendChild(upgradeImagesDiv);
 
+    // === Upgrades ===
     if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
       armyUnit.allowedUpgrades.forEach(upgType => {
         const typeContainer = document.createElement('div');
@@ -202,7 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         typeBtn.textContent = capitalize(upgType);
 
         const arrow = document.createElement('span');
-        arrow.classList.add('arrow');
         arrow.textContent = '▶';
         arrow.style.marginLeft = '8px';
         typeBtn.appendChild(arrow);
@@ -292,6 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     unitEl.appendChild(infoDiv);
 
+    // === Remove Button ===
     const removeBtn = document.createElement('button');
     removeBtn.textContent = '✕';
     removeBtn.classList.add('remove-unit');
@@ -333,6 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // === Army Buttons ===
   newArmyBtn.addEventListener('click', () => factionModalEl.classList.add('active'));
+
   resetArmyBtn.addEventListener('click', () => {
     if (confirm('Clear current army?')) {
       currentArmy = [];
@@ -340,10 +365,12 @@ document.addEventListener('DOMContentLoaded', () => {
       updateArmySummary();
     }
   });
+
   saveArmyBtn.addEventListener('click', () => {
     localStorage.setItem('savedArmy', JSON.stringify(currentArmy));
     alert('Army saved!');
   });
+
   loadArmyBtn.addEventListener('click', () => {
     const saved = JSON.parse(localStorage.getItem('savedArmy') || '[]');
     if (!saved.length) return alert('No saved army found!');
