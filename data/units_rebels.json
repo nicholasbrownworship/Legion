@@ -6,7 +6,7 @@
       "name": "Rebel Troopers",
       "faction": "rebels",
       "points": 40,
-      "min": 1,
+      "min": 0,
       "max": 6,
       "rank": "corps",
       "unitType": "trooper",
@@ -34,7 +34,7 @@
       "name": "Luke Skywalker",
       "faction": "rebels",
       "points": 120,
-      "min": 1,
+      "min": 0,
       "max": 2,
       "rank": "commander",
       "unitType": "trooper",
@@ -42,6 +42,49 @@
       "restrictions": [],
       "keywords": ["trooper", "force user"],
       "image": "data/images/units/Luke Skywalker.png"
-    }
+    },
+    {
+  "id": "rebel_veterans",
+  "name": "Rebel Veterans",
+  "faction": "rebels",
+  "points": 48,
+  "min": 0,
+  "max": 6,
+  "rank": "corps",
+  "unitType": "trooper",
+  "allowedUpgrades": ["heavyweapon", "grenades", "personnel", "heavyweapon", "gear", "training"],
+  "restrictions": [],
+  "keywords": ["coordinate_emplacement", "defend_1", "trooper"],
+  "image": "data/images/units/Rebel Veterans.png"
+},
+    {
+  "id": "mark_ii_medium_blaster_trooper",
+  "name": "Mark II Medium Blaster Trooper",
+  "faction": "rebels",
+  "points": 38,
+  "min": 0,
+  "max": 3,
+  "rank": "emplacement_trooper",
+  "unitType": "emplacement_trooper",
+  "allowedUpgrades": ["comms"],
+  "restrictions": [],
+  "keywords": ["emplacement", "barrage", "reposition"],
+  "image": "data/images/units/Mark II Medium Blaster Trooper.png"
+},
+    {
+  "id": "fleet_troopers",
+  "name": "Fleet Troopers",
+  "faction": "rebels",
+  "points": 40,
+  "min": 0,
+  "max": 6,
+  "rank": "corps",
+  "unitType": "trooper",
+  "allowedUpgrades": ["grenades", "personnel", "heavyweapon", "gear"],
+  "restrictions": [],
+  "keywords": ["ready_1", "trooper"],
+  "image": "data/images/units/Fleet Troopers.png"
+}
+
   ]
 }
