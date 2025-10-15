@@ -1,7 +1,47 @@
 {
-    "factions": "gar",
-    "units": [
-      {
-      }
-    ]
+  "faction": "gar",
+  "units": [
+    {
+      "id": "clone_trooper_squad",
+      "name": "Clone Trooper Squad",
+      "faction": "gar",
+      "points": 35,
+      "min": 1,
+      "max": 6,
+      "rank": "corps",
+      "unitType": "trooper",
+      "allowedUpgrades": ["grenades", "personnel", "heavyweapon", "gear", "training"],
+      "restrictions": [],
+      "keywords": ["trooper"],
+      "image": "images/gar/clone_trooper_squad.png"
+    },
+    {
+      "id": "clone_sniper_team",
+      "name": "Clone Sniper Team",
+      "faction": "gar",
+      "points": 70,
+      "min": 0,
+      "max": 3,
+      "rank": "specialforces",
+      "unitType": "trooper",
+      "allowedUpgrades": ["grenades", "gear", "training", "heavyweapon"],
+      "restrictions": [],
+      "keywords": ["sniper", "scout"],
+      "image": "images/gar/clone_sniper_team.png"
+    },
+    {
+      "id": "captain_rex",
+      "name": "Captain Rex",
+      "faction": "gar",
+      "points": 120,
+      "min": 1,
+      "max": 2,
+      "rank": "commander",
+      "unitType": "trooper",
+      "allowedUpgrades": ["gear", "command", "training", "force"],
+      "restrictions": [],
+      "keywords": ["trooper", "commander"],
+      "image": "images/gar/captain_rex.png"
+    }
+  ]
 }
