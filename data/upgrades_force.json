@@ -8,7 +8,7 @@
     "factions": ["rebels", "imperials"],
     "text": ">Choose an enemy Trooper unit within RANGE 1 of this unit. The chosen unit makes a Speed-1 Move, even if it is Engaged. You resolve this Move.",
     "isUnique": false,
-    "image" = "data/images/upgrades/Force.png"
+    "image" : "data/images/upgrades/Force.png"
 
   },
   {
@@ -19,7 +19,7 @@
     "factions": ["rebels", "imperials"],
     "text": "Gain a dodge token; exhaust after use.",
     "isUnique": false,
-    "image" = "data/images/upgrades/Force.png"
+    "image" : "data/images/upgrades/Force.png"
   },
    {
     "id": "hope",
@@ -29,7 +29,7 @@
     "factions": ["rebels"],
     "text": "This unit gains INSPIRE 1.",
     "isUnique": false,
-    "image" = "data/images/upgrades/Force.png"
+    "image" : "data/images/upgrades/Force.png"
   },
     {
       "id": "anger",
@@ -39,7 +39,7 @@
       "factions": ["imperials"],
       "text": "When this unit suffers 1 or more Wounds, after the effect is reolved, it gains 1 Aim Token.",
       "isUnique": false,
-    "image" = "data/images/upgrades/Force.png"
+    "image" : "data/images/upgrades/Force.png"
     },
     {
       "id": "burst_of_speed",
@@ -49,7 +49,7 @@
       "factions": ["rebels", "imperials"],
       "text": "At the start of this unit's Activation, you may EXPEND this card to treat this unit's maximum Speed as 3 until the end of the Round. If you do, during the End Phase, this unit gains 1 Immobilize token.",
       "isUnique": false,
-    "image" = "data/images/upgrades/Force.png"
+    "image" : "data/images/upgrades/Force.png"
     },
     {
       "id": "fear",
@@ -59,7 +59,7 @@
       "factions": ["imperials"],
       "text": "This unit gains Demoralize 1.",
       "isUnique": false,
-    "image" = "data/images/upgrades/Force.png"
+    "image" : "data/images/upgrades/Force.png"
     }
 ]
 }
