@@ -453,4 +453,32 @@ function addUnitToArmy(unit) {
     if (e.target === factionModalEl) factionModalEl.classList.remove('active');
   });
 
+// === Image Zoom Functionality ===
+document.addEventListener('DOMContentLoaded', () => {
+  // Function to create overlay
+  function createZoomOverlay(src) {
+    const overlay = document.createElement('div');
+    overlay.classList.add('img-zoom-overlay');
+
+    const img = document.createElement('img');
+    img.src = src;
+
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
+
+    // Close overlay on click
+    overlay.addEventListener('click', () => {
+      overlay.remove();
+    });
+  }
+
+  // Select all unit and upgrade images
+  const zoomableImages = document.querySelectorAll('.unit-image, .upgrade-images img');
+
+  zoomableImages.forEach(img => {
+    img.addEventListener('click', () => {
+      createZoomOverlay(img.src);
+    });
+  });
 });
+
