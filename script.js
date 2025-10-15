@@ -1,6 +1,5 @@
 // === Full Army Builder Script with Saved Armies Sidebar, Image Zoom & Full Unit Export/Import ===
 document.addEventListener('DOMContentLoaded', () => {
-
   // === Global Elements ===
   const unitGridEl = document.getElementById('unit-grid');
   const armyContainerEl = document.getElementById('army-container');
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const factionModalEl = document.getElementById('faction-modal');
   const modalContentEl = factionModalEl.querySelector('.modal-content');
   const modalFactionButtons = modalContentEl.querySelectorAll('button[data-faction]');
-
   const savedArmiesContainer = document.createElement('div');
   savedArmiesContainer.id = 'saved-armies';
   savedArmiesContainer.style.marginTop = '20px';
@@ -25,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let selectedFaction = null;
   const upgradesData = {};
   const rankOrder = ["commander", "operative", "corps", "specialforces", "support", "heavy"];
-
   const factionDisplayNames = {
     "rebels": "Rebels",
     "imperials": "Empire",
@@ -35,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // === Load all upgrade JSONs dynamically ===
   function loadAllUpgradeFiles() {
-    const types = ["gear", "force", "command", "training", "personnel", "heavyweapon", "hardpoint", "armament", "crew", "grenades", "generator", "comms"];
+    const types = ["gear","force","command","training","personnel","heavyweapon","hardpoint","armament","crew","grenades","generator","comms"];
     types.forEach(type => {
       fetch(`data/upgrades_${type}.json`)
         .then(res => res.ok ? res.json() : Promise.reject(`No upgrades file for ${type}`))
@@ -53,8 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(`data/units_${factionFile}.json`)
       .then(res => res.ok ? res.json() : Promise.reject(`❌ Could not load data/units_${factionFile}.json`))
       .then(data => {
-        if (!data || !Array.isArray(data.units)) throw new Error(`⚠️ JSON format invalid — expected { units: [...] }`);
-
+        if (!data || !Array.isArray(data.units)) throw new Error('⚠️ JSON format invalid — expected { units: [...] }');
         units = data.units;
         console.log(`📦 ${units.length} units loaded for ${factionFile}`);
 
@@ -66,11 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
               console.warn('⚠️ units_multi.json found, but missing "units" array');
               return;
             }
-            const multiUnitsForFaction = multiData.units.filter(u =>
-              Array.isArray(u.faction)
-                ? u.faction.includes(factionFile)
-                : u.faction === factionFile
-            );
+            const multiUnitsForFaction = multiData.units.filter(u => Array.isArray(u.faction) ? u.faction.includes(factionFile) : u.faction === factionFile);
             console.log(`🔄 Adding ${multiUnitsForFaction.length} multi-faction units for ${factionFile}`);
             units = units.concat(multiUnitsForFaction);
           })
@@ -93,26 +85,16 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       const clickedFaction = btn.dataset.faction.toLowerCase();
       factionModalEl.classList.remove('active');
-
-      const factionMap = {
-        "rebels": "rebels",
-        "empire": "imperials",
-        "cis": "cis",
-        "republic": "gar"
-      };
-
+      const factionMap = { "rebels": "rebels", "empire": "imperials", "cis": "cis", "republic": "gar" };
       selectedFaction = factionMap[clickedFaction];
       if (!selectedFaction) return console.error(`Unknown faction "${clickedFaction}" clicked — check data-faction values.`);
-
       const displayName = factionDisplayNames[selectedFaction] || selectedFaction;
       console.log(`🎯 Selected Faction: ${displayName} -> loading data/units_${selectedFaction}.json`);
-
       units = [];
       currentArmy = [];
       armyContainerEl.innerHTML = '';
       unitGridEl.innerHTML = '';
       armySummaryEl.textContent = '';
-
       loadFactionUnits(selectedFaction);
     });
   });
@@ -121,17 +103,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function displayUnits() {
     unitGridEl.innerHTML = '';
     if (!units.length) return unitGridEl.innerHTML = `<p>No units available.</p>`;
-
     units.sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
-
     units.forEach(unit => {
       const card = document.createElement('div');
       card.classList.add('unit-card');
-
       const imgHtml = unit.image
         ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
         : `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`;
-
       card.innerHTML = `
         ${imgHtml}
         <h4>${unit.name}</h4>
@@ -142,24 +120,20 @@ document.addEventListener('DOMContentLoaded', () => {
       card.querySelector('.add-unit').addEventListener('click', () => addUnitToArmy(unit));
       unitGridEl.appendChild(card);
     });
-
     console.log("✅ Units displayed successfully.");
   }
 
   // === Utility Functions ===
   function capitalize(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
-
   function getOrCreateRankSection(rank) {
     let rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
     if (!rankSection) {
       rankSection = document.createElement('div');
       rankSection.classList.add('rank-section');
       rankSection.dataset.rank = rank;
-
       const header = document.createElement('h3');
       header.textContent = `${capitalize(rank)} (0)`;
       rankSection.appendChild(header);
-
       const list = document.createElement('div');
       list.classList.add('rank-list');
       rankSection.appendChild(list);
@@ -177,21 +151,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     return rankSection;
   }
-
   function updateRankCount(rank) {
     const rankSection = document.querySelector(`.rank-section[data-rank="${rank}"]`);
     if (!rankSection) return;
     const count = currentArmy.filter(u => u.rank === rank).length;
     rankSection.querySelector('h3').textContent = `${capitalize(rank)} (${count})`;
   }
-
   function checkEmptyRankSections() {
     document.querySelectorAll('.rank-section').forEach(section => {
       const list = section.querySelector('.rank-list');
       if (!list.children.length) section.remove();
     });
   }
-
   function updateArmySummary() {
     const totalUnits = currentArmy.length;
     const totalPoints = currentArmy.reduce((sum, u) => sum + (u.currentPoints || u.points || 0), 0);
@@ -243,131 +214,120 @@ document.addEventListener('DOMContentLoaded', () => {
     upgradeImagesDiv.style.marginBottom = '6px';
     infoDiv.appendChild(upgradeImagesDiv);
 
-   // === Upgrades Section ===
-if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
-  armyUnit.allowedUpgrades.forEach(upgType => {
-    const typeContainer = document.createElement('div');
-    typeContainer.classList.add('upgrade-type-container');
-    typeContainer.style.marginBottom = '6px';
-    typeContainer.style.position = 'relative';
+    // === Upgrades Section ===
+    if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
+      armyUnit.allowedUpgrades.forEach(upgType => {
+        const typeContainer = document.createElement('div');
+        typeContainer.classList.add('upgrade-type-container');
+        typeContainer.style.marginBottom = '6px';
+        typeContainer.style.position = 'relative';
 
-    const typeBtn = document.createElement('button');
-    typeBtn.classList.add('upgrade-type-btn');
-    typeBtn.type = 'button';
-    typeBtn.textContent = capitalize(upgType);
+        const typeBtn = document.createElement('button');
+        typeBtn.classList.add('upgrade-type-btn');
+        typeBtn.type = 'button';
+        typeBtn.textContent = capitalize(upgType);
 
-    const arrow = document.createElement('span');
-    arrow.textContent = '▶';
-    arrow.style.marginLeft = '8px';
-    typeBtn.appendChild(arrow);
+        const arrow = document.createElement('span');
+        arrow.textContent = '▶';
+        arrow.style.marginLeft = '8px';
+        typeBtn.appendChild(arrow);
 
-    const menu = document.createElement('div');
-    menu.classList.add('upgrade-menu');
-    menu.style.position = 'relative';
-    menu.style.zIndex = '999';
+        const menu = document.createElement('div');
+        menu.classList.add('upgrade-menu');
+        menu.style.position = 'relative';
+        menu.style.zIndex = '999';
 
-    const availableUpgrades = upgradesData[upgType] || [];
+        const availableUpgrades = upgradesData[upgType] || [];
+        if (!availableUpgrades.length) {
+          const note = document.createElement('div');
+          note.textContent = 'No options';
+          note.style.padding = '6px';
+          note.style.color = '#9fdff0';
+          menu.appendChild(note);
+        } else {
+          availableUpgrades.forEach(upg => {
+            const btn = document.createElement('button');
+            btn.classList.add('upgrade-btn');
+            btn.type = 'button';
+            btn.dataset.upgrade = upg.id;
+            btn.textContent = `${upg.name}${upg.points ? ` (+${upg.points} pts)` : ''}`;
 
-    // ✅ Filter upgrades by faction, restrictions, and keywords
-    const filteredUpgrades = availableUpgrades.filter(upg => {
-      // Check faction eligibility (if defined)
-      const factionAllowed =
-        !upg.factions || upg.factions.includes(armyUnit.faction);
+            btn.addEventListener('click', () => {
+              const maxSlots = armyUnit.upgradeSlots?.[upgType] || 1;
+              if (!Array.isArray(armyUnit.selectedUpgrades[upgType])) armyUnit.selectedUpgrades[upgType] = [];
+              const selected = armyUnit.selectedUpgrades[upgType];
+              const index = selected.indexOf(upg.id);
 
-      // Check restrictions (if defined)
-      const restrictionOK =
-        !upg.restrictions ||
-        upg.restrictions.length === 0 ||
-        upg.restrictions.every(
-          r => armyUnit.keywords && armyUnit.keywords.includes(r)
-        );
+              if (index > -1) {
+                selected.splice(index, 1);
+                armyUnit.currentPoints -= upg.points || 0;
+                btn.classList.remove('selected');
+                const imgEl = upgradeImagesDiv.querySelector(`img[data-upgrade="${upg.id}"]`);
+                if (imgEl) imgEl.remove();
+              } else {
+                if (selected.length >= maxSlots) return alert(`Cannot select more than ${maxSlots} ${capitalize(upgType)} upgrades.`);
+                selected.push(upg.id);
+                armyUnit.currentPoints += upg.points || 0;
+                btn.classList.add('selected');
+                if (upg.image) {
+                  const upgImg = document.createElement('img');
+                  upgImg.src = upg.image;
+                  upgImg.alt = upg.name;
+                  upgImg.dataset.upgrade = upg.id;
+                  upgImg.style.width = '30px';
+                  upgImg.style.height = '30px';
+                  upgImg.style.objectFit = 'cover';
+                  upgImg.style.borderRadius = '4px';
+                  upgradeImagesDiv.appendChild(upgImg);
+                }
+              }
 
-      return factionAllowed && restrictionOK;
-    });
+              namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
+              menu.style.maxHeight = '0';
+              menu.style.opacity = '0';
+              typeBtn.classList.remove('active');
+              updateArmySummary();
+            });
 
-    // ✅ Show "No options" if nothing passed the filter
-    if (!filteredUpgrades.length) {
-      const note = document.createElement('div');
-      note.textContent = 'No options';
-      note.style.padding = '6px';
-      note.style.color = '#9fdff0';
-      menu.appendChild(note);
-    } else {
-      filteredUpgrades.forEach(upg => {
-        const btn = document.createElement('button');
-        btn.classList.add('upgrade-btn');
-        btn.type = 'button';
-        btn.dataset.upgrade = upg.id;
-        btn.textContent = `${upg.name} ${
-          upg.points ? `(+${upg.points} pts)` : ''
-        }`;
+            menu.appendChild(btn);
+          });
+        }
 
-        btn.addEventListener('click', () => {
-          const maxSlots = armyUnit.upgradeSlots?.[upgType] || 1;
-          if (!Array.isArray(armyUnit.selectedUpgrades[upgType]))
-            armyUnit.selectedUpgrades[upgType] = [];
-          const selected = armyUnit.selectedUpgrades[upgType];
-          const index = selected.indexOf(upg.id);
-
-          if (index > -1) {
-            selected.splice(index, 1);
-            armyUnit.currentPoints -= upg.points || 0;
-            btn.classList.remove('selected');
-            const imgEl = upgradeImagesDiv.querySelector(
-              `img[data-upgrade="${upg.id}"]`
-            );
-            if (imgEl) imgEl.remove();
+        typeBtn.addEventListener('click', () => {
+          const isOpen = typeBtn.classList.toggle('active');
+          if (isOpen) {
+            menu.style.opacity = '1';
+            menu.style.maxHeight = menu.scrollHeight ? `${menu.scrollHeight}px` : '300px';
           } else {
-            if (selected.length >= maxSlots)
-              return alert(
-                `Cannot select more than ${maxSlots} ${capitalize(upgType)} upgrades.`
-              );
-            selected.push(upg.id);
-            armyUnit.currentPoints += upg.points || 0;
-            btn.classList.add('selected');
-            if (upg.image) {
-              const upgImg = document.createElement('img');
-              upgImg.src = upg.image;
-              upgImg.alt = upg.name;
-              upgImg.dataset.upgrade = upg.id;
-              upgImg.style.width = '30px';
-              upgImg.style.height = '30px';
-              upgImg.style.objectFit = 'cover';
-              upgImg.style.borderRadius = '4px';
-              upgradeImagesDiv.appendChild(upgImg);
-            }
+            menu.style.maxHeight = '0';
+            menu.style.opacity = '0';
           }
-
-          namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
-          menu.style.maxHeight = '0';
-          menu.style.opacity = '0';
-          typeBtn.classList.remove('active');
-          updateArmySummary();
         });
 
-        menu.appendChild(btn);
+        typeContainer.appendChild(typeBtn);
+        typeContainer.appendChild(menu);
+        infoDiv.appendChild(typeContainer);
       });
     }
 
-    typeBtn.addEventListener('click', () => {
-      const isOpen = typeBtn.classList.toggle('active');
-      if (isOpen) {
-        menu.style.opacity = '1';
-        menu.style.maxHeight = menu.scrollHeight
-          ? `${menu.scrollHeight}px`
-          : '300px';
-      } else {
-        menu.style.maxHeight = '0';
-        menu.style.opacity = '0';
-      }
+    unitEl.appendChild(infoDiv);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '✕';
+    removeBtn.classList.add('remove-unit');
+    removeBtn.addEventListener('click', () => {
+      currentArmy = currentArmy.filter(u => u !== armyUnit);
+      unitEl.remove();
+      updateRankCount(armyUnit.rank);
+      checkEmptyRankSections();
+      updateArmySummary();
     });
+    unitEl.appendChild(removeBtn);
 
-    typeContainer.appendChild(typeBtn);
-    typeContainer.appendChild(menu);
-    infoDiv.appendChild(typeContainer);
-  });
-}
-
+    rankList.appendChild(unitEl);
+    updateRankCount(armyUnit.rank);
+    updateArmySummary();
+  }
 
   // === Army Buttons ===
   newArmyBtn.addEventListener('click', () => factionModalEl.classList.add('active'));
@@ -434,11 +394,12 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
       savedArmiesContainer.appendChild(div);
     });
   }
-
   renderSavedArmies();
 
   // === Close Modal on Outside Click ===
-  window.addEventListener('click', e => { if (e.target === factionModalEl) factionModalEl.classList.remove('active'); });
+  window.addEventListener('click', e => {
+    if (e.target === factionModalEl) factionModalEl.classList.remove('active');
+  });
 
   // === Image Zoom Functionality (Event Delegation) ===
   document.body.addEventListener('click', e => {
@@ -452,7 +413,8 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
       overlay.style.height = '100vh';
       overlay.style.backgroundColor = 'rgba(0,0,0,0.85)';
       overlay.style.display = 'flex';
-      overlay.style.alignItems = 'center';
+      overlay.style.align
+            overlay.style.alignItems = 'center';
       overlay.style.justifyContent = 'center';
       overlay.style.zIndex = '9999';
       overlay.style.cursor = 'zoom-out';
@@ -465,8 +427,8 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
       img.style.maxHeight = '90%';
       img.style.borderRadius = '8px';
       img.style.boxShadow = '0 0 20px rgba(0,0,0,0.7)';
-      overlay.appendChild(img);
 
+      overlay.appendChild(img);
       document.body.appendChild(overlay);
       requestAnimationFrame(() => overlay.style.opacity = '1');
 
@@ -524,14 +486,12 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
       showToast('⚠️ No army to export!', 2500);
       return;
     }
-
     const data = {
       faction: selectedFaction || 'unknown',
-      units: JSON.parse(JSON.stringify(currentArmy)), // full unit data
+      units: JSON.parse(JSON.stringify(currentArmy)),
       totalPoints: currentArmy.reduce((sum, u) => sum + (u.currentPoints || u.points || 0), 0),
       exportedAt: new Date().toISOString()
     };
-
     downloadJSON(data, makeFilename('army_export'));
     showToast('✅ Army exported successfully!');
   });
@@ -549,27 +509,22 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
 
   // === Import Army ===
   importArmyBtn.addEventListener('click', () => importArmyFile.click());
-
   importArmyFile.addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = event => {
       try {
         const data = JSON.parse(event.target.result);
-
         if (Array.isArray(data)) {
           localStorage.setItem('savedArmies', JSON.stringify(data));
           renderSavedArmies();
           showToast(`✅ Imported ${data.length} armies!`);
         } else if (data.units && Array.isArray(data.units)) {
           if (!confirm(`Import "${data.faction || 'Army'}" and overwrite current army?`)) return;
-
           currentArmy = [];
           armyContainerEl.innerHTML = '';
           data.units.forEach(unit => {
-            // Ensure selectedUpgrades exists
             unit.selectedUpgrades = unit.selectedUpgrades || {};
             addUnitToArmy(unit);
           });
@@ -585,9 +540,9 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
         importArmyFile.value = '';
       }
     };
-
     reader.readAsText(file);
   });
 
   console.log('✅ Full Army Builder script loaded successfully.');
 });
+
