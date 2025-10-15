@@ -42,7 +42,7 @@
       "restrictions": [],
       "upgradeSlots": {"force": 3},
       "keywords": ["trooper", "force user"],
-      "image": "images/imperials/darth_vader.png"
+      "image": "data/images/units/Darth Vader.png"
     }
   ]
 }
