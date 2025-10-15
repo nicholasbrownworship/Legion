@@ -545,36 +545,43 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   importArmyFile.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = JSON.parse(event.target.result);
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const data = JSON.parse(event.target.result);
 
-        if (Array.isArray(data)) {
-          // Import multiple armies
-          localStorage.setItem('savedArmies', JSON.stringify(data));
-          renderSavedArmies();
-          showToast(`✅ Imported ${data.length} armies!`);
-        } else if (data.units) {
-          // Import single army
-          currentArmy = [];
-          armyContainerEl.innerHTML = '';
-          (data.units || []).forEach(unit => addUnitToArmy(unit));
-          updateArmySummary();
-          showToast('✅ Army imported successfully!');
-        } else {
-          showToast('❌ Invalid file format.', 2500);
-        }
-      } catch (err) {
-        console.error('Error importing JSON:', err);
-        showToast('❌ Failed to import file.', 2500);
+      if (Array.isArray(data)) {
+        // Import multiple armies
+        localStorage.setItem('savedArmies', JSON.stringify(data));
+        renderSavedArmies();
+        showToast(`✅ Imported ${data.length} armies!`);
+      } else if (data.units && Array.isArray(data.units)) {
+        // Import single army
+        if (!confirm(`Import "${data.faction || 'Army'}" and overwrite current army?`)) return;
+
+        currentArmy = [];
+        armyContainerEl.innerHTML = '';
+        data.units.forEach(unit => addUnitToArmy(unit));
+        updateArmySummary();
+        showToast('✅ Army imported successfully!');
+      } else {
+        showToast('❌ Invalid file format.', 2500);
       }
-    };
-    reader.readAsText(file);
-  });
+    } catch (err) {
+      console.error('Error importing JSON:', err);
+      showToast('❌ Failed to import file.', 2500);
+    } finally {
+      // ✅ Reset file input so the same file can be imported again
+      importArmyFile.value = '';
+    }
+  };
+
+  reader.readAsText(file);
+});
+
 
   console.log('✅ Export/Import Army feature with toasts loaded.');
 
