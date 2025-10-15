@@ -1,12 +1,84 @@
-[
+{
+  "upgrades": [
   {
-    "id": "comms_relay",
-    "name": "Comms Relay",
-    "type": "Comms",
+    "id": "command_control_array",
+    "name": "Command Control Array",
+    "type": "comms",
+    "points": 2,
+    "factions": ["rebels", "imperials", "cis", "gar"],
+    "restrictions": ["vehicle"],
+    "text": "When this unit uses Coordinate, it may issue an Order to a unit within RANGE 2 instead of within RANGE 1.",
+    "isUnique": false
+  },
+    {
+    "id": "comms_jammer",
+    "name": "Comms Jammer",
+    "type": "comms",
     "points": 5,
-    "factions": ["Rebels", "Imperials"],
-    "restrictions": ["Trooper", "Vehicle"],
-    "text": "When issued an order, may issue that order to another friendly unit at range 1–2.",
+    "factions": ["rebels", "imperials", "cis", "gar"],
+    "restrictions": [],
+    "text": "Enemy units within RANGE 1 of this unit cannot be issued Orders, unless they are issuing an Order to themselves.",
+    "isUnique": false
+  },
+     {
+    "id": "emergency_transponder",
+    "name": "Emergency Transponder",
+    "type": "comms",
+    "points": 4,
+    "factions": ["rebels", "imperials", "cis", "gar"],
+    "restrictions": [],
+    "text": "At the start of this unit's Activation, if it was activated with an Order token from the Order Pool, you may DISCARD this card. If you do, this unit gains 1 Aim token, gains 1 Dodge token, or removes 1 Suppression token.",
+    "isUnique": false
+  },
+     {
+    "id": "hacked_comms_unit",
+    "name": "Hacked Comms Unit",
+    "type": "comms",
+    "points": 5,
+    "factions": ["rebels", "imperials", "cis", "gar"],
+    "restrictions": [],
+    "text": "During the ISSUE ORDERS step of the COMMAND PHASE, after an enemy unit within RANGE 1 of this unit is issued an Order, this unit may issue an Order to itself.",
+    "isUnique": false
+  },
+     {
+    "id": "hq_uplink",
+    "name": "HQ Uplink",
+    "type": "comms",
+    "points": 10,
+    "factions": ["rebels", "imperials", "cis", "gar"],
+    "restrictions": [],
+    "text": "During hte ISSUE ORDERS step of the COMMAND PHASE, you may EXHAUST this card. If you do, this unit may issue an Order to itself.",
+    "isUnique": false
+  },
+     {
+    "id": "linked_targeting_array",
+    "name": "Linked Targeting Array",
+    "type": "comms",
+    "points": 5,
+    "factions": ["rebels", "imperials", "cis", "gar"],
+    "restrictions": ["vehicle", "emplacement"],
+    "text": "This unit gains TARGET 1.",
+    "isUnique": false
+  },
+     {
+    "id": "onboard_comms_channel",
+    "name": "Onboard Comms Channel",
+    "type": "comms",
+    "points": 10,
+    "factions": ["rebels", "imperials", "cis", "gar"],
+    "restrictions": ["vehicle"],
+    "text": "This unit gains COORDINATE: TROOPER.",
+    "isUnique": false
+  },
+     {
+    "id": "spotter_uplink",
+    "name": "Spotter Uplink",
+    "type": "comms",
+    "points": 3,
+    "factions": ["rebels", "imperials", "cis", "gar"],
+    "restrictions": [],
+    "text": "When another allied unit declares a Ranged attack against an enemy unit within RANGE 1 and in LOS of this unit, if this unit is not in melee, the attacking unit gains SHARPSHOOTER 1.",
     "isUnique": false
   }
 ]
+}
