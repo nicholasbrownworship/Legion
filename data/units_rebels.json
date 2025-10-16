@@ -35,7 +35,7 @@
       "faction": "rebels",
       "points": 120,
       "min": 0,
-      "max": 2,
+      "max": 1,
       "rank": "commander",
       "unitType": "trooper",
       "allowedUpgrades": ["force", "gear", "command", "training"],
@@ -54,7 +54,7 @@
   "unitType": "trooper",
   "allowedUpgrades": ["heavyweapon", "grenades", "personnel", "heavyweapon", "gear", "training"],
   "restrictions": [],
-  "keywords": ["coordinate_emplacement", "defend_1", "trooper"],
+  "keywords": ["coordinate_emplacement", "defend_1", "trooper", "attached"],
   "image": "data/images/units/Rebel Veterans.png"
 },
     {
@@ -67,7 +67,7 @@
   "rank": "emplacement_trooper",
   "unitType": "emplacement_trooper",
   "allowedUpgrades": ["comms"],
-  "restrictions": [],
+  "restrictions": ["attached"],
   "keywords": ["emplacement", "barrage", "reposition"],
   "image": "data/images/units/Mark II Medium Blaster Trooper.png"
 },
@@ -84,7 +84,65 @@
   "restrictions": [],
   "keywords": ["ready_1", "trooper"],
   "image": "data/images/units/Fleet Troopers.png"
-}
+},
+     {
+  "id": "han_solo",
+  "name": "Han Solo",
+  "faction": "rebels",
+  "points": 100,
+  "min": 0,
+  "max": 1,
+  "rank": "commander",
+  "unitType": "trooper",
+  "allowedUpgrades": ["training", "command", "gear"],
+  "restrictions": [],
+  "keywords": [],
+  "image": "data/images/units/han solo.png"
+},
+     {
+  "id": "lando_calrissian",
+  "name": "Lando Calrissian",
+  "faction": "rebels",
+  "points": 105,
+  "min": 0,
+  "max": 1,
+  "rank": "commander",
+  "unitType": "trooper",
+  "allowedUpgrades": ["training", "command", "gear"],
+  "restrictions": [],
+  "keywords": ["commander", "trooper"],
+  "image": "data/images/units/lando calrissian.png"
+},
+    {
+  "id": "leia_organa",
+  "name": "Leia Organa",
+  "faction": "rebels",
+  "points": 75,
+  "min": 0,
+  "max": 1,
+  "rank": "commander",
+  "unitType": "trooper",
+  "allowedUpgrades": ["training", "command", "gear"],
+      "upgradeSlots": {"command": 2},
+  "restrictions": [],
+  "keywords": ["commander", "trooper"],
+  "image": "data/images/units/leia organa.png"
+},
+     {
+  "id": "rebel_officer",
+  "name": "Rebel Officer",
+  "faction": "rebels",
+  "points": 55,
+  "min": 0,
+  "max": 2,
+  "rank": "commander",
+  "unitType": "trooper",
+  "allowedUpgrades": ["training", "command", "gear", "armament", "grenades"],
+      "upgradeSlots": {"training": 2},
+  "restrictions": [],
+  "keywords": ["commander", "trooper"],
+  "image": "data/images/units/rebel officer.png"
+},
 
   ]
 }
