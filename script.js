@@ -400,7 +400,6 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
       overlay.style.height = '100vh';
       overlay.style.backgroundColor = 'rgba(0,0,0,0.85)';
       overlay.style.display = 'flex';
-      overlay.style.align
             overlay.style.alignItems = 'center';
       overlay.style.justifyContent = 'center';
       overlay.style.zIndex = '9999';
