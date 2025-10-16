@@ -7,7 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const newArmyBtn = document.getElementById('new-army');
   const resetArmyBtn = document.getElementById('reset-army');
   const saveArmyBtn = document.getElementById('save-army');
-  const loadArmyBtn = document.getElementById('load-army');
+  const loadArmyBtn = document.getElementById('load-armry'); // fallback in case of id mismatch
+  // try original id
+  const loadArmyBtnReal = document.getElementById('load-army');
+  if (loadArmyBtnReal) window.loadArmyBtn = loadArmyBtnReal;
+  const loadBtnUsed = loadArmyBtnReal || document.getElementById('load-armry') || document.getElementById('load-army');
+
+  // Use loadBtnUsed below for safety
+  const loadArmyButton = loadBtnUsed;
+
   const factionModalEl = document.getElementById('faction-modal');
   const modalContentEl = factionModalEl.querySelector('.modal-content');
   const modalFactionButtons = modalContentEl.querySelectorAll('button[data-faction]');
@@ -18,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.sidebar').appendChild(savedArmiesContainer);
 
   // === Global Data ===
-  let units = [];
+  let units = []; // all units loaded for the faction (including multi)
   let currentArmy = [];
   let selectedFaction = null;
   const upgradesData = {};
@@ -69,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
           .catch(err => console.log(`(optional) ${err}`))
           .finally(() => {
             console.log(`✅ Final unit list (${units.length} total):`, units.map(u => u.name));
+            // initial render of available units
             displayUnits();
             newArmyBtn.disabled = false;
             loadAllUpgradeFiles();
@@ -98,30 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
       loadFactionUnits(selectedFaction);
     });
   });
-
-  // === Display Units ===
-  function displayUnits() {
-    unitGridEl.innerHTML = '';
-    if (!units.length) return unitGridEl.innerHTML = `<p>No units available.</p>`;
-    units.sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
-    units.forEach(unit => {
-      const card = document.createElement('div');
-      card.classList.add('unit-card');
-      const imgHtml = unit.image
-        ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
-        : `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`;
-      card.innerHTML = `
-        ${imgHtml}
-        <h4>${unit.name}</h4>
-        <p>Rank: ${capitalize(unit.rank)}</p>
-        <p>Points: ${unit.points}</p>
-        <button class="add-unit">Add</button>
-      `;
-      card.querySelector('.add-unit').addEventListener('click', () => addUnitToArmy(unit));
-      unitGridEl.appendChild(card);
-    });
-    console.log("✅ Units displayed successfully.");
-  }
 
   // === Utility Functions ===
   function capitalize(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
@@ -167,6 +152,106 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalUnits = currentArmy.length;
     const totalPoints = currentArmy.reduce((sum, u) => sum + (u.currentPoints || u.points || 0), 0);
     armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
+  }
+
+  // === New helper: determines whether a given unit should be shown in the available pool ===
+  function isUnitAvailableInPool(unit) {
+    // Only show same-faction units (units variable already should be the faction's list).
+    // If you ever store multi-faction in units array, check faction here:
+    if (selectedFaction && unit.faction && String(unit.faction).toLowerCase() !== String(selectedFaction).toLowerCase()) {
+      // If unit's faction is an array, allow if it includes selectedFaction
+      if (Array.isArray(unit.faction) && !unit.faction.includes(selectedFaction)) {
+        return false;
+      }
+    }
+
+    // If unit has no restrictions, it's available
+    if (!Array.isArray(unit.restrictions) || unit.restrictions.length === 0) return true;
+
+    // For each restriction, check if currentArmy satisfies it.
+    // Supported semantics:
+    // - If restriction === 'attached' => require any army unit with keyword 'attached'
+    // - If restriction matches an army unit's id => require that unit present
+    // - If restriction matches an army unit keyword (case-insensitive) => require that keyword present on some army unit
+    // - If restriction matches an army unit rank or unitType => require unit of that rank/type present
+    // All restrictions must be satisfied (every).
+    const lowerRestrictions = unit.restrictions.map(r => String(r).toLowerCase().trim());
+
+    const armyKeywordsSet = new Set();
+    const armyIds = new Set();
+    const armyRanks = new Set();
+    const armyTypes = new Set();
+    currentArmy.forEach(a => {
+      if (Array.isArray(a.keywords)) a.keywords.forEach(k => armyKeywordsSet.add(String(k).toLowerCase()));
+      if (a.id) armyIds.add(String(a.id).toLowerCase());
+      if (a.rank) armyRanks.add(String(a.rank).toLowerCase());
+      if (a.unitType) armyTypes.add(String(a.unitType).toLowerCase());
+    });
+
+    // check each restriction
+    const allMatch = lowerRestrictions.every(r => {
+      if (!r) return false;
+
+      // special-case "attached" — check for keyword 'attached' in any existing unit
+      if (r === 'attached') {
+        return armyKeywordsSet.has('attached');
+      }
+
+      // if restriction equals an army unit id
+      if (armyIds.has(r)) return true;
+
+      // if restriction found in any army keyword
+      if (armyKeywordsSet.has(r)) return true;
+
+      // if restriction equals an army rank
+      if (armyRanks.has(r)) return true;
+
+      // if restriction equals an army unitType
+      if (armyTypes.has(r)) return true;
+
+      // not matched
+      return false;
+    });
+
+    return allMatch;
+  }
+
+  // === Display Units (uses isUnitAvailableInPool for filtering) ===
+  function displayUnits() {
+    unitGridEl.innerHTML = '';
+    if (!units.length) return unitGridEl.innerHTML = `<p>No units available.</p>`;
+
+    // Sort by rank order for consistent display
+    units.sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
+
+    const available = units.filter(u => isUnitAvailableInPool(u));
+
+    if (!available.length) {
+      unitGridEl.innerHTML = `<p>No units available (check restrictions).</p>`;
+      return;
+    }
+
+    available.forEach(unit => {
+      const card = document.createElement('div');
+      card.classList.add('unit-card');
+      const imgHtml = unit.image
+        ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
+        : `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`;
+      card.innerHTML = `
+        ${imgHtml}
+        <h4>${unit.name}</h4>
+        <p>Rank: ${capitalize(unit.rank)}</p>
+        <p>Points: ${unit.points}</p>
+        <button class="add-unit">Add</button>
+      `;
+      card.querySelector('.add-unit').addEventListener('click', () => {
+        addUnitToArmy(unit);
+        // after adding a unit, refresh available pool automatically
+        displayUnits();
+      });
+      unitGridEl.appendChild(card);
+    });
+    console.log("✅ Units displayed successfully. (available=", available.map(u=>u.id).join(', '), ")");
   }
 
   // === Add Unit to Army ===
@@ -238,10 +323,37 @@ document.addEventListener('DOMContentLoaded', () => {
         menu.style.position = 'relative';
         menu.style.zIndex = '999';
 
-        const availableUpgrades = upgradesData[upgType] || [];
+        // --- Upgrades lookup + simple filtering by restrictions (keeps previous behavior) ---
+        // allow case-insensitive matching of upgrade types keys in upgradesData
+        const availableUpgrades = upgradesData[upgType] || upgradesData[upgType.toLowerCase()] || [];
         const filteredUpgrades = availableUpgrades.filter(upg => {
-          return !upg.restrictions || upg.restrictions.length === 0 ||
-                 upg.restrictions.every(r => armyUnit.keywords && armyUnit.keywords.includes(r));
+          // If upgrade declares factions, honor them
+          if (Array.isArray(upg.factions) && upg.factions.length) {
+            if (!armyUnit.faction || !upg.factions.map(f => String(f).toLowerCase()).includes(String(armyUnit.faction).toLowerCase())) {
+              return false;
+            }
+          }
+          // If no restrictions on upgrade, it's allowed
+          if (!Array.isArray(upg.restrictions) || upg.restrictions.length === 0) return true;
+
+          // require each restriction to match a unit property/keyword in this armyUnit
+          // (this is a simpler, local check: upgrade restriction must match the *unit's* keywords, rank, unitType or id)
+          const ukeywords = (armyUnit.keywords || []).map(k => String(k).toLowerCase());
+          const urank = String(armyUnit.rank || '').toLowerCase();
+          const utype = String(armyUnit.unitType || '').toLowerCase();
+          const uid = String(armyUnit.id || '').toLowerCase();
+
+          const allMatch = upg.restrictions.every(rawR => {
+            const r = String(rawR || '').toLowerCase().trim();
+            if (!r) return false;
+            if (ukeywords.includes(r)) return true;
+            if (urank === r) return true;
+            if (utype === r) return true;
+            if (uid.includes(r)) return true;
+            return false;
+          });
+
+          return allMatch;
         });
 
         if (!filteredUpgrades.length) {
@@ -327,9 +439,13 @@ document.addEventListener('DOMContentLoaded', () => {
         unitEl.remove();
         const index = currentArmy.indexOf(armyUnit);
         if (index > -1) currentArmy.splice(index, 1);
+
         updateRankCount(armyUnit.rank);
         checkEmptyRankSections();
         updateArmySummary();
+
+        // AFTER removing a unit, refresh available pool automatically
+        displayUnits();
     });
     unitEl.appendChild(removeBtn);
 
@@ -346,6 +462,8 @@ document.addEventListener('DOMContentLoaded', () => {
       currentArmy = [];
       armyContainerEl.innerHTML = '';
       updateArmySummary();
+      // refresh pool after reset
+      displayUnits();
     }
   });
   saveArmyBtn.addEventListener('click', () => {
@@ -356,13 +474,18 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('savedArmies', JSON.stringify(savedArmies));
     renderSavedArmies();
   });
-  loadArmyBtn.addEventListener('click', () => {
-    const saved = JSON.parse(localStorage.getItem('savedArmies') || '[]');
-    if (!saved.length) return alert('No saved army found!');
-    currentArmy = [];
-    armyContainerEl.innerHTML = '';
-    saved[0].units.forEach(unit => addUnitToArmy(unit));
-  });
+  // wire safe load button
+  if (loadArmyButton) {
+    loadArmyButton.addEventListener('click', () => {
+      const saved = JSON.parse(localStorage.getItem('savedArmies') || '[]');
+      if (!saved.length) return alert('No saved army found!');
+      currentArmy = [];
+      armyContainerEl.innerHTML = '';
+      saved[0].units.forEach(unit => addUnitToArmy(unit));
+      // refresh pool after loading
+      displayUnits();
+    });
+  }
 
   // === Saved Armies Sidebar ===
   function renderSavedArmies() {
@@ -387,6 +510,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentArmy = [];
         armyContainerEl.innerHTML = '';
         army.units.forEach(unit => addUnitToArmy(unit));
+        // refresh pool after loading
+        displayUnits();
       });
 
       const delBtn = document.createElement('button');
@@ -490,67 +615,75 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // === Export Current Army ===
-  exportArmyBtn.addEventListener('click', () => {
-    if (!currentArmy.length) {
-      showToast('⚠️ No army to export!', 2500);
-      return;
-    }
-    const data = {
-      faction: selectedFaction || 'unknown',
-      units: JSON.parse(JSON.stringify(currentArmy)),
-      totalPoints: currentArmy.reduce((sum, u) => sum + (u.currentPoints || u.points || 0), 0),
-      exportedAt: new Date().toISOString()
-    };
-    downloadJSON(data, makeFilename('army_export'));
-    showToast('✅ Army exported successfully!');
-  });
+  if (exportArmyBtn) {
+    exportArmyBtn.addEventListener('click', () => {
+      if (!currentArmy.length) {
+        showToast('⚠️ No army to export!', 2500);
+        return;
+      }
+      const data = {
+        faction: selectedFaction || 'unknown',
+        units: JSON.parse(JSON.stringify(currentArmy)),
+        totalPoints: currentArmy.reduce((sum, u) => sum + (u.currentPoints || u.points || 0), 0),
+        exportedAt: new Date().toISOString()
+      };
+      downloadJSON(data, makeFilename('army_export'));
+      showToast('✅ Army exported successfully!');
+    });
+  }
 
   // === Export All Saved Armies ===
-  exportAllBtn.addEventListener('click', () => {
-    const allArmies = JSON.parse(localStorage.getItem('savedArmies') || '[]');
-    if (!allArmies.length) {
-      showToast('⚠️ No saved armies found to export.', 2500);
-      return;
-    }
-    downloadJSON(allArmies, makeFilename('all_armies_export'));
-    showToast(`✅ Exported ${allArmies.length} armies!`);
-  });
+  if (exportAllBtn) {
+    exportAllBtn.addEventListener('click', () => {
+      const allArmies = JSON.parse(localStorage.getItem('savedArmies') || '[]');
+      if (!allArmies.length) {
+        showToast('⚠️ No saved armies found to export.', 2500);
+        return;
+      }
+      downloadJSON(allArmies, makeFilename('all_armies_export'));
+      showToast(`✅ Exported ${allArmies.length} armies!`);
+    });
+  }
 
   // === Import Army ===
-  importArmyBtn.addEventListener('click', () => importArmyFile.click());
-  importArmyFile.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = event => {
-      try {
-        const data = JSON.parse(event.target.result);
-        if (Array.isArray(data)) {
-          localStorage.setItem('savedArmies', JSON.stringify(data));
-          renderSavedArmies();
-          showToast(`✅ Imported ${data.length} armies!`);
-        } else if (data.units && Array.isArray(data.units)) {
-          if (!confirm(`Import "${data.faction || 'Army'}" and overwrite current army?`)) return;
-          currentArmy = [];
-          armyContainerEl.innerHTML = '';
-          data.units.forEach(unit => {
-            unit.selectedUpgrades = unit.selectedUpgrades || {};
-            addUnitToArmy(unit);
-          });
-          updateArmySummary();
-          showToast('✅ Army imported successfully!');
-        } else {
-          showToast('❌ Invalid file format.', 2500);
+  if (importArmyBtn && importArmyFile) {
+    importArmyBtn.addEventListener('click', () => importArmyFile.click());
+    importArmyFile.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = event => {
+        try {
+          const data = JSON.parse(event.target.result);
+          if (Array.isArray(data)) {
+            localStorage.setItem('savedArmies', JSON.stringify(data));
+            renderSavedArmies();
+            showToast(`✅ Imported ${data.length} armies!`);
+          } else if (data.units && Array.isArray(data.units)) {
+            if (!confirm(`Import "${data.faction || 'Army'}" and overwrite current army?`)) return;
+            currentArmy = [];
+            armyContainerEl.innerHTML = '';
+            data.units.forEach(unit => {
+              unit.selectedUpgrades = unit.selectedUpgrades || {};
+              addUnitToArmy(unit);
+            });
+            updateArmySummary();
+            showToast('✅ Army imported successfully!');
+            // refresh pool after import
+            displayUnits();
+          } else {
+            showToast('❌ Invalid file format.', 2500);
+          }
+        } catch (err) {
+          console.error('Error importing JSON:', err);
+          showToast('❌ Failed to import file.', 2500);
+        } finally {
+          importArmyFile.value = '';
         }
-      } catch (err) {
-        console.error('Error importing JSON:', err);
-        showToast('❌ Failed to import file.', 2500);
-      } finally {
-        importArmyFile.value = '';
-      }
-    };
-    reader.readAsText(file);
-  });
+      };
+      reader.readAsText(file);
+    });
+  }
 
   console.log('✅ Full Army Builder script loaded successfully.');
 });
