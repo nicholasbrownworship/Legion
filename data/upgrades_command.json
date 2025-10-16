@@ -5,7 +5,7 @@
     "name": "Improvised Orders",
     "type": "Command",
     "points": 5,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["commander"],
     "text": "Once per round, draw 2 order tokens and choose 1 to put back.",
     "isUnique": false
@@ -15,7 +15,7 @@
     "name": "Vigilance",
     "type": "Command",
     "points": 12,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["commander"],
     "text": "At the start of the REMOVE TOKENS step, choose either 1 allied Trooper unit within Range 2 of this unit or up to 2 allied CORPS TROOPER units within RANGE 2 of this unit. Each chosen unit does not remove up to 1 DODGE Token.",
     "isUnique": false
@@ -25,7 +25,7 @@
     "name": "Underworld Connections",
     "type": "Command",
     "points": 5,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["commander"],
     "text": "This unit gains ALLIES OF CONVENIENCE.",
     "isUnique": false
@@ -35,7 +35,7 @@
     "name": "Trusted Agent",
     "type": "Command",
     "points": 5,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["commander"],
     "text": "During the ISSUE ORDERS step of the COMMAND PHASE you may DEPLETE this card. If you do, choose an allied OPERATIVE unit and issue that unit an Order.",
     "isUnique": false
@@ -45,7 +45,7 @@
     "name": "Strict Orders",
     "type": "Command",
     "points": 5,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["commander"],
     "text": "During the ACTIVATION PHASE, when an allied unit that has a FACEUP ORDER TOKEN starts its RALLY step, it may choose to remove 1 Supression token instead of Rolling dice.",
     "isUnique": false
@@ -55,7 +55,7 @@
     "name": "Lead by Example",
     "type": "Command",
     "points": 8,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
     "restrictions": ["commander"],
     "text": "This unit gains INSPIRE 2.",
     "isUnique": false
@@ -65,8 +65,8 @@
     "name": "Inspiring Presence",
     "type": "Command",
     "points": 5,
-    "factions": ["Rebels", "Imperials", "cis", "gar"],
-    "restrictions": ["commander"],
+    "factions": ["rebels", "imperials", "cis", "gar"],
+    "restrictions": [],
     "text": "Allied units with RANGE 4 of this unit may use its COURAGE when checking if they are Panicked. This range can be reduced by other effects.",
     "isUnique": false
   }
