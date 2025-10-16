@@ -530,4 +530,4 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
   });
 
   console.log('✅ Full Army Builder script loaded successfully.');
-);
+
