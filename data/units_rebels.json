@@ -40,7 +40,7 @@
       "unitType": "trooper",
       "allowedUpgrades": ["force", "gear", "command", "training"],
       "restrictions": [],
-      "keywords": ["trooper", "force user"],
+      "keywords": ["trooper", "force user", "commander", "jedi", "lukeskywalker"],
       "image": "data/images/units/Luke Skywalker.png"
     },
     {
