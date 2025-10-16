@@ -5,7 +5,7 @@
       "name": "Grappling Hooks",
       "type": "gear",
       "points": 2,
-      "factions": ["rebels", "imperials"],
+      "factions": ["rebels", "imperials", "cis", "gar"],
       "restrictions": ["trooper"],
       "text": "Gain Expert Climber.",
       "isUnique": false
@@ -15,7 +15,7 @@
       "name": "Ascension Cables",
       "type": "gear",
       "points": 4,
-      "factions": ["rebels", "imperials"],
+      "factions": ["rebels", "imperials", "cis", "gar"],
       "restrictions": ["trooper"],
       "text": "Gain Scale until the end of your activation.",
       "isUnique": false
@@ -25,7 +25,7 @@
       "name": "Electrobinoculars",
       "type": "gear",
       "points": 8,
-      "factions": ["rebels", "imperials"],
+      "factions": ["rebels", "imperials", "cis", "gar"],
       "restrictions": ["trooper"],
       "text": "Gain Spotter 1.",
       "isUnique": false
@@ -35,7 +35,7 @@
       "name": "Emergency Stims",
       "type": "gear",
       "points": 8,
-      "factions": ["rebels", "imperials"],
+      "factions": ["rebels", "imperials", "cis", "gar"],
       "restrictions": ["trooper"],
       "text": "When this unit would suffer 1 or more Wounds from an enemy attack, you may exhaust this card to prevent suffering up to 2 of those Wounds and place an equal number of Wound tokens on this card.",
       "isUnique": false
@@ -45,7 +45,7 @@
       "name": "Extra Supplies",
       "type": "gear",
       "points": 5,
-      "factions": ["rebels", "imperials"],
+      "factions": ["rebels", "imperials", "cis", "gar"],
       "restrictions": ["trooper"],
       "text": "At the end of this unit's Activation you may discard this card. If you do, ready 1 of this unit's non-FORCE upgrades.",
       "isUnique": false
@@ -55,7 +55,7 @@
       "name": "Portable Scanner",
       "type": "gear",
       "points": 6,
-      "factions": ["rebels", "imperials"],
+      "factions": ["rebels", "imperials", "cis", "gar"],
       "restrictions": ["trooper"],
       "text": "This unit gains Take Cover 1.",
       "isUnique": false
@@ -65,7 +65,7 @@
       "name": "Prepared Supplies",
       "type": "gear",
       "points": 5,
-      "factions": ["rebels", "imperials"],
+      "factions": ["rebels", "imperials", "cis", "gar"],
       "restrictions": ["trooper"],
       "text": "Cache: Dodge 1",
       "isUnique": false
@@ -75,7 +75,7 @@
       "name": "Recon Intel",
       "type": "gear",
       "points": 8,
-      "factions": ["rebels", "imperials"],
+      "factions": ["rebels", "imperials", "cis", "gar"],
       "restrictions": ["trooper"],
       "text": "This unit gains Scout 1.",
       "isUnique": false
@@ -85,7 +85,7 @@
       "name": "Targeting Scopes",
       "type": "gear",
       "points": 4,
-      "factions": ["rebels", "imperials"],
+      "factions": ["rebels", "imperials", "cis", "gar"],
       "restrictions": ["trooper"],
       "text": "This unit gains Precise 1.",
       "isUnique": false
