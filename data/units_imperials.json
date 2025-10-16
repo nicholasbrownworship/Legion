@@ -41,7 +41,7 @@
       "allowedUpgrades": ["force", "command"],
       "restrictions": [],
       "upgradeSlots": {"force": 3},
-      "keywords": ["trooper", "force user"],
+      "keywords": ["trooper", "force user", "commander", "sith", "darthvader"],
       "image": "data/images/units/Darth Vader.png"
     }
   ]
