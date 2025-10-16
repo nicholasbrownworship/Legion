@@ -18,7 +18,7 @@ body {
   position: relative;
 }
 
-/* Subtle scanline overlay */
+/* === Subtle scanline overlay === */
 body::before {
   content: "";
   position: fixed;
@@ -131,39 +131,57 @@ main {
 /* === Grid Layout === */
 #unit-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
-  padding: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  padding: 24px;
 }
 
 /* === Unit Cards === */
 .unit-card {
-  background: rgba(10, 25, 35, 0.7);
+  background: rgba(15, 35, 50, 0.85);
   border: 1px solid #00fff2;
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 14px;
   text-align: center;
-  box-shadow: 0 0 6px rgba(0,255,242,0.3);
-  transition: all 0.2s ease;
+  box-shadow: 0 0 10px rgba(0,255,242,0.5);
+  transition: all 0.25s ease;
 }
 
 .unit-card:hover {
-  background: rgba(20, 40, 50, 0.9);
-  transform: scale(1.02);
-  box-shadow: 0 0 12px #00fff2;
+  background: rgba(30, 55, 75, 0.95);
+  transform: scale(1.04);
+  box-shadow: 0 0 18px #00fff2;
 }
 
 .unit-card h4 {
   font-family: 'Orbitron', sans-serif;
   color: #00fff2;
-  margin-bottom: 4px;
+  font-size: 1.2rem;
+  margin-bottom: 6px;
   text-shadow: 0 0 6px #00fff2;
 }
 
 .unit-card p {
   color: #aee3ff;
-  font-size: 0.9rem;
-  margin: 3px 0;
+  font-size: 1rem;
+  margin: 4px 0;
+}
+
+/* === Unit Images === */
+.unit-image {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #00fff2;
+  cursor: zoom-in;
+  margin-bottom: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.unit-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #00fff2;
 }
 
 /* === Army Section === */
@@ -176,10 +194,10 @@ main {
 
 .rank-section {
   border: 1px solid #00fff2;
-  border-radius: 10px;
-  background: rgba(0, 15, 25, 0.8);
-  box-shadow: 0 0 10px rgba(0,255,242,0.2);
-  padding: 10px;
+  border-radius: 12px;
+  background: rgba(0, 15, 25, 0.85);
+  box-shadow: 0 0 12px rgba(0,255,242,0.3);
+  padding: 12px;
   animation: fadeIn 0.3s ease;
 }
 
@@ -188,7 +206,7 @@ main {
   color: #00fff2;
   text-transform: uppercase;
   border-bottom: 1px solid rgba(0,255,242,0.4);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   padding-bottom: 4px;
   text-shadow: 0 0 6px #00fff2;
 }
@@ -201,48 +219,52 @@ main {
 .army-unit {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 14px;
   align-items: flex-start;
-  border-bottom: 1px solid rgba(0,255,242,0.2);
-  padding: 8px 0;
+  border-bottom: 1px solid rgba(0,255,242,0.3);
+  padding: 12px 0;
+  transition: background 0.2s ease;
 }
 
-.unit-image {
-  width: 100px;       /* larger size */
-  height: 100px;
-  object-fit: cover;
-  border-radius: 6px;
-  flex-shrink: 0;
-  border: 1px solid #00fff2;
-  cursor: zoom-in;    /* indicate clickable */
+.army-unit:hover {
+  background: rgba(10,40,60,0.6);
 }
 
 .unit-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 120px;
+  gap: 8px;
+  min-width: 160px;
 }
 
 .unit-name {
   color: #dffaff;
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-shadow: 0 0 6px #00fff2;
 }
 
+/* === Upgrade Images === */
 .upgrade-images {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
 }
 
 .upgrade-images img {
-  width: 48px;        /* larger size */
-  height: 48px;
+  width: 56px;
+  height: 56px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 6px;
   border: 1px solid #00fff2;
-  cursor: zoom-in;    /* indicate clickable */
+  cursor: zoom-in;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.upgrade-images img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 16px #00fff2;
 }
 
 /* === Remove Button === */
@@ -251,14 +273,14 @@ main {
   color: #ff6060;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   transition: all 0.2s;
   align-self: flex-start;
 }
 
 .remove-unit:hover {
-  text-shadow: 0 0 8px #ff6060;
-  transform: scale(1.1);
+  text-shadow: 0 0 10px #ff6060;
+  transform: scale(1.15);
 }
 
 /* === Upgrade Dropdown & Category Styling === */
@@ -271,9 +293,9 @@ main {
   border: 1px solid #00fff2;
   color: #ffffff;
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.9rem;
-  padding: 6px 10px;
-  margin: 3px 0;
+  font-size: 1rem;
+  padding: 8px 12px;
+  margin: 4px 0;
   cursor: pointer;
   border-radius: 4px;
   text-shadow: 0 0 2px #00ffff;
@@ -321,7 +343,7 @@ main {
   background: linear-gradient(90deg, #002a3d, #003a50);
   border: 1px solid #00fff2;
   color: #e8faff;
-  padding: 8px 10px;
+  padding: 10px 12px;
   margin: 4px 0;
   border-radius: 4px;
   text-align: left;
@@ -349,8 +371,9 @@ main {
   font-family: 'Orbitron', sans-serif;
   color: #00fff2;
   border-top: 1px solid rgba(0,255,242,0.4);
-  padding: 10px;
-  box-shadow: 0 0 8px rgba(0,255,242,0.4);
+  padding: 12px;
+  box-shadow: 0 0 10px rgba(0,255,242,0.4);
+  font-size: 1.05rem;
 }
 
 /* === Modal Styling === */
@@ -372,7 +395,7 @@ main {
 .modal-content {
   background: rgba(10, 25, 35, 0.95);
   border: 2px solid #00fff2;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 30px 40px;
   text-align: center;
   box-shadow: 0 0 20px #00fff2;
@@ -434,8 +457,9 @@ main {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
+}
 
-  /* === Toast Notifications === */
+/* === Toast Notifications === */
 #toast-container {
   position: fixed;
   bottom: 20px;
@@ -461,6 +485,4 @@ main {
 .toast.show {
   opacity: 1;
   transform: translateY(0);
-}
-
 }
