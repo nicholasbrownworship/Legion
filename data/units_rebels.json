@@ -52,7 +52,7 @@
   "max": 6,
   "rank": "corps",
   "unitType": "trooper",
-  "allowedUpgrades": ["heavyweapon", "grenades", "personnel", "heavyweapon", "gear", "training"],
+  "allowedUpgrades": ["grenades", "personnel", "heavyweapon", "gear", "training"],
   "restrictions": [],
   "keywords": ["coordinate_emplacement", "defend_1", "trooper", "attached"],
   "image": "data/images/units/Rebel Veterans.png"
