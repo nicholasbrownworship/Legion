@@ -215,106 +215,112 @@ document.addEventListener('DOMContentLoaded', () => {
     infoDiv.appendChild(upgradeImagesDiv);
 
     // === Upgrades Section ===
-if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
-  armyUnit.allowedUpgrades.forEach(upgType => {
-    const typeContainer = document.createElement('div');
-    typeContainer.classList.add('upgrade-type-container');
-    typeContainer.style.marginBottom = '6px';
-    typeContainer.style.position = 'relative';
+    if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
+      armyUnit.allowedUpgrades.forEach(upgType => {
+        const typeContainer = document.createElement('div');
+        typeContainer.classList.add('upgrade-type-container');
+        typeContainer.style.marginBottom = '6px';
+        typeContainer.style.position = 'relative';
 
-    const typeBtn = document.createElement('button');
-    typeBtn.classList.add('upgrade-type-btn');
-    typeBtn.type = 'button';
-    typeBtn.textContent = capitalize(upgType);
+        const typeBtn = document.createElement('button');
+        typeBtn.classList.add('upgrade-type-btn');
+        typeBtn.type = 'button';
+        typeBtn.textContent = capitalize(upgType);
 
-    const arrow = document.createElement('span');
-    arrow.textContent = '▶';
-    arrow.style.marginLeft = '8px';
-    typeBtn.appendChild(arrow);
+        const arrow = document.createElement('span');
+        arrow.textContent = '▶';
+        arrow.style.marginLeft = '8px';
+        typeBtn.appendChild(arrow);
 
-    const menu = document.createElement('div');
-    menu.classList.add('upgrade-menu');
-    menu.style.position = 'relative';
-    menu.style.zIndex = '999';
+        const menu = document.createElement('div');
+        menu.classList.add('upgrade-menu');
+        menu.style.position = 'relative';
+        menu.style.zIndex = '999';
 
-    const availableUpgrades = upgradesData[upgType] || [];
-    const filteredUpgrades = availableUpgrades.filter(upg => {
-      return !upg.restrictions || upg.restrictions.length === 0 ||
-             upg.restrictions.every(r => armyUnit.keywords && armyUnit.keywords.includes(r));
-    });
-
-    if (!filteredUpgrades.length) {
-      const note = document.createElement('div');
-      note.textContent = 'No options';
-      note.style.padding = '6px';
-      note.style.color = '#9fdff0';
-      menu.appendChild(note);
-    } else {
-      filteredUpgrades.forEach(upg => {
-        const btn = document.createElement('button');
-        btn.classList.add('upgrade-btn');
-        btn.type = 'button';
-        btn.dataset.upgrade = upg.id;
-        btn.textContent = upg.name + (upg.points ? ' (+' + upg.points + ' pts)' : '');
-
-        btn.addEventListener('click', () => {
-          const maxSlots = armyUnit.upgradeSlots?.[upgType] || 1;
-          if (!Array.isArray(armyUnit.selectedUpgrades[upgType])) armyUnit.selectedUpgrades[upgType] = [];
-          const selected = armyUnit.selectedUpgrades[upgType];
-          const index = selected.indexOf(upg.id);
-
-          if (index > -1) {
-            selected.splice(index, 1);
-            armyUnit.currentPoints -= upg.points || 0;
-            btn.classList.remove('selected');
-            const imgEl = upgradeImagesDiv.querySelector('img[data-upgrade="' + upg.id + '"]');
-            if (imgEl) imgEl.remove();
-          } else {
-            if (selected.length >= maxSlots) return alert('Cannot select more than ' + maxSlots + ' ' + capitalize(upgType) + ' upgrades.');
-            selected.push(upg.id);
-            armyUnit.currentPoints += upg.points || 0;
-            btn.classList.add('selected');
-            if (upg.image) {
-              const upgImg = document.createElement('img');
-              upgImg.src = upg.image;
-              upgImg.alt = upg.name;
-              upgImg.dataset.upgrade = upg.id;
-              upgImg.style.width = '30px';
-              upgImg.style.height = '30px';
-              upgImg.style.objectFit = 'cover';
-              upgImg.style.borderRadius = '4px';
-              upgradeImagesDiv.appendChild(upgImg);
-            }
-          }
-
-          namePts.textContent = armyUnit.name + ' (' + armyUnit.currentPoints + ' pts)';
-          menu.style.maxHeight = '0';
-          menu.style.opacity = '0';
-          typeBtn.classList.remove('active');
-          updateArmySummary();
+        const availableUpgrades = upgradesData[upgType] || [];
+        const filteredUpgrades = availableUpgrades.filter(upg => {
+          return !upg.restrictions || upg.restrictions.length === 0 ||
+                 upg.restrictions.every(r => armyUnit.keywords && armyUnit.keywords.includes(r));
         });
 
-        menu.appendChild(btn);
+        if (!filteredUpgrades.length) {
+          const note = document.createElement('div');
+          note.textContent = 'No options';
+          note.style.padding = '6px';
+          note.style.color = '#9fdff0';
+          menu.appendChild(note);
+        } else {
+          filteredUpgrades.forEach(upg => {
+            const btn = document.createElement('button');
+            btn.classList.add('upgrade-btn');
+            btn.type = 'button';
+            btn.dataset.upgrade = upg.id;
+            btn.textContent = upg.name + (upg.points ? ' (+' + upg.points + ' pts)' : '');
+
+            btn.addEventListener('click', () => {
+              const maxSlots = armyUnit.upgradeSlots?.[upgType] || 1;
+              if (!Array.isArray(armyUnit.selectedUpgrades[upgType])) armyUnit.selectedUpgrades[upgType] = [];
+              const selected = armyUnit.selectedUpgrades[upgType];
+              const index = selected.indexOf(upg.id);
+
+              if (index > -1) {
+                selected.splice(index, 1);
+                armyUnit.currentPoints -= upg.points || 0;
+                btn.classList.remove('selected');
+                const imgEl = upgradeImagesDiv.querySelector('img[data-upgrade="' + upg.id + '"]');
+                if (imgEl) imgEl.remove();
+              } else {
+                if (selected.length >= maxSlots) return alert('Cannot select more than ' + maxSlots + ' ' + capitalize(upgType) + ' upgrades.');
+                selected.push(upg.id);
+                armyUnit.currentPoints += upg.points || 0;
+                btn.classList.add('selected');
+                if (upg.image) {
+                  const upgImg = document.createElement('img');
+                  upgImg.src = upg.image;
+                  upgImg.alt = upg.name;
+                  upgImg.dataset.upgrade = upg.id;
+                  upgImg.style.width = '30px';
+                  upgImg.style.height = '30px';
+                  upgImg.style.objectFit = 'cover';
+                  upgImg.style.borderRadius = '4px';
+                  upgradeImagesDiv.appendChild(upgImg);
+                }
+              }
+
+              namePts.textContent = armyUnit.name + ' (' + armyUnit.currentPoints + ' pts)';
+              menu.style.maxHeight = '0';
+              menu.style.opacity = '0';
+              typeBtn.classList.remove('active');
+              updateArmySummary();
+            });
+
+            menu.appendChild(btn);
+          });
+        }
+
+        typeBtn.addEventListener('click', () => {
+          const isOpen = typeBtn.classList.toggle('active');
+          if (isOpen) {
+            menu.style.opacity = '1';
+            menu.style.maxHeight = menu.scrollHeight ? menu.scrollHeight + 'px' : '300px';
+          } else {
+            menu.style.maxHeight = '0';
+            menu.style.opacity = '0';
+          }
+        });
+
+        typeContainer.appendChild(typeBtn);
+        typeContainer.appendChild(menu);
+        infoDiv.appendChild(typeContainer);
       });
     }
 
-    typeBtn.addEventListener('click', () => {
-      const isOpen = typeBtn.classList.toggle('active');
-      if (isOpen) {
-        menu.style.opacity = '1';
-        menu.style.maxHeight = menu.scrollHeight ? menu.scrollHeight + 'px' : '300px';
-      } else {
-        menu.style.maxHeight = '0';
-        menu.style.opacity = '0';
-      }
-    });
+    unitEl.appendChild(infoDiv);
+    rankList.appendChild(unitEl);
 
-    typeContainer.appendChild(typeBtn);
-    typeContainer.appendChild(menu);
-    infoDiv.appendChild(typeContainer);
-  });
-}
-
+    updateRankCount(armyUnit.rank);
+    updateArmySummary();
+  }
 
   // === Army Buttons ===
   newArmyBtn.addEventListener('click', () => factionModalEl.classList.add('active'));
@@ -400,7 +406,7 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
       overlay.style.height = '100vh';
       overlay.style.backgroundColor = 'rgba(0,0,0,0.85)';
       overlay.style.display = 'flex';
-            overlay.style.alignItems = 'center';
+      overlay.style.alignItems = 'center';
       overlay.style.justifyContent = 'center';
       overlay.style.zIndex = '9999';
       overlay.style.cursor = 'zoom-out';
@@ -530,4 +536,4 @@ if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
   });
 
   console.log('✅ Full Army Builder script loaded successfully.');
-
+});
