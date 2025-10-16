@@ -27,7 +27,7 @@
       "allowedUpgrades": ["grenades", "gear", "comms", "squadleader", "training", "heavyweapon"],
             "upgradeSlots": {"gear": 2},
       "restrictions": [],
-      "keywords": ["sniper", "scout"],
+      "keywords": ["sniper", "scout", "trooper"],
       "image": "data/images/units/arc trooper.png"
     },
     {
