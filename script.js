@@ -181,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const unitEl = document.createElement('div');
     unitEl.classList.add('army-unit');
+    unitEl.style.position = 'relative';
     unitEl.style.display = 'flex';
     unitEl.style.alignItems = 'flex-start';
     unitEl.style.gap = '12px';
@@ -316,6 +317,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     unitEl.appendChild(infoDiv);
+
+    // === REMOVE BUTTON FOR ARMY UNIT ===
+    const removeBtn = document.createElement('button');
+    removeBtn.classList.add('remove-unit');
+    removeBtn.textContent = '✕';
+    removeBtn.title = 'Remove unit';
+    removeBtn.addEventListener('click', () => {
+        unitEl.remove();
+        const index = currentArmy.indexOf(armyUnit);
+        if (index > -1) currentArmy.splice(index, 1);
+        updateRankCount(armyUnit.rank);
+        checkEmptyRankSections();
+        updateArmySummary();
+    });
+    unitEl.appendChild(removeBtn);
+
     rankList.appendChild(unitEl);
 
     updateRankCount(armyUnit.rank);
