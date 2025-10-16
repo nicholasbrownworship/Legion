@@ -66,7 +66,7 @@
     "type": "Command",
     "points": 5,
     "factions": ["rebels", "imperials", "cis", "gar"],
-    "restrictions": [],
+    "restrictions": ["commander"],
     "text": "Allied units with RANGE 4 of this unit may use its COURAGE when checking if they are Panicked. This range can be reduced by other effects.",
     "isUnique": false
   }
