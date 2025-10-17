@@ -36,11 +36,6 @@
   <!-- Army Summary -->
   <div id="army-summary" class="army-summary">Total Units: 0 | Total Points: 0</div>
 
-  <!-- Rank Tally -->
-  <div id="rank-tally">
-    <!-- JS will populate each rank with current count / min/max -->
-  </div>
-
   <!-- Saved Armies List -->
   <div id="saved-armies-container">
     <ul id="saved-armies-list"></ul>
@@ -52,6 +47,69 @@
     <!-- Search / Controls -->
     <section class="controls">
       <input type="text" id="search-input" placeholder="Search units...">
+    </section>
+
+    <!-- Available Units Dropdowns -->
+    <section id="available-units">
+      <!-- Commander -->
+      <div class="available-rank-section">
+        <button class="rank-dropdown-btn">
+          Commander <span class="arrow">▶</span>
+        </button>
+        <div class="rank-unit-list" id="commander">
+          <!-- Units for Commander dynamically loaded here -->
+        </div>
+      </div>
+
+      <!-- Operative -->
+      <div class="available-rank-section">
+        <button class="rank-dropdown-btn">
+          Operative <span class="arrow">▶</span>
+        </button>
+        <div class="rank-unit-list" id="operative">
+          <!-- Units for Operative dynamically loaded here -->
+        </div>
+      </div>
+
+      <!-- Corps -->
+      <div class="available-rank-section">
+        <button class="rank-dropdown-btn">
+          Corps <span class="arrow">▶</span>
+        </button>
+        <div class="rank-unit-list" id="corps">
+          <!-- Units for Corps dynamically loaded here -->
+        </div>
+      </div>
+
+      <!-- Special Forces -->
+      <div class="available-rank-section">
+        <button class="rank-dropdown-btn">
+          Special Forces <span class="arrow">▶</span>
+        </button>
+        <div class="rank-unit-list" id="specialforces">
+          <!-- Units for Special Forces dynamically loaded here -->
+        </div>
+      </div>
+
+      <!-- Support -->
+      <div class="available-rank-section">
+        <button class="rank-dropdown-btn">
+          Support <span class="arrow">▶</span>
+        </button>
+        <div class="rank-unit-list" id="support">
+          <!-- Units for Support dynamically loaded here -->
+        </div>
+      </div>
+
+      <!-- Heavy -->
+      <div class="available-rank-section">
+        <button class="rank-dropdown-btn">
+          Heavy <span class="arrow">▶</span>
+        </button>
+        <div class="rank-unit-list" id="heavy">
+          <!-- Units for Heavy dynamically loaded here -->
+        </div>
+      </div>
     </section>
 
     <!-- Unit Grid -->
@@ -78,9 +136,9 @@
   </div>
 </div>
 
-<script src="script.js"></script>
+<div id="toast-container"></div>
 
-  <div id="toast-container"></div>
+<script src="script.js"></script>
 
 </body>
 </html>
