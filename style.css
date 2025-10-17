@@ -532,3 +532,32 @@ main {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* === Print View for Army Builder === */
+@media print {
+  body * {
+    visibility: hidden;  /* Hide everything by default */
+  }
+
+  #army-container, #army-container * {
+    visibility: visible;  /* Show the army container and its children */
+  }
+
+  #army-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+
+  /* Optional: remove borders, buttons, etc., for cleaner print */
+  .remove-unit, .upgrade-type-btn, button {
+    display: none !important;
+  }
+
+  .unit-card, .army-unit {
+    page-break-inside: avoid; /* keep units together if multiple pages */
+  }
+}
+
