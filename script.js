@@ -265,20 +265,13 @@ function displayUnits() {
 
   const searchQuery = document.getElementById('unit-search')?.value?.toLowerCase().trim() || '';
 
-  // Sort by rank order for consistent display
-  units.sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
-
-  // Filter by availability and search
-  const available = units.filter(u => {
-    if (!isUnitAvailableInPool(u)) return false;
-
-    if (searchQuery) {
-      const nameMatch = u.name?.toLowerCase().includes(searchQuery);
-      const keywordMatch = Array.isArray(u.keywords) && u.keywords.some(k => k.toLowerCase().includes(searchQuery));
-      return nameMatch || keywordMatch;
-    }
-    return true;
-  });
+  // Filter and sort units
+  const available = units.filter(u => isUnitAvailableInPool(u)).filter(u => {
+    if (!searchQuery) return true;
+    const nameMatch = u.name?.toLowerCase().includes(searchQuery);
+    const keywordMatch = Array.isArray(u.keywords) && u.keywords.some(k => k.toLowerCase().includes(searchQuery));
+    return nameMatch || keywordMatch;
+  }).sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
   if (!available.length) {
     unitGridEl.innerHTML = `<p>No units available (check restrictions or search).</p>`;
@@ -287,67 +280,56 @@ function displayUnits() {
 
   // Group units by rank
   const unitsByRank = {};
-  rankOrder.forEach(rank => unitsByRank[rank] = []);
+  rankOrder.forEach(r => unitsByRank[r] = []);
   available.forEach(u => {
     const rank = u.rank || 'corps';
-    if (!unitsByRank[rank]) unitsByRank[rank] = [];
     unitsByRank[rank].push(u);
   });
 
-  // === Render each rank section with dropdown ===
+  // Render rank sections
   rankOrder.forEach(rank => {
     const rankUnits = unitsByRank[rank];
-    if (!rankUnits || !rankUnits.length) return;
+    if (!rankUnits.length) return;
 
     const section = document.createElement('div');
     section.classList.add('available-rank-section');
 
-    // Header with clickable toggle
+    // Header
     const header = document.createElement('button');
     header.type = 'button';
     header.classList.add('rank-dropdown-btn');
-    header.textContent = `${capitalize(rank)} (${rankUnits.length}) `;
-
-    const arrow = document.createElement('span');
-    arrow.classList.add('arrow');
-    arrow.textContent = '▶';
-    header.appendChild(arrow);
+    header.innerHTML = `${capitalize(rank)} (${rankUnits.length}) <span class="arrow">▶</span>`;
     section.appendChild(header);
 
-    // List container
+    // Unit list container
     const listDiv = document.createElement('div');
     listDiv.classList.add('rank-unit-list');
-    listDiv.style.display = 'grid'; // initially expanded
-    listDiv.style.gridTemplateColumns = 'repeat(auto-fill,minmax(120px,1fr))';
+    listDiv.style.display = 'grid';
+    listDiv.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
     listDiv.style.gap = '12px';
-    section.appendChild(listDiv); // <-- add listDiv to section here
+    section.appendChild(listDiv); // append BEFORE adding units
 
-    // Render each unit inside the listDiv
+    // Render unit cards
     rankUnits.forEach(unit => {
       const card = document.createElement('div');
       card.classList.add('unit-card');
-
-      const imgHtml = unit.image
-        ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
-        : `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`;
-
       card.innerHTML = `
-        ${imgHtml}
+        ${unit.image ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">` :
+        `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`}
         <h4>${unit.name}</h4>
         <p>Rank: ${capitalize(unit.rank)}</p>
         <p>Points: ${unit.points}</p>
         <button class="add-unit">Add</button>
       `;
-
       card.querySelector('.add-unit').addEventListener('click', () => {
         addUnitToArmy(unit);
-        displayUnits(); // refresh pool after adding
+        displayUnits();
       });
-
       listDiv.appendChild(card);
     });
 
-    // Arrow toggle functionality
+    // Arrow toggle
+    const arrow = header.querySelector('.arrow');
     header.addEventListener('click', () => {
       const isHidden = listDiv.style.display === 'none';
       listDiv.style.display = isHidden ? 'grid' : 'none';
@@ -356,6 +338,7 @@ function displayUnits() {
 
     unitGridEl.appendChild(section);
   });
+}
 
   console.log("✅ Units displayed successfully. (available=", available.map(u => u.id).join(', '), ")");
 }
