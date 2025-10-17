@@ -128,73 +128,6 @@ main {
   color: rgba(0,255,242,0.5);
 }
 
-/* === Available Units Rank Sections === */
-.available-rank-section {
-  margin-bottom: 16px;
-  border: 1px solid #00fff2;
-  border-radius: 8px;
-  padding: 0;
-  background-color: rgba(0, 15, 25, 0.85);
-  box-shadow: 0 0 8px rgba(0,255,242,0.2);
-}
-
-/* === Rank Dropdown Button === */
-.rank-dropdown-btn {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  background: linear-gradient(90deg, #00a6c8, #007b9e);
-  border: 1px solid #00fff2;
-  color: #fff;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 1rem;
-  padding: 8px 12px;
-  margin: 4px 0;
-  cursor: pointer;
-  border-radius: 6px;
-  text-shadow: 0 0 2px #00ffff;
-  transition: all 0.3s ease;
-}
-
-.rank-dropdown-btn:hover {
-  background: #00ffff;
-  color: #000;
-  text-shadow: 0 0 4px #00fff2;
-  box-shadow: 0 0 8px #00fff2;
-  transform: scale(1.03);
-}
-
-.rank-dropdown-btn .arrow {
-  display: inline-block;
-  transition: transform 0.3s ease, color 0.3s ease;
-  font-size: 1.1rem;
-  color: #00fff2;
-}
-
-.rank-dropdown-btn.active .arrow {
-  transform: rotate(90deg);
-  color: #00ffff;
-}
-
-/* Unit list inside each rank dropdown */
-.rank-unit-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  transition: max-height 0.35s ease, opacity 0.35s ease, padding 0.35s ease;
-  overflow: hidden;
-  padding: 0 8px;
-  max-height: 0;
-  opacity: 0;
-}
-
-.rank-unit-list.expanded {
-  max-height: 500px;
-  opacity: 1;
-  padding: 8px;
-}
-
 /* === Unit Grid Layout === */
 #unit-grid {
   display: grid;
@@ -241,6 +174,63 @@ main {
   color: #aee3ff;
   font-size: 0.95rem;
   margin: 4px 0;
+}
+
+/* === Rank Dropdowns in Unit Selection === */
+.rank-dropdown-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: linear-gradient(90deg, #00a6c8, #007b9e);
+  border: 1px solid #00fff2;
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  padding: 8px 12px;
+  margin: 4px 0;
+  cursor: pointer;
+  border-radius: 6px;
+  text-shadow: 0 0 2px #00ffff;
+  transition: all 0.3s ease;
+}
+
+.rank-dropdown-btn:hover {
+  background: #00ffff;
+  color: #000;
+  text-shadow: 0 0 4px #00fff2;
+  box-shadow: 0 0 8px #00fff2;
+  transform: scale(1.03);
+}
+
+.rank-dropdown-btn .arrow {
+  display: inline-block;
+  transition: transform 0.3s ease, color 0.3s ease;
+  font-size: 1.1rem;
+  color: #00fff2;
+}
+
+.rank-dropdown-btn.active .arrow {
+  transform: rotate(90deg);
+  color: #00ffff;
+}
+
+/* Units inside each dropdown */
+.rank-unit-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  padding: 0 8px;
+  transition: max-height 0.35s ease, opacity 0.35s ease, padding 0.35s ease;
+}
+
+.rank-unit-list.expanded {
+  max-height: 2000px; /* plenty of space for all units */
+  opacity: 1;
+  padding: 8px;
 }
 
 /* === Army Container & Rank Sections === */
