@@ -879,8 +879,6 @@ if (printArmyBtn) {
     // Optional: update all counts/tallies before printing
     updateArmySummary();
     updateRankTally();
-    updateUnitColors();
-    updateRankBinHeaders();
 
     window.print(); // triggers print dialog
   });
