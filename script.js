@@ -37,6 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
     "cis": "CIS",
     "gar": "Republic"
   };
+  const rankLimits = {
+  commander: { min: 1, max: 2 },
+  operative: { min: 0, max: 2 },
+  corps: { min: 3, max: 6 },
+  specialforces: { min: 0, max: 3 },
+  support: { min: 0, max: 3 },
+  heavy: { min: 0, max: 2 }
+};
 
   // === Load all upgrade JSONs dynamically ===
   function loadAllUpgradeFiles() {
@@ -427,6 +435,7 @@ function addUnitToArmy(unit) {
             menu.style.opacity = '0';
             typeBtn.classList.remove('active');
             updateArmySummary();
+          
           });
 
           menu.appendChild(btn);
@@ -465,6 +474,7 @@ function addUnitToArmy(unit) {
     updateRankCount(armyUnit.rank);
     checkEmptyRankSections();
     updateArmySummary();
+    updateRankTally();
 
     // refresh unit list
     displayUnits();
@@ -475,6 +485,7 @@ function addUnitToArmy(unit) {
 
   updateRankCount(armyUnit.rank);
   updateArmySummary();
+  updateRankTally();
 }
 
   // === Army Buttons ===
