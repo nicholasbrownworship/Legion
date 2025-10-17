@@ -1,0 +1,14 @@
+{
+  "upgrades": [
+    {
+    "id": "boil",
+    "name": "Boil",
+    "type": "squadleader",
+    "points": 20,
+    "factions": ["gar"],
+    "restrictions": ["trooper"],
+    "text": " CORPS Clone Trooper Only /n/Add one Boil miniature. /n/LEADER /n/This unit gains GUARDIAN 1 and SCOUT 1.",
+    "isUnique": true
+  }
+  ]
+}
