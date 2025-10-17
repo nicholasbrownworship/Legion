@@ -12,7 +12,7 @@
       "unitType": "trooper",
       "allowedUpgrades": ["squadleader", "grenades", "personnel", "heavyweapon", "gear", "training"],
       "restrictions": [],
-      "keywords": ["trooper"],
+      "keywords": ["trooper", "clone"],
       "image": "data/images/units/clone trooper infantry.png"
     },
     {
