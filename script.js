@@ -161,6 +161,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalPoints = currentArmy.reduce((sum, u) => sum + (u.currentPoints || u.points || 0), 0);
     armySummaryEl.textContent = `Total Units: ${totalUnits} | Total Points: ${totalPoints}`;
   }
+  // === Update Rank Tally Sidebar ===
+function updateRankTally() {
+    const rankTallyEl = document.getElementById('rank-tally');
+    if (!rankTallyEl) return;
+
+    rankTallyEl.innerHTML = '';
+    const ranks = rankOrder;
+
+    ranks.forEach(rank => {
+        const unitsOfRank = currentArmy.filter(u => u.rank === rank);
+        const count = unitsOfRank.length;
+        const limits = rankLimits[rank] || { min: 0, max: Infinity };
+
+        const row = document.createElement('div');
+        row.classList.add('rank-row');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.marginBottom = '4px';
+
+        const label = document.createElement('span');
+        label.textContent = capitalize(rank);
+
+        const tally = document.createElement('span');
+        tally.textContent = `${count} / min:${limits.min} max:${limits.max}`;
+        if (count < limits.min) tally.style.color = 'yellow';
+        else if (count > limits.max) tally.style.color = 'red';
+        else tally.style.color = 'limegreen';
+
+        row.appendChild(label);
+        row.appendChild(tally);
+        rankTallyEl.appendChild(row);
+    });
+}
+
 
   // === New helper: determines whether a given unit should be shown in the available pool ===
   function isUnitAvailableInPool(unit) {
