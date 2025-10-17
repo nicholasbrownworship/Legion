@@ -310,7 +310,7 @@ function displayUnits() {
     // Unit list container (start hidden)
     const listDiv = document.createElement('div');
     listDiv.classList.add('rank-unit-list');
-    listDiv.style.display = 'none'; // hidden initially
+    listDiv.style.display = 'grid'; // not hidden initially
     listDiv.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
     listDiv.style.gap = '12px';
     section.appendChild(listDiv);
