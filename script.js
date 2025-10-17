@@ -308,7 +308,6 @@ function addUnitToArmy(unit) {
   const namePts = document.createElement('div');
   namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
   namePts.style.marginBottom = '8px';
-  namePts.style.color = '#dffaff';
   infoDiv.appendChild(namePts);
 
   const upgradeImagesDiv = document.createElement('div');
@@ -342,7 +341,6 @@ function addUnitToArmy(unit) {
       menu.style.position = 'relative';
       menu.style.zIndex = '999';
 
-      // --- Upgrades lookup + filtering ---
       const availableUpgrades = upgradesData[upgType] || upgradesData[upgType.toLowerCase()] || [];
       const filteredUpgrades = availableUpgrades.filter(upg => {
         if (Array.isArray(upg.factions) && upg.factions.length) {
@@ -427,6 +425,8 @@ function addUnitToArmy(unit) {
             menu.style.maxHeight = '0';
             menu.style.opacity = '0';
             typeBtn.classList.remove('active');
+
+            // === UPDATE TALLIES & COLORS ===
             updateArmySummary();
             updateRankTally();
             updateUnitColors();
@@ -465,8 +465,6 @@ function addUnitToArmy(unit) {
     const index = currentArmy.indexOf(armyUnit);
     if (index > -1) currentArmy.splice(index, 1);
 
-    updateRankCount(armyUnit.rank);
-    checkEmptyRankSections();
     updateArmySummary();
     updateRankTally();
     updateUnitColors();
@@ -476,29 +474,11 @@ function addUnitToArmy(unit) {
 
   rankList.appendChild(unitEl);
 
-  updateRankCount(armyUnit.rank);
+  // === UPDATE TALLIES & COLORS AFTER ADD ===
   updateArmySummary();
   updateRankTally();
   updateUnitColors();
 }
-
-// === Update Unit Colors for Legality ===
-function updateUnitColors() {
-  currentArmy.forEach(u => {
-    const unitEls = document.querySelectorAll('.army-unit');
-    unitEls.forEach(el => {
-      const nameDiv = el.querySelector('.unit-info > div:first-child');
-      if (!nameDiv) return;
-
-      // Example logic: red if more units than allowed, green otherwise
-      const count = currentArmy.filter(x => x.id === u.id).length;
-      const legal = !u.max || count <= u.max;
-
-      nameDiv.style.color = legal ? 'limegreen' : 'red';
-    });
-  });
-}
-
 
   // === Army Buttons ===
   newArmyBtn.addEventListener('click', () => factionModalEl.classList.add('active'));
