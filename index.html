@@ -30,23 +30,30 @@
 <!-- Main Content -->
 <div id="content">
   <!-- Sidebar -->
- <aside class="sidebar">
-  <h2>Army Composition</h2>
+  <aside class="sidebar">
+    <h2>Army Composition</h2>
 
-  <!-- Army Summary -->
-  <div id="army-summary" class="army-summary">Total Units: 0 | Total Points: 0</div>
+    <!-- Army Summary -->
+    <div id="army-summary" class="army-summary">Total Units: 0 | Total Points: 0</div>
 
-  <!-- Saved Armies List -->
-  <div id="saved-armies-container">
-    <ul id="saved-armies-list"></ul>
-  </div>
-</aside>
+    <!-- Rank Tally -->
+    <div id="rank-tally">
+      <h3>Rank Tally</h3>
+      <!-- JS will dynamically populate rank rows here -->
+    </div>
+
+    <!-- Saved Armies List -->
+    <div id="saved-armies-container">
+      <h3>Saved Armies</h3>
+      <!-- JS will dynamically populate saved armies here -->
+    </div>
+  </aside>
 
   <!-- Main Area -->
   <main>
     <!-- Search / Controls -->
     <section class="controls">
-      <input type="text" id="search-input" placeholder="Search units...">
+      <input type="text" id="unit-search" placeholder="Search units...">
     </section>
 
     <!-- Available Units (dynamic) -->
