@@ -261,7 +261,10 @@ function updateRankTally() {
 // === Display Units (with search + rank bins) ===
 function displayUnits() {
   unitGridEl.innerHTML = '';
-  if (!units.length) return unitGridEl.innerHTML = `<p>No units available.</p>`;
+  if (!units.length) {
+    unitGridEl.innerHTML = `<p>No units available.</p>`;
+    return;
+  }
 
   const searchQuery = document.getElementById('unit-search')?.value?.toLowerCase().trim() || '';
 
@@ -297,8 +300,8 @@ function displayUnits() {
     const section = document.createElement('div');
     section.classList.add('available-rank-section');
 
-    // Count selected units for this rank
-    const selectedCount = currentArmy.units.filter(u => u.rank === rank).length;
+    // Count selected units for this rank (currentArmy is an array)
+    const selectedCount = currentArmy.filter(u => u.rank === rank).length;
 
     // Header
     const header = document.createElement('button');
@@ -307,12 +310,12 @@ function displayUnits() {
     header.innerHTML = `${capitalize(rank)} (${rankUnits.length}) - Selected: ${selectedCount} <span class="arrow">▶</span>`;
     section.appendChild(header);
 
-    // Unit list container
+    // Unit list container (use CSS .expanded class)
     const listDiv = document.createElement('div');
-    listDiv.classList.add('rank-unit-list', 'expanded'); // expanded by default
+    listDiv.classList.add('rank-unit-list', 'expanded'); // start expanded by default
     section.appendChild(listDiv);
 
-    // Render unit cards
+    // Render unit cards into this rank's listDiv
     rankUnits.forEach(unit => {
       const card = document.createElement('div');
       card.classList.add('unit-card');
@@ -326,16 +329,21 @@ function displayUnits() {
       `;
 
       card.querySelector('.add-unit').addEventListener('click', () => {
+        // use your existing addUnitToArmy (which modifies currentArmy array)
         addUnitToArmy(unit);
-        updateArmyDisplay();   // ✅ update sidebar after adding
-        updateRankTallies();   // ✅ update sidebar rank tallies
-        displayUnits();        // ✅ refresh available unit bins
+
+        // update sidebar and tallies using your correct functions
+        updateArmySummary();
+        updateRankTally();
+
+        // re-render the available units so counts and availability refresh
+        displayUnits();
       });
 
       listDiv.appendChild(card);
     });
 
-    // Arrow toggle (fixed for CSS .expanded)
+    // Arrow toggle synced with CSS (.expanded)
     const arrow = header.querySelector('.arrow');
     header.addEventListener('click', () => {
       const isExpanded = listDiv.classList.toggle('expanded');
@@ -345,6 +353,7 @@ function displayUnits() {
     unitGridEl.appendChild(section);
   });
 
+  // debug-friendly log (available exists here)
   console.log("✅ Units displayed successfully. (available=", available.map(u => u.id).join(', '), ")");
 }
 
