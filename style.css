@@ -128,6 +128,47 @@ main {
   color: rgba(0,255,242,0.5);
 }
 
+/* === Available Units Rank Sections === */
+.available-rank-section {
+  margin-bottom: 16px;
+  border: 1px solid #00fff2;
+  border-radius: 8px;
+  padding: 8px;
+  background-color: rgba(0, 15, 25, 0.85);
+  box-shadow: 0 0 8px rgba(0,255,242,0.2);
+}
+
+.available-rank-section h4 {
+  margin: 0 0 8px 0;
+  padding: 6px 8px;
+  background-color: rgba(0, 20, 40, 0.95);
+  border-radius: 4px;
+  color: #00fff2;
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+  user-select: none;
+  text-shadow: 0 0 4px #00fff2;
+  transition: all 0.2s ease;
+}
+
+.available-rank-section h4:hover {
+  background-color: rgba(0, 32, 60, 0.95);
+}
+
+.rank-unit-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.rank-unit-list.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+}
+
 /* === Unit Grid Layout === */
 #unit-grid {
   display: grid;
