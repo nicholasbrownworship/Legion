@@ -345,14 +345,12 @@ function addUnitToArmy(unit) {
       // --- Upgrades lookup + filtering ---
       const availableUpgrades = upgradesData[upgType] || upgradesData[upgType.toLowerCase()] || [];
       const filteredUpgrades = availableUpgrades.filter(upg => {
-        // faction filtering
         if (Array.isArray(upg.factions) && upg.factions.length) {
           if (!armyUnit.faction || !upg.factions.map(f => String(f).toLowerCase()).includes(String(armyUnit.faction).toLowerCase())) {
             return false;
           }
         }
 
-        // restriction filtering
         if (!Array.isArray(upg.restrictions) || upg.restrictions.length === 0) return true;
 
         const ukeywords = (armyUnit.keywords || []).map(k => String(k).toLowerCase());
@@ -360,7 +358,7 @@ function addUnitToArmy(unit) {
         const utype = String(armyUnit.unitType || '').toLowerCase();
         const uid = String(armyUnit.id || '').toLowerCase();
 
-        const allMatch = upg.restrictions.every(rawR => {
+        return upg.restrictions.every(rawR => {
           const r = String(rawR || '').toLowerCase().trim();
           if (!r) return false;
           if (ukeywords.includes(r)) return true;
@@ -369,8 +367,6 @@ function addUnitToArmy(unit) {
           if (uid.includes(r)) return true;
           return false;
         });
-
-        return allMatch;
       });
 
       if (!filteredUpgrades.length) {
@@ -388,8 +384,6 @@ function addUnitToArmy(unit) {
           btn.textContent = upg.name + (upg.points ? ' (+' + upg.points + ' pts)' : '');
 
           btn.addEventListener('click', () => {
-
-            // === Enforce Unique Upgrades ===
             if (upg.isUnique) {
               const alreadyUsed = currentArmy.some(u =>
                 Object.values(u.selectedUpgrades || {}).flat().includes(upg.id)
@@ -406,7 +400,6 @@ function addUnitToArmy(unit) {
             const index = selected.indexOf(upg.id);
 
             if (index > -1) {
-              // deselect
               selected.splice(index, 1);
               armyUnit.currentPoints -= upg.points || 0;
               btn.classList.remove('selected');
@@ -435,7 +428,8 @@ function addUnitToArmy(unit) {
             menu.style.opacity = '0';
             typeBtn.classList.remove('active');
             updateArmySummary();
-          
+            updateRankTally();
+            updateUnitColors();
           });
 
           menu.appendChild(btn);
@@ -475,8 +469,7 @@ function addUnitToArmy(unit) {
     checkEmptyRankSections();
     updateArmySummary();
     updateRankTally();
-
-    // refresh unit list
+    updateUnitColors();
     displayUnits();
   });
   unitEl.appendChild(removeBtn);
@@ -486,7 +479,26 @@ function addUnitToArmy(unit) {
   updateRankCount(armyUnit.rank);
   updateArmySummary();
   updateRankTally();
+  updateUnitColors();
 }
+
+// === Update Unit Colors for Legality ===
+function updateUnitColors() {
+  currentArmy.forEach(u => {
+    const unitEls = document.querySelectorAll('.army-unit');
+    unitEls.forEach(el => {
+      const nameDiv = el.querySelector('.unit-info > div:first-child');
+      if (!nameDiv) return;
+
+      // Example logic: red if more units than allowed, green otherwise
+      const count = currentArmy.filter(x => x.id === u.id).length;
+      const legal = !u.max || count <= u.max;
+
+      nameDiv.style.color = legal ? 'limegreen' : 'red';
+    });
+  });
+}
+
 
   // === Army Buttons ===
   newArmyBtn.addEventListener('click', () => factionModalEl.classList.add('active'));
