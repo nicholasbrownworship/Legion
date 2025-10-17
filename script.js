@@ -531,6 +531,7 @@ function addUnitToArmy(unit) {
             updateArmySummary();
             updateRankTally();
             updateUnitColors();
+            updateRankBinHeaders(); // 🔥 keeps “Commander (1)” in sync
           });
 
           menu.appendChild(btn);
@@ -569,6 +570,7 @@ function addUnitToArmy(unit) {
     updateArmySummary();
     updateRankTally();
     updateUnitColors();
+    updateRankBinHeaders(); // 🔥 update headers when removing
     displayUnits();
   });
   unitEl.appendChild(removeBtn);
@@ -579,7 +581,21 @@ function addUnitToArmy(unit) {
   updateArmySummary();
   updateRankTally();
   updateUnitColors();
+  updateRankBinHeaders(); // 🔥 update headers after add
 }
+
+// === Update Rank Bin Headers ===
+function updateRankBinHeaders() {
+  document.querySelectorAll('.army-rank-section').forEach(section => {
+    const header = section.querySelector('h3');
+    const rankList = section.querySelector('.rank-list');
+    if (!header || !rankList) return;
+    const count = rankList.children.length;
+    const rank = header.textContent.split('(')[0].trim();
+    header.textContent = `${rank} (${count})`;
+  });
+}
+
 
   // === Army Buttons & Saved Army Logic (Fixed) ===
 function bindArmyButtons() {
