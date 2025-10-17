@@ -45,6 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
   support: { min: 0, max: 3 },
   heavy: { min: 0, max: 2 }
 };
+  const rankDisplayNames = {
+  commander: "Commander",
+  operative: "Operative",
+  corps: "Corps",
+  specialforces: "Special Forces",
+  support: "Support",
+  heavy: "Heavy"
+};
 
   // === Load all upgrade JSONs dynamically ===
   function loadAllUpgradeFiles() {
