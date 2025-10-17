@@ -133,34 +133,53 @@ main {
   margin-bottom: 16px;
   border: 1px solid #00fff2;
   border-radius: 8px;
-  padding: 8px;
+  padding: 0;
   background-color: rgba(0, 15, 25, 0.85);
   box-shadow: 0 0 8px rgba(0,255,242,0.2);
 }
 
-.available-rank-section h4 {
-  margin: 0 0 8px 0;
-  padding: 6px 8px;
-  background-color: rgba(0, 20, 40, 0.95);
-  border-radius: 4px;
-  color: #00fff2;
+/* Rank Dropdown Button (like upgrade dropdowns) */
+.rank-dropdown-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: linear-gradient(90deg, #00a6c8, #007b9e);
+  border: 1px solid #00fff2;
+  color: #fff;
   font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  padding: 8px 12px;
+  margin: 4px 0;
   cursor: pointer;
-  user-select: none;
+  border-radius: 6px;
+  text-shadow: 0 0 2px #00ffff;
+  transition: all 0.3s ease;
+}
+
+.rank-dropdown-btn:hover {
+  background: #00ffff;
+  color: #000;
   text-shadow: 0 0 4px #00fff2;
-  transition: all 0.2s ease;
 }
 
-.available-rank-section h4:hover {
-  background-color: rgba(0, 32, 60, 0.95);
+.rank-dropdown-btn .arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
 }
 
+.rank-dropdown-btn.active .arrow {
+  transform: rotate(90deg);
+}
+
+/* Unit list inside each rank dropdown */
 .rank-unit-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
+  transition: max-height 0.35s ease, opacity 0.35s ease;
   overflow: hidden;
+  padding: 8px;
 }
 
 .rank-unit-list.collapsed {
