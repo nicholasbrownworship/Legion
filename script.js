@@ -334,13 +334,12 @@ function displayUnits() {
       listDiv.appendChild(card);
     });
 
-    // Arrow toggle
-    const arrow = header.querySelector('.arrow');
-    header.addEventListener('click', () => {
-      const isHidden = listDiv.style.display === 'none';
-      listDiv.style.display = isHidden ? 'grid' : 'none';
-      arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
-    });
+  // Arrow toggle (fixed for CSS .expanded)
+const arrow = header.querySelector('.arrow');
+header.addEventListener('click', () => {
+  const isExpanded = listDiv.classList.toggle('expanded');
+  arrow.style.transform = isExpanded ? 'rotate(90deg)' : 'rotate(0deg)';
+});
 
     unitGridEl.appendChild(section);
   });
