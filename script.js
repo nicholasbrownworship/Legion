@@ -261,17 +261,23 @@ function updateRankTally() {
  // === Display Units (with search + rank bins) ===
 function displayUnits() {
   unitGridEl.innerHTML = '';
-  if (!units.length) return unitGridEl.innerHTML = `<p>No units available.</p>`;
+  if (!units.length) {
+    unitGridEl.innerHTML = `<p>No units available.</p>`;
+    return;
+  }
 
   const searchQuery = document.getElementById('unit-search')?.value?.toLowerCase().trim() || '';
 
   // Filter and sort units
-  const available = units.filter(u => isUnitAvailableInPool(u)).filter(u => {
-    if (!searchQuery) return true;
-    const nameMatch = u.name?.toLowerCase().includes(searchQuery);
-    const keywordMatch = Array.isArray(u.keywords) && u.keywords.some(k => k.toLowerCase().includes(searchQuery));
-    return nameMatch || keywordMatch;
-  }).sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
+  const available = units
+    .filter(u => isUnitAvailableInPool(u))
+    .filter(u => {
+      if (!searchQuery) return true;
+      const nameMatch = u.name?.toLowerCase().includes(searchQuery);
+      const keywordMatch = Array.isArray(u.keywords) && u.keywords.some(k => k.toLowerCase().includes(searchQuery));
+      return nameMatch || keywordMatch;
+    })
+    .sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
   if (!available.length) {
     unitGridEl.innerHTML = `<p>No units available (check restrictions or search).</p>`;
@@ -301,10 +307,10 @@ function displayUnits() {
     header.innerHTML = `${capitalize(rank)} (${rankUnits.length}) <span class="arrow">▶</span>`;
     section.appendChild(header);
 
-    // Unit list container
+    // Unit list container (start hidden)
     const listDiv = document.createElement('div');
     listDiv.classList.add('rank-unit-list');
-    listDiv.style.display = 'grid';
+    listDiv.style.display = 'none'; // hidden initially
     listDiv.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
     listDiv.style.gap = '12px';
     section.appendChild(listDiv);
@@ -340,8 +346,7 @@ function displayUnits() {
   });
 
   console.log("✅ Units displayed successfully. (available=", available.map(u => u.id).join(', '), ")");
-} // ✅ only one closing brace for the function
-
+}
 
 // === Bind search bar if exists ===
 const unitSearchEl = document.getElementById('unit-search');
