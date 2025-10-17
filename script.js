@@ -255,205 +255,227 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // === Add Unit to Army ===
-  function addUnitToArmy(unit) {
-    const armyUnit = JSON.parse(JSON.stringify(unit));
-    armyUnit.selectedUpgrades = armyUnit.selectedUpgrades || {};
-    armyUnit.currentPoints = armyUnit.points;
-    currentArmy.push(armyUnit);
+function addUnitToArmy(unit) {
 
-    const rankSection = getOrCreateRankSection(armyUnit.rank);
-    const rankList = rankSection.querySelector('.rank-list');
+  // === Enforce Unit Min/Max ===
+  const existingUnits = currentArmy.filter(u => u.id === unit.id);
+  const currentCount = existingUnits.length;
+  const maxAllowed = unit.max ?? Infinity;
 
-    const unitEl = document.createElement('div');
-    unitEl.classList.add('army-unit');
-    unitEl.style.position = 'relative';
-    unitEl.style.display = 'flex';
-    unitEl.style.alignItems = 'flex-start';
-    unitEl.style.gap = '12px';
-    unitEl.style.marginBottom = '8px';
+  if (currentCount >= maxAllowed) {
+    alert(`You can only include up to ${unit.max} of ${unit.name}!`);
+    return;
+  }
 
-    const img = document.createElement('img');
-    img.src = armyUnit.image || '';
-    img.alt = armyUnit.name;
-    img.classList.add('unit-image');
-    img.style.width = "60px";
-    img.style.height = "60px";
-    img.style.objectFit = "cover";
-    img.style.borderRadius = "6px";
-    unitEl.appendChild(img);
+  const armyUnit = JSON.parse(JSON.stringify(unit));
+  armyUnit.selectedUpgrades = armyUnit.selectedUpgrades || {};
+  armyUnit.currentPoints = armyUnit.points;
+  currentArmy.push(armyUnit);
 
-    const infoDiv = document.createElement('div');
-    infoDiv.classList.add('unit-info');
-    infoDiv.style.flex = '1';
+  const rankSection = getOrCreateRankSection(armyUnit.rank);
+  const rankList = rankSection.querySelector('.rank-list');
 
-    const namePts = document.createElement('div');
-    namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
-    namePts.style.marginBottom = '8px';
-    namePts.style.color = '#dffaff';
-    infoDiv.appendChild(namePts);
+  const unitEl = document.createElement('div');
+  unitEl.classList.add('army-unit');
+  unitEl.style.position = 'relative';
+  unitEl.style.display = 'flex';
+  unitEl.style.alignItems = 'flex-start';
+  unitEl.style.gap = '12px';
+  unitEl.style.marginBottom = '8px';
 
-    const upgradeImagesDiv = document.createElement('div');
-    upgradeImagesDiv.classList.add('upgrade-images');
-    upgradeImagesDiv.style.display = 'flex';
-    upgradeImagesDiv.style.gap = '6px';
-    upgradeImagesDiv.style.flexWrap = 'wrap';
-    upgradeImagesDiv.style.marginBottom = '6px';
-    infoDiv.appendChild(upgradeImagesDiv);
+  const img = document.createElement('img');
+  img.src = armyUnit.image || '';
+  img.alt = armyUnit.name;
+  img.classList.add('unit-image');
+  img.style.width = "60px";
+  img.style.height = "60px";
+  img.style.objectFit = "cover";
+  img.style.borderRadius = "6px";
+  unitEl.appendChild(img);
 
-    // === Upgrades Section ===
-    if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
-      armyUnit.allowedUpgrades.forEach(upgType => {
-        const typeContainer = document.createElement('div');
-        typeContainer.classList.add('upgrade-type-container');
-        typeContainer.style.marginBottom = '6px';
-        typeContainer.style.position = 'relative';
+  const infoDiv = document.createElement('div');
+  infoDiv.classList.add('unit-info');
+  infoDiv.style.flex = '1';
 
-        const typeBtn = document.createElement('button');
-        typeBtn.classList.add('upgrade-type-btn');
-        typeBtn.type = 'button';
-        typeBtn.textContent = capitalize(upgType);
+  const namePts = document.createElement('div');
+  namePts.textContent = `${armyUnit.name} (${armyUnit.currentPoints} pts)`;
+  namePts.style.marginBottom = '8px';
+  namePts.style.color = '#dffaff';
+  infoDiv.appendChild(namePts);
 
-        const arrow = document.createElement('span');
-        arrow.textContent = '▶';
-        arrow.style.marginLeft = '8px';
-        typeBtn.appendChild(arrow);
+  const upgradeImagesDiv = document.createElement('div');
+  upgradeImagesDiv.classList.add('upgrade-images');
+  upgradeImagesDiv.style.display = 'flex';
+  upgradeImagesDiv.style.gap = '6px';
+  upgradeImagesDiv.style.flexWrap = 'wrap';
+  upgradeImagesDiv.style.marginBottom = '6px';
+  infoDiv.appendChild(upgradeImagesDiv);
 
-        const menu = document.createElement('div');
-        menu.classList.add('upgrade-menu');
-        menu.style.position = 'relative';
-        menu.style.zIndex = '999';
+  // === Upgrades Section ===
+  if (armyUnit.allowedUpgrades && armyUnit.allowedUpgrades.length) {
+    armyUnit.allowedUpgrades.forEach(upgType => {
+      const typeContainer = document.createElement('div');
+      typeContainer.classList.add('upgrade-type-container');
+      typeContainer.style.marginBottom = '6px';
+      typeContainer.style.position = 'relative';
 
-        // --- Upgrades lookup + simple filtering by restrictions (keeps previous behavior) ---
-        // allow case-insensitive matching of upgrade types keys in upgradesData
-        const availableUpgrades = upgradesData[upgType] || upgradesData[upgType.toLowerCase()] || [];
-        const filteredUpgrades = availableUpgrades.filter(upg => {
-          // If upgrade declares factions, honor them
-          if (Array.isArray(upg.factions) && upg.factions.length) {
-            if (!armyUnit.faction || !upg.factions.map(f => String(f).toLowerCase()).includes(String(armyUnit.faction).toLowerCase())) {
-              return false;
-            }
-          }
-          // If no restrictions on upgrade, it's allowed
-          if (!Array.isArray(upg.restrictions) || upg.restrictions.length === 0) return true;
+      const typeBtn = document.createElement('button');
+      typeBtn.classList.add('upgrade-type-btn');
+      typeBtn.type = 'button';
+      typeBtn.textContent = capitalize(upgType);
 
-          // require each restriction to match a unit property/keyword in this armyUnit
-          // (this is a simpler, local check: upgrade restriction must match the *unit's* keywords, rank, unitType or id)
-          const ukeywords = (armyUnit.keywords || []).map(k => String(k).toLowerCase());
-          const urank = String(armyUnit.rank || '').toLowerCase();
-          const utype = String(armyUnit.unitType || '').toLowerCase();
-          const uid = String(armyUnit.id || '').toLowerCase();
+      const arrow = document.createElement('span');
+      arrow.textContent = '▶';
+      arrow.style.marginLeft = '8px';
+      typeBtn.appendChild(arrow);
 
-          const allMatch = upg.restrictions.every(rawR => {
-            const r = String(rawR || '').toLowerCase().trim();
-            if (!r) return false;
-            if (ukeywords.includes(r)) return true;
-            if (urank === r) return true;
-            if (utype === r) return true;
-            if (uid.includes(r)) return true;
+      const menu = document.createElement('div');
+      menu.classList.add('upgrade-menu');
+      menu.style.position = 'relative';
+      menu.style.zIndex = '999';
+
+      // --- Upgrades lookup + filtering ---
+      const availableUpgrades = upgradesData[upgType] || upgradesData[upgType.toLowerCase()] || [];
+      const filteredUpgrades = availableUpgrades.filter(upg => {
+        // faction filtering
+        if (Array.isArray(upg.factions) && upg.factions.length) {
+          if (!armyUnit.faction || !upg.factions.map(f => String(f).toLowerCase()).includes(String(armyUnit.faction).toLowerCase())) {
             return false;
-          });
-
-          return allMatch;
-        });
-
-        if (!filteredUpgrades.length) {
-          const note = document.createElement('div');
-          note.textContent = 'No options';
-          note.style.padding = '6px';
-          note.style.color = '#9fdff0';
-          menu.appendChild(note);
-        } else {
-          filteredUpgrades.forEach(upg => {
-            const btn = document.createElement('button');
-            btn.classList.add('upgrade-btn');
-            btn.type = 'button';
-            btn.dataset.upgrade = upg.id;
-            btn.textContent = upg.name + (upg.points ? ' (+' + upg.points + ' pts)' : '');
-
-            btn.addEventListener('click', () => {
-              const maxSlots = armyUnit.upgradeSlots?.[upgType] || 1;
-              if (!Array.isArray(armyUnit.selectedUpgrades[upgType])) armyUnit.selectedUpgrades[upgType] = [];
-              const selected = armyUnit.selectedUpgrades[upgType];
-              const index = selected.indexOf(upg.id);
-
-              if (index > -1) {
-                selected.splice(index, 1);
-                armyUnit.currentPoints -= upg.points || 0;
-                btn.classList.remove('selected');
-                const imgEl = upgradeImagesDiv.querySelector('img[data-upgrade="' + upg.id + '"]');
-                if (imgEl) imgEl.remove();
-              } else {
-                if (selected.length >= maxSlots) return alert('Cannot select more than ' + maxSlots + ' ' + capitalize(upgType) + ' upgrades.');
-                selected.push(upg.id);
-                armyUnit.currentPoints += upg.points || 0;
-                btn.classList.add('selected');
-                if (upg.image) {
-                  const upgImg = document.createElement('img');
-                  upgImg.src = upg.image;
-                  upgImg.alt = upg.name;
-                  upgImg.dataset.upgrade = upg.id;
-                  upgImg.style.width = '30px';
-                  upgImg.style.height = '30px';
-                  upgImg.style.objectFit = 'cover';
-                  upgImg.style.borderRadius = '4px';
-                  upgradeImagesDiv.appendChild(upgImg);
-                }
-              }
-
-              namePts.textContent = armyUnit.name + ' (' + armyUnit.currentPoints + ' pts)';
-              menu.style.maxHeight = '0';
-              menu.style.opacity = '0';
-              typeBtn.classList.remove('active');
-              updateArmySummary();
-            });
-
-            menu.appendChild(btn);
-          });
+          }
         }
 
-        typeBtn.addEventListener('click', () => {
-          const isOpen = typeBtn.classList.toggle('active');
-          if (isOpen) {
-            menu.style.opacity = '1';
-            menu.style.maxHeight = menu.scrollHeight ? menu.scrollHeight + 'px' : '300px';
-          } else {
-            menu.style.maxHeight = '0';
-            menu.style.opacity = '0';
-          }
+        // restriction filtering
+        if (!Array.isArray(upg.restrictions) || upg.restrictions.length === 0) return true;
+
+        const ukeywords = (armyUnit.keywords || []).map(k => String(k).toLowerCase());
+        const urank = String(armyUnit.rank || '').toLowerCase();
+        const utype = String(armyUnit.unitType || '').toLowerCase();
+        const uid = String(armyUnit.id || '').toLowerCase();
+
+        const allMatch = upg.restrictions.every(rawR => {
+          const r = String(rawR || '').toLowerCase().trim();
+          if (!r) return false;
+          if (ukeywords.includes(r)) return true;
+          if (urank === r) return true;
+          if (utype === r) return true;
+          if (uid.includes(r)) return true;
+          return false;
         });
 
-        typeContainer.appendChild(typeBtn);
-        typeContainer.appendChild(menu);
-        infoDiv.appendChild(typeContainer);
+        return allMatch;
       });
-    }
 
-    unitEl.appendChild(infoDiv);
+      if (!filteredUpgrades.length) {
+        const note = document.createElement('div');
+        note.textContent = 'No options';
+        note.style.padding = '6px';
+        note.style.color = '#9fdff0';
+        menu.appendChild(note);
+      } else {
+        filteredUpgrades.forEach(upg => {
+          const btn = document.createElement('button');
+          btn.classList.add('upgrade-btn');
+          btn.type = 'button';
+          btn.dataset.upgrade = upg.id;
+          btn.textContent = upg.name + (upg.points ? ' (+' + upg.points + ' pts)' : '');
 
-    // === REMOVE BUTTON FOR ARMY UNIT ===
-    const removeBtn = document.createElement('button');
-    removeBtn.classList.add('remove-unit');
-    removeBtn.textContent = '✕';
-    removeBtn.title = 'Remove unit';
-    removeBtn.addEventListener('click', () => {
-        unitEl.remove();
-        const index = currentArmy.indexOf(armyUnit);
-        if (index > -1) currentArmy.splice(index, 1);
+          btn.addEventListener('click', () => {
 
-        updateRankCount(armyUnit.rank);
-        checkEmptyRankSections();
-        updateArmySummary();
+            // === Enforce Unique Upgrades ===
+            if (upg.isUnique) {
+              const alreadyUsed = currentArmy.some(u =>
+                Object.values(u.selectedUpgrades || {}).flat().includes(upg.id)
+              );
+              if (alreadyUsed) {
+                alert(`You can only include one copy of ${upg.name} in your army!`);
+                return;
+              }
+            }
 
-        // AFTER removing a unit, refresh available pool automatically
-        displayUnits();
+            const maxSlots = armyUnit.upgradeSlots?.[upgType] || 1;
+            if (!Array.isArray(armyUnit.selectedUpgrades[upgType])) armyUnit.selectedUpgrades[upgType] = [];
+            const selected = armyUnit.selectedUpgrades[upgType];
+            const index = selected.indexOf(upg.id);
+
+            if (index > -1) {
+              // deselect
+              selected.splice(index, 1);
+              armyUnit.currentPoints -= upg.points || 0;
+              btn.classList.remove('selected');
+              const imgEl = upgradeImagesDiv.querySelector('img[data-upgrade="' + upg.id + '"]');
+              if (imgEl) imgEl.remove();
+            } else {
+              if (selected.length >= maxSlots) return alert('Cannot select more than ' + maxSlots + ' ' + capitalize(upgType) + ' upgrades.');
+              selected.push(upg.id);
+              armyUnit.currentPoints += upg.points || 0;
+              btn.classList.add('selected');
+              if (upg.image) {
+                const upgImg = document.createElement('img');
+                upgImg.src = upg.image;
+                upgImg.alt = upg.name;
+                upgImg.dataset.upgrade = upg.id;
+                upgImg.style.width = '30px';
+                upgImg.style.height = '30px';
+                upgImg.style.objectFit = 'cover';
+                upgImg.style.borderRadius = '4px';
+                upgradeImagesDiv.appendChild(upgImg);
+              }
+            }
+
+            namePts.textContent = armyUnit.name + ' (' + armyUnit.currentPoints + ' pts)';
+            menu.style.maxHeight = '0';
+            menu.style.opacity = '0';
+            typeBtn.classList.remove('active');
+            updateArmySummary();
+          });
+
+          menu.appendChild(btn);
+        });
+      }
+
+      typeBtn.addEventListener('click', () => {
+        const isOpen = typeBtn.classList.toggle('active');
+        if (isOpen) {
+          menu.style.opacity = '1';
+          menu.style.maxHeight = menu.scrollHeight ? menu.scrollHeight + 'px' : '300px';
+        } else {
+          menu.style.maxHeight = '0';
+          menu.style.opacity = '0';
+        }
+      });
+
+      typeContainer.appendChild(typeBtn);
+      typeContainer.appendChild(menu);
+      infoDiv.appendChild(typeContainer);
     });
-    unitEl.appendChild(removeBtn);
+  }
 
-    rankList.appendChild(unitEl);
+  unitEl.appendChild(infoDiv);
+
+  // === REMOVE BUTTON FOR ARMY UNIT ===
+  const removeBtn = document.createElement('button');
+  removeBtn.classList.add('remove-unit');
+  removeBtn.textContent = '✕';
+  removeBtn.title = 'Remove unit';
+  removeBtn.addEventListener('click', () => {
+    unitEl.remove();
+    const index = currentArmy.indexOf(armyUnit);
+    if (index > -1) currentArmy.splice(index, 1);
 
     updateRankCount(armyUnit.rank);
+    checkEmptyRankSections();
     updateArmySummary();
-  }
+
+    // refresh unit list
+    displayUnits();
+  });
+  unitEl.appendChild(removeBtn);
+
+  rankList.appendChild(unitEl);
+
+  updateRankCount(armyUnit.rank);
+  updateArmySummary();
+}
 
   // === Army Buttons ===
   newArmyBtn.addEventListener('click', () => factionModalEl.classList.add('active'));
