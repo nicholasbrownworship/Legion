@@ -294,7 +294,7 @@ function displayUnits() {
     unitsByRank[rank].push(u);
   });
 
-  // === Render each rank section with dropdown ===
+  // === Render each rank section with clickable dropdown ===
 rankOrder.forEach(rank => {
     const rankUnits = unitsByRank[rank];
     if (!rankUnits || !rankUnits.length) return;
@@ -302,31 +302,16 @@ rankOrder.forEach(rank => {
     const section = document.createElement('div');
     section.classList.add('available-rank-section');
 
-    // Header with clickable toggle
-    const header = document.createElement('h4');
-    header.style.cursor = 'pointer';
+    // Dropdown button
+    const button = document.createElement('button');
+    button.classList.add('rank-dropdown-btn');
+    button.textContent = `${capitalize(rank)} (${rankUnits.length}) ▶`;
+    button.style.cursor = 'pointer';
 
-    const arrow = document.createElement('span');
-    arrow.textContent = '▶';
-    arrow.style.marginLeft = '8px';
-    header.appendChild(arrow);
-
-    const headerText = document.createElement('span');
-    headerText.textContent = `${capitalize(rank)} (${rankUnits.length})`;
-    header.appendChild(headerText);
-
-    header.addEventListener('click', () => {
-        const list = section.querySelector('.rank-unit-list');
-        const isHidden = list.style.display === 'none';
-        list.style.display = isHidden ? 'grid' : 'none';
-        arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
-    });
-    section.appendChild(header);
-
-    // List container
+    // Unit list container
     const listDiv = document.createElement('div');
     listDiv.classList.add('rank-unit-list');
-    listDiv.style.display = 'grid'; // initially expanded
+    listDiv.style.display = 'grid'; // start expanded
     listDiv.style.gridTemplateColumns = 'repeat(auto-fill,minmax(120px,1fr))';
     listDiv.style.gap = '12px';
 
@@ -346,7 +331,6 @@ rankOrder.forEach(rank => {
             <p>Points: ${unit.points}</p>
             <button class="add-unit">Add</button>
         `;
-
         card.querySelector('.add-unit').addEventListener('click', () => {
             addUnitToArmy(unit);
             displayUnits(); // refresh pool after adding
@@ -355,10 +339,17 @@ rankOrder.forEach(rank => {
         listDiv.appendChild(card);
     });
 
+    // Toggle functionality
+    button.addEventListener('click', () => {
+        const isHidden = listDiv.style.display === 'none';
+        listDiv.style.display = isHidden ? 'grid' : 'none';
+        button.textContent = `${capitalize(rank)} (${rankUnits.length}) ${isHidden ? '▼' : '▶'}`;
+    });
+
+    section.appendChild(button);
     section.appendChild(listDiv);
     unitGridEl.appendChild(section);
 });
-
 
   console.log("✅ Units displayed successfully. (available=", available.map(u=>u.id).join(', '), ")");
 }
