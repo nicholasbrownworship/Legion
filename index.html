@@ -15,7 +15,7 @@
   <button id="save-army">Save Army</button>
   <button id="load-army">Load Army</button>
 
-  <!-- === NEW Export/Import Buttons === -->
+  <!-- Export/Import Buttons -->
   <button id="export-army">Export Army</button>
   <button id="export-all">Export All Armies</button>
   <button id="import-army-btn">Import Army</button>
@@ -49,67 +49,9 @@
       <input type="text" id="search-input" placeholder="Search units...">
     </section>
 
-    <!-- Available Units Dropdowns -->
+    <!-- Available Units (dynamic) -->
     <section id="available-units">
-      <!-- Commander -->
-      <div class="available-rank-section">
-        <button class="rank-dropdown-btn">
-          Commander <span class="arrow">▶</span>
-        </button>
-        <div class="rank-unit-list" id="commander">
-          <!-- Units for Commander dynamically loaded here -->
-        </div>
-      </div>
-
-      <!-- Operative -->
-      <div class="available-rank-section">
-        <button class="rank-dropdown-btn">
-          Operative <span class="arrow">▶</span>
-        </button>
-        <div class="rank-unit-list" id="operative">
-          <!-- Units for Operative dynamically loaded here -->
-        </div>
-      </div>
-
-      <!-- Corps -->
-      <div class="available-rank-section">
-        <button class="rank-dropdown-btn">
-          Corps <span class="arrow">▶</span>
-        </button>
-        <div class="rank-unit-list" id="corps">
-          <!-- Units for Corps dynamically loaded here -->
-        </div>
-      </div>
-
-      <!-- Special Forces -->
-      <div class="available-rank-section">
-        <button class="rank-dropdown-btn">
-          Special Forces <span class="arrow">▶</span>
-        </button>
-        <div class="rank-unit-list" id="specialforces">
-          <!-- Units for Special Forces dynamically loaded here -->
-        </div>
-      </div>
-
-      <!-- Support -->
-      <div class="available-rank-section">
-        <button class="rank-dropdown-btn">
-          Support <span class="arrow">▶</span>
-        </button>
-        <div class="rank-unit-list" id="support">
-          <!-- Units for Support dynamically loaded here -->
-        </div>
-      </div>
-
-      <!-- Heavy -->
-      <div class="available-rank-section">
-        <button class="rank-dropdown-btn">
-          Heavy <span class="arrow">▶</span>
-        </button>
-        <div class="rank-unit-list" id="heavy">
-          <!-- Units for Heavy dynamically loaded here -->
-        </div>
-      </div>
+      <!-- Rank sections will be dynamically created here by JS -->
     </section>
 
     <!-- Unit Grid -->
