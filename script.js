@@ -307,7 +307,7 @@ function displayUnits() {
     listDiv.style.display = 'grid';
     listDiv.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
     listDiv.style.gap = '12px';
-    section.appendChild(listDiv); // append BEFORE adding units
+    section.appendChild(listDiv);
 
     // Render unit cards
     rankUnits.forEach(unit => {
@@ -338,10 +338,9 @@ function displayUnits() {
 
     unitGridEl.appendChild(section);
   });
-}
 
   console.log("✅ Units displayed successfully. (available=", available.map(u => u.id).join(', '), ")");
-}
+} // ✅ only one closing brace for the function
 
 
 // === Bind search bar if exists ===
