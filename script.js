@@ -174,10 +174,20 @@ function updateRankTally() {
     const rankTallyEl = document.getElementById('rank-tally');
     if (!rankTallyEl) return;
 
+    // Clear existing content
     rankTallyEl.innerHTML = '';
-    const ranks = rankOrder;
 
-    ranks.forEach(rank => {
+    // Mapping for display names
+    const rankDisplayNames = {
+        commander: "Commander",
+        operative: "Operative",
+        corps: "Corps",
+        specialforces: "Special Forces",
+        support: "Support",
+        heavy: "Heavy"
+    };
+
+    rankOrder.forEach(rank => {
         const unitsOfRank = currentArmy.filter(u => u.rank === rank);
         const count = unitsOfRank.length;
         const limits = rankLimits[rank] || { min: 0, max: Infinity };
@@ -189,10 +199,12 @@ function updateRankTally() {
         row.style.marginBottom = '4px';
 
         const label = document.createElement('span');
-        label.textContent = capitalize(rank);
+        label.textContent = rankDisplayNames[rank] || capitalize(rank);
 
         const tally = document.createElement('span');
         tally.textContent = `${count} / min:${limits.min} max:${limits.max}`;
+
+        // Color based on legality
         if (count < limits.min) tally.style.color = 'yellow';
         else if (count > limits.max) tally.style.color = 'red';
         else tally.style.color = 'limegreen';
