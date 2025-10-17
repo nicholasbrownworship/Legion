@@ -258,27 +258,73 @@ function updateRankTally() {
     return allMatch;
   }
 
-  // === Display Units (uses isUnitAvailableInPool for filtering) ===
-  function displayUnits() {
-    unitGridEl.innerHTML = '';
-    if (!units.length) return unitGridEl.innerHTML = `<p>No units available.</p>`;
+  // === Display Units (with search + rank bins) ===
+function displayUnits() {
+  unitGridEl.innerHTML = '';
+  if (!units.length) return unitGridEl.innerHTML = `<p>No units available.</p>`;
 
-    // Sort by rank order for consistent display
-    units.sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
+  const searchQuery = document.getElementById('unit-search')?.value?.toLowerCase().trim() || '';
 
-    const available = units.filter(u => isUnitAvailableInPool(u));
+  // Sort by rank order for consistent display
+  units.sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
-    if (!available.length) {
-      unitGridEl.innerHTML = `<p>No units available (check restrictions).</p>`;
-      return;
+  // Filter by availability and search
+  const available = units.filter(u => {
+    if (!isUnitAvailableInPool(u)) return false;
+
+    if (searchQuery) {
+      const nameMatch = u.name?.toLowerCase().includes(searchQuery);
+      const keywordMatch = Array.isArray(u.keywords) && u.keywords.some(k => k.toLowerCase().includes(searchQuery));
+      return nameMatch || keywordMatch;
     }
+    return true;
+  });
 
-    available.forEach(unit => {
+  if (!available.length) {
+    unitGridEl.innerHTML = `<p>No units available (check restrictions or search).</p>`;
+    return;
+  }
+
+  // Group units by rank
+  const unitsByRank = {};
+  rankOrder.forEach(rank => unitsByRank[rank] = []);
+  available.forEach(u => {
+    const rank = u.rank || 'corps';
+    if (!unitsByRank[rank]) unitsByRank[rank] = [];
+    unitsByRank[rank].push(u);
+  });
+
+  // Render each rank section
+  rankOrder.forEach(rank => {
+    const rankUnits = unitsByRank[rank];
+    if (!rankUnits || !rankUnits.length) return;
+
+    const section = document.createElement('div');
+    section.classList.add('available-rank-section');
+
+    const header = document.createElement('h4');
+    header.textContent = `${capitalize(rank)} (${rankUnits.length})`;
+    header.style.cursor = 'pointer';
+    header.addEventListener('click', () => {
+      const list = section.querySelector('.rank-unit-list');
+      list.style.display = list.style.display === 'none' ? 'grid' : 'none';
+    });
+    section.appendChild(header);
+
+    const listDiv = document.createElement('div');
+    listDiv.classList.add('rank-unit-list');
+    listDiv.style.display = 'grid';
+    listDiv.style.gridTemplateColumns = 'repeat(auto-fill,minmax(120px,1fr))';
+    listDiv.style.gap = '12px';
+
+    rankUnits.forEach(unit => {
       const card = document.createElement('div');
       card.classList.add('unit-card');
+
       const imgHtml = unit.image
         ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
         : `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`;
+
       card.innerHTML = `
         ${imgHtml}
         <h4>${unit.name}</h4>
@@ -286,15 +332,28 @@ function updateRankTally() {
         <p>Points: ${unit.points}</p>
         <button class="add-unit">Add</button>
       `;
+
       card.querySelector('.add-unit').addEventListener('click', () => {
         addUnitToArmy(unit);
-        // after adding a unit, refresh available pool automatically
-        displayUnits();
+        displayUnits(); // refresh pool after adding
       });
-      unitGridEl.appendChild(card);
+
+      listDiv.appendChild(card);
     });
-    console.log("✅ Units displayed successfully. (available=", available.map(u=>u.id).join(', '), ")");
-  }
+
+    section.appendChild(listDiv);
+    unitGridEl.appendChild(section);
+  });
+
+  console.log("✅ Units displayed successfully. (available=", available.map(u=>u.id).join(', '), ")");
+}
+
+// === Bind search bar (if exists) ===
+const unitSearchEl = document.getElementById('unit-search');
+if (unitSearchEl) {
+  unitSearchEl.addEventListener('input', () => displayUnits());
+}
+
 
   // === Add Unit to Army ===
 function addUnitToArmy(unit) {
