@@ -294,63 +294,69 @@ function displayUnits() {
     unitsByRank[rank].push(u);
   });
 
-  // === Render each rank section with clickable dropdown ===
+  // === Render each rank section with dropdown ===
 rankOrder.forEach(rank => {
-    const rankUnits = unitsByRank[rank];
-    if (!rankUnits || !rankUnits.length) return;
+  const rankUnits = unitsByRank[rank];
+  if (!rankUnits || !rankUnits.length) return;
 
-    const section = document.createElement('div');
-    section.classList.add('available-rank-section');
+  const section = document.createElement('div');
+  section.classList.add('available-rank-section');
 
-    // Dropdown button
-    const button = document.createElement('button');
-    button.classList.add('rank-dropdown-btn');
-    button.textContent = `${capitalize(rank)} (${rankUnits.length}) ▶`;
-    button.style.cursor = 'pointer';
+  // Header with clickable toggle
+  const header = document.createElement('button');
+  header.type = 'button';
+  header.classList.add('rank-dropdown-btn');
+  header.textContent = `${capitalize(rank)} (${rankUnits.length}) `;
 
-    // Unit list container
-    const listDiv = document.createElement('div');
-    listDiv.classList.add('rank-unit-list');
-    listDiv.style.display = 'grid'; // start expanded
-    listDiv.style.gridTemplateColumns = 'repeat(auto-fill,minmax(120px,1fr))';
-    listDiv.style.gap = '12px';
+  const arrow = document.createElement('span');
+  arrow.classList.add('arrow');
+  arrow.textContent = '▶';
+  header.appendChild(arrow);
 
-    // Render each unit
-    rankUnits.forEach(unit => {
-        const card = document.createElement('div');
-        card.classList.add('unit-card');
+  header.addEventListener('click', () => {
+    const list = section.querySelector('.rank-unit-list');
+    const isHidden = list.style.display === 'none';
+    list.style.display = isHidden ? 'grid' : 'none';
+    arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+  });
+  section.appendChild(header);
 
-        const imgHtml = unit.image
-            ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
-            : `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`;
+  // List container
+  const listDiv = document.createElement('div');
+  listDiv.classList.add('rank-unit-list');
+  listDiv.style.display = 'grid'; // initially expanded
+  listDiv.style.gridTemplateColumns = 'repeat(auto-fill,minmax(120px,1fr))';
+  listDiv.style.gap = '12px';
 
-        card.innerHTML = `
-            ${imgHtml}
-            <h4>${unit.name}</h4>
-            <p>Rank: ${capitalize(unit.rank)}</p>
-            <p>Points: ${unit.points}</p>
-            <button class="add-unit">Add</button>
-        `;
-        card.querySelector('.add-unit').addEventListener('click', () => {
-            addUnitToArmy(unit);
-            displayUnits(); // refresh pool after adding
-        });
+  // Render each unit
+  rankUnits.forEach(unit => {
+    const card = document.createElement('div');
+    card.classList.add('unit-card');
 
-        listDiv.appendChild(card);
+    const imgHtml = unit.image
+      ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
+      : `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`;
+
+    card.innerHTML = `
+      ${imgHtml}
+      <h4>${unit.name}</h4>
+      <p>Rank: ${capitalize(unit.rank)}</p>
+      <p>Points: ${unit.points}</p>
+      <button class="add-unit">Add</button>
+    `;
+
+    card.querySelector('.add-unit').addEventListener('click', () => {
+      addUnitToArmy(unit);
+      displayUnits(); // refresh pool after adding
     });
 
-    // Toggle functionality
-    button.addEventListener('click', () => {
-        const isHidden = listDiv.style.display === 'none';
-        listDiv.style.display = isHidden ? 'grid' : 'none';
-        button.textContent = `${capitalize(rank)} (${rankUnits.length}) ${isHidden ? '▼' : '▶'}`;
-    });
+    listDiv.appendChild(card);
+  });
 
-    section.appendChild(button);
-    section.appendChild(listDiv);
-    unitGridEl.appendChild(section);
+  section.appendChild(listDiv);
+  unitGridEl.appendChild(section);
 });
-
+  
   console.log("✅ Units displayed successfully. (available=", available.map(u=>u.id).join(', '), ")");
 }
 
