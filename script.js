@@ -265,10 +265,10 @@ function displayUnits() {
 
   const searchQuery = document.getElementById('unit-search')?.value?.toLowerCase().trim() || '';
 
-  // Sort units by rank order for consistent display
+  // Sort by rank order for consistent display
   units.sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
-  // Filter units by availability and search query
+  // Filter by availability and search
   const available = units.filter(u => {
     if (!isUnitAvailableInPool(u)) return false;
 
@@ -294,7 +294,7 @@ function displayUnits() {
     unitsByRank[rank].push(u);
   });
 
-  // Render each rank section with dropdown
+  // === Render each rank section with dropdown ===
   rankOrder.forEach(rank => {
     const rankUnits = unitsByRank[rank];
     if (!rankUnits || !rankUnits.length) return;
@@ -312,24 +312,17 @@ function displayUnits() {
     arrow.classList.add('arrow');
     arrow.textContent = '▶';
     header.appendChild(arrow);
-
-    // Dropdown toggle handler (fixed: use getComputedStyle)
-    header.addEventListener('click', () => {
-      const list = section.querySelector('.rank-unit-list');
-      const isHidden = getComputedStyle(list).display === 'none';
-      list.style.display = isHidden ? 'grid' : 'none';
-      arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
-    });
     section.appendChild(header);
 
     // List container
     const listDiv = document.createElement('div');
     listDiv.classList.add('rank-unit-list');
     listDiv.style.display = 'grid'; // initially expanded
-    listDiv.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
+    listDiv.style.gridTemplateColumns = 'repeat(auto-fill,minmax(120px,1fr))';
     listDiv.style.gap = '12px';
+    section.appendChild(listDiv); // <-- add listDiv to section here
 
-    // Render each unit card
+    // Render each unit inside the listDiv
     rankUnits.forEach(unit => {
       const card = document.createElement('div');
       card.classList.add('unit-card');
@@ -354,12 +347,19 @@ function displayUnits() {
       listDiv.appendChild(card);
     });
 
-    section.appendChild(listDiv);
+    // Arrow toggle functionality
+    header.addEventListener('click', () => {
+      const isHidden = listDiv.style.display === 'none';
+      listDiv.style.display = isHidden ? 'grid' : 'none';
+      arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+    });
+
     unitGridEl.appendChild(section);
   });
 
   console.log("✅ Units displayed successfully. (available=", available.map(u => u.id).join(', '), ")");
 }
+
 
 // === Bind search bar if exists ===
 const unitSearchEl = document.getElementById('unit-search');
