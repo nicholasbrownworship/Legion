@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // === Load all upgrade JSONs dynamically ===
   function loadAllUpgradeFiles() {
-    const types = ["gear","force","command","training","personnel","heavyweapon","hardpoint","armament","crew","grenades","generator","comms"];
+    const types = ["gear","force","command","training","personnel","heavyweapon","hardpoint","armament","crew","grenades","generator","comms", "squadleader"];
     types.forEach(type => {
       fetch(`data/upgrades_${type}.json`)
         .then(res => res.ok ? res.json() : Promise.reject(`No upgrades file for ${type}`))
