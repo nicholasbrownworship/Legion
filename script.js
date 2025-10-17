@@ -258,13 +258,10 @@ function updateRankTally() {
     return allMatch;
   }
 
- // === Display Units (with search + rank bins) ===
+// === Display Units (with search + rank bins) ===
 function displayUnits() {
   unitGridEl.innerHTML = '';
-  if (!units.length) {
-    unitGridEl.innerHTML = `<p>No units available.</p>`;
-    return;
-  }
+  if (!units.length) return unitGridEl.innerHTML = `<p>No units available.</p>`;
 
   const searchQuery = document.getElementById('unit-search')?.value?.toLowerCase().trim() || '';
 
@@ -300,19 +297,19 @@ function displayUnits() {
     const section = document.createElement('div');
     section.classList.add('available-rank-section');
 
+    // Count selected units for this rank
+    const selectedCount = currentArmy.units.filter(u => u.rank === rank).length;
+
     // Header
     const header = document.createElement('button');
     header.type = 'button';
     header.classList.add('rank-dropdown-btn');
-    header.innerHTML = `${capitalize(rank)} (${rankUnits.length}) <span class="arrow">▶</span>`;
+    header.innerHTML = `${capitalize(rank)} (${rankUnits.length}) - Selected: ${selectedCount} <span class="arrow">▶</span>`;
     section.appendChild(header);
 
-    // Unit list container (start hidden)
+    // Unit list container
     const listDiv = document.createElement('div');
-    listDiv.classList.add('rank-unit-list');
-    listDiv.style.display = 'grid'; // not hidden initially
-    listDiv.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
-    listDiv.style.gap = '12px';
+    listDiv.classList.add('rank-unit-list', 'expanded'); // expanded by default
     section.appendChild(listDiv);
 
     // Render unit cards
@@ -327,19 +324,23 @@ function displayUnits() {
         <p>Points: ${unit.points}</p>
         <button class="add-unit">Add</button>
       `;
+
       card.querySelector('.add-unit').addEventListener('click', () => {
         addUnitToArmy(unit);
-        displayUnits();
+        updateArmyDisplay();   // ✅ update sidebar after adding
+        updateRankTallies();   // ✅ update sidebar rank tallies
+        displayUnits();        // ✅ refresh available unit bins
       });
+
       listDiv.appendChild(card);
     });
 
-  // Arrow toggle (fixed for CSS .expanded)
-const arrow = header.querySelector('.arrow');
-header.addEventListener('click', () => {
-  const isExpanded = listDiv.classList.toggle('expanded');
-  arrow.style.transform = isExpanded ? 'rotate(90deg)' : 'rotate(0deg)';
-});
+    // Arrow toggle (fixed for CSS .expanded)
+    const arrow = header.querySelector('.arrow');
+    header.addEventListener('click', () => {
+      const isExpanded = listDiv.classList.toggle('expanded');
+      arrow.style.transform = isExpanded ? 'rotate(90deg)' : 'rotate(0deg)';
+    });
 
     unitGridEl.appendChild(section);
   });
