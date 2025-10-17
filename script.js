@@ -568,45 +568,51 @@ function addUnitToArmy(unit) {
   updateUnitColors();
 }
 
-  // === Army Buttons ===
-if (newArmyBtn) {
-  newArmyBtn.addEventListener('click', () => {
-    if (!factionModalEl) return console.warn('Faction modal not found.');
-    factionModalEl.classList.add('active');
-  });
-}
+  // === Army Buttons & Saved Army Logic (Fixed) ===
+function bindArmyButtons() {
+  const newArmyBtn = document.getElementById('new-army');
+  const resetArmyBtn = document.getElementById('reset-army');
+  const saveArmyBtn = document.getElementById('save-army');
+  const loadArmyBtn = document.getElementById('load-army');
 
-if (resetArmyBtn) {
-  resetArmyBtn.addEventListener('click', () => {
-    if (!confirm('Clear current army?')) return;
-    currentArmy = [];
-    if (armyContainerEl) armyContainerEl.innerHTML = '';
-    updateArmySummary();
-    displayUnits();
-  });
-}
+  if (newArmyBtn) {
+    newArmyBtn.addEventListener('click', () => {
+      if (!factionModalEl) return console.warn('Faction modal not found.');
+      factionModalEl.classList.add('active');
+    });
+  }
 
-if (saveArmyBtn) {
-  saveArmyBtn.addEventListener('click', () => {
-    const name = prompt('Enter a name for this army:');
-    if (!name) return;
-    const savedArmies = JSON.parse(localStorage.getItem('savedArmies') || '[]');
-    savedArmies.push({ name, units: currentArmy });
-    localStorage.setItem('savedArmies', JSON.stringify(savedArmies));
-    renderSavedArmies();
-  });
-}
+  if (resetArmyBtn) {
+    resetArmyBtn.addEventListener('click', () => {
+      if (!confirm('Clear current army?')) return;
+      currentArmy = [];
+      if (armyContainerEl) armyContainerEl.innerHTML = '';
+      updateArmySummary();
+      displayUnits();
+    });
+  }
 
-if (loadArmyButton) {
-  loadArmyButton.addEventListener('click', () => {
-    const saved = JSON.parse(localStorage.getItem('savedArmies') || '[]');
-    if (!saved.length) return alert('No saved army found!');
-    currentArmy = [];
-    if (armyContainerEl) armyContainerEl.innerHTML = '';
-    saved[0].units.forEach(unit => addUnitToArmy(unit));
-    displayUnits();
-  });
-}
+  if (saveArmyBtn) {
+    saveArmyBtn.addEventListener('click', () => {
+      const name = prompt('Enter a name for this army:');
+      if (!name) return;
+      const savedArmies = JSON.parse(localStorage.getItem('savedArmies') || '[]');
+      savedArmies.push({ name, units: currentArmy });
+      localStorage.setItem('savedArmies', JSON.stringify(savedArmies));
+      renderSavedArmies();
+    });
+  }
+
+  if (loadArmyBtn) {
+    loadArmyBtn.addEventListener('click', () => {
+      const saved = JSON.parse(localStorage.getItem('savedArmies') || '[]');
+      if (!saved.length) return alert('No saved army found!');
+      currentArmy = [];
+      if (armyContainerEl) armyContainerEl.innerHTML = '';
+      saved[0].units.forEach(unit => addUnitToArmy(unit));
+      displayUnits();
+    });
+  }
 
   // === Saved Armies Sidebar ===
   function renderSavedArmies() {
@@ -631,7 +637,6 @@ if (loadArmyButton) {
         currentArmy = [];
         armyContainerEl.innerHTML = '';
         army.units.forEach(unit => addUnitToArmy(unit));
-        // refresh pool after loading
         displayUnits();
       });
 
@@ -651,6 +656,11 @@ if (loadArmyButton) {
     });
   }
   renderSavedArmies();
+}
+
+// Call this at the **end of DOMContentLoaded**, after sidebar elements exist:
+bindArmyButtons();
+
 
   // === Close Modal on Outside Click ===
   window.addEventListener('click', e => {
