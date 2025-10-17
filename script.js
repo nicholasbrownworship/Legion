@@ -258,17 +258,17 @@ function updateRankTally() {
     return allMatch;
   }
 
-  // === Display Units (with search + rank bins) ===
+ // === Display Units (with search + rank bins) ===
 function displayUnits() {
   unitGridEl.innerHTML = '';
   if (!units.length) return unitGridEl.innerHTML = `<p>No units available.</p>`;
 
   const searchQuery = document.getElementById('unit-search')?.value?.toLowerCase().trim() || '';
 
-  // Sort by rank order for consistent display
+  // Sort units by rank order for consistent display
   units.sort((a, b) => rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank));
 
-  // Filter by availability and search
+  // Filter units by availability and search query
   const available = units.filter(u => {
     if (!isUnitAvailableInPool(u)) return false;
 
@@ -294,78 +294,78 @@ function displayUnits() {
     unitsByRank[rank].push(u);
   });
 
-  // === Render each rank section with dropdown ===
-rankOrder.forEach(rank => {
-  const rankUnits = unitsByRank[rank];
-  if (!rankUnits || !rankUnits.length) return;
+  // Render each rank section with dropdown
+  rankOrder.forEach(rank => {
+    const rankUnits = unitsByRank[rank];
+    if (!rankUnits || !rankUnits.length) return;
 
-  const section = document.createElement('div');
-  section.classList.add('available-rank-section');
+    const section = document.createElement('div');
+    section.classList.add('available-rank-section');
 
-  // Header with clickable toggle
-  const header = document.createElement('button');
-  header.type = 'button';
-  header.classList.add('rank-dropdown-btn');
-  header.textContent = `${capitalize(rank)} (${rankUnits.length}) `;
+    // Header with clickable toggle
+    const header = document.createElement('button');
+    header.type = 'button';
+    header.classList.add('rank-dropdown-btn');
+    header.textContent = `${capitalize(rank)} (${rankUnits.length}) `;
 
-  const arrow = document.createElement('span');
-  arrow.classList.add('arrow');
-  arrow.textContent = '▶';
-  header.appendChild(arrow);
+    const arrow = document.createElement('span');
+    arrow.classList.add('arrow');
+    arrow.textContent = '▶';
+    header.appendChild(arrow);
 
-  header.addEventListener('click', () => {
-    const list = section.querySelector('.rank-unit-list');
-    const isHidden = list.style.display === 'none';
-    list.style.display = isHidden ? 'grid' : 'none';
-    arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
-  });
-  section.appendChild(header);
+    // Dropdown toggle handler (fixed: use getComputedStyle)
+    header.addEventListener('click', () => {
+      const list = section.querySelector('.rank-unit-list');
+      const isHidden = getComputedStyle(list).display === 'none';
+      list.style.display = isHidden ? 'grid' : 'none';
+      arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+    });
+    section.appendChild(header);
 
-  // List container
-  const listDiv = document.createElement('div');
-  listDiv.classList.add('rank-unit-list');
-  listDiv.style.display = 'grid'; // initially expanded
-  listDiv.style.gridTemplateColumns = 'repeat(auto-fill,minmax(120px,1fr))';
-  listDiv.style.gap = '12px';
+    // List container
+    const listDiv = document.createElement('div');
+    listDiv.classList.add('rank-unit-list');
+    listDiv.style.display = 'grid'; // initially expanded
+    listDiv.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
+    listDiv.style.gap = '12px';
 
-  // Render each unit
-  rankUnits.forEach(unit => {
-    const card = document.createElement('div');
-    card.classList.add('unit-card');
+    // Render each unit card
+    rankUnits.forEach(unit => {
+      const card = document.createElement('div');
+      card.classList.add('unit-card');
 
-    const imgHtml = unit.image
-      ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
-      : `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`;
+      const imgHtml = unit.image
+        ? `<img src="${unit.image}" alt="${unit.name}" class="unit-image" style="max-width:100%;height:100px;object-fit:contain;margin-bottom:8px;">`
+        : `<div style="height:100px;display:flex;align-items:center;justify-content:center;color:#00fff2;opacity:0.6">No Image</div>`;
 
-    card.innerHTML = `
-      ${imgHtml}
-      <h4>${unit.name}</h4>
-      <p>Rank: ${capitalize(unit.rank)}</p>
-      <p>Points: ${unit.points}</p>
-      <button class="add-unit">Add</button>
-    `;
+      card.innerHTML = `
+        ${imgHtml}
+        <h4>${unit.name}</h4>
+        <p>Rank: ${capitalize(unit.rank)}</p>
+        <p>Points: ${unit.points}</p>
+        <button class="add-unit">Add</button>
+      `;
 
-    card.querySelector('.add-unit').addEventListener('click', () => {
-      addUnitToArmy(unit);
-      displayUnits(); // refresh pool after adding
+      card.querySelector('.add-unit').addEventListener('click', () => {
+        addUnitToArmy(unit);
+        displayUnits(); // refresh pool after adding
+      });
+
+      listDiv.appendChild(card);
     });
 
-    listDiv.appendChild(card);
+    section.appendChild(listDiv);
+    unitGridEl.appendChild(section);
   });
 
-  section.appendChild(listDiv);
-  unitGridEl.appendChild(section);
-});
-  
-  console.log("✅ Units displayed successfully. (available=", available.map(u=>u.id).join(', '), ")");
+  console.log("✅ Units displayed successfully. (available=", available.map(u => u.id).join(', '), ")");
 }
 
-// === Bind search bar (if exists) ===
+// === Bind search bar if exists ===
 const unitSearchEl = document.getElementById('unit-search');
 if (unitSearchEl) {
   unitSearchEl.addEventListener('input', () => displayUnits());
 }
-
 
   // === Add Unit to Army ===
 function addUnitToArmy(unit) {
