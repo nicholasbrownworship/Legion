@@ -872,5 +872,19 @@ bindArmyButtons();
     });
   }
 
+  // === Print Army Handler ===
+const printArmyBtn = document.getElementById('print-army');
+if (printArmyBtn) {
+  printArmyBtn.addEventListener('click', () => {
+    // Optional: update all counts/tallies before printing
+    updateArmySummary();
+    updateRankTally();
+    updateUnitColors();
+    updateRankBinHeaders();
+
+    window.print(); // triggers print dialog
+  });
+}
+
   console.log('✅ Full Army Builder script loaded successfully.');
 });
