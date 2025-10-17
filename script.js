@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const newArmyBtn = document.getElementById('new-army');
   const resetArmyBtn = document.getElementById('reset-army');
   const saveArmyBtn = document.getElementById('save-army');
-  const loadArmyBtn = document.getElementById('load-armry'); // fallback in case of id mismatch
+  const loadArmyBtn = document.getElementById('load-army'); // fallback in case of id mismatch
   // try original id
   const loadArmyBtnReal = document.getElementById('load-army');
   if (loadArmyBtnReal) window.loadArmyBtn = loadArmyBtnReal;
