@@ -90,6 +90,16 @@
     "restrictions": ["Corps"],
     "text": "Add 5 Rebel Trooper miniatures. /n/This unit gains INDOMITABLE. /n/This unit is in cohesion if all miniatures are a RANGE 1 of the unit leader instead of RANGE 1/2. /n/This unit cannot be deployed or issued orders using the TRANSPORT keyword.",
     "isUnique": false
+  },
+    {
+      "id": "clone_comms_technician",
+    "name": "Clone Comms Technician",
+    "type": "Personnel",
+    "points": 30,
+    "factions": ["gar"],
+    "restrictions": ["corps", "clone"],
+    "text": "Add one Clone Comms Technician miniature. /n/This unit gains FIRE SUPPORT.",
+    "isUnique": false
   }
 ]
 }
