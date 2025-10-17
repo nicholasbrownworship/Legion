@@ -138,7 +138,7 @@ main {
   box-shadow: 0 0 8px rgba(0,255,242,0.2);
 }
 
-/* Rank Dropdown Button (like upgrade dropdowns) */
+/* === Rank Dropdown Button (updated) === */
 .rank-dropdown-btn {
   display: flex;
   justify-content: space-between;
@@ -161,15 +161,20 @@ main {
   background: #00ffff;
   color: #000;
   text-shadow: 0 0 4px #00fff2;
+  box-shadow: 0 0 8px #00fff2;
+  transform: scale(1.03);
 }
 
 .rank-dropdown-btn .arrow {
   display: inline-block;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, color 0.3s ease;
+  font-size: 1.1rem;
+  color: #00fff2;
 }
 
 .rank-dropdown-btn.active .arrow {
   transform: rotate(90deg);
+  color: #00ffff;
 }
 
 /* Unit list inside each rank dropdown */
@@ -177,15 +182,17 @@ main {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
-  transition: max-height 0.35s ease, opacity 0.35s ease;
+  transition: max-height 0.35s ease, opacity 0.35s ease, padding 0.35s ease;
   overflow: hidden;
-  padding: 8px;
-}
-
-.rank-unit-list.collapsed {
+  padding: 0 8px;
   max-height: 0;
   opacity: 0;
-  padding: 0;
+}
+
+.rank-unit-list.expanded {
+  max-height: 500px;
+  opacity: 1;
+  padding: 8px;
 }
 
 /* === Unit Grid Layout === */
@@ -313,7 +320,7 @@ main {
   cursor: zoom-in;
 }
 
-/* === Remove Unit Button (Always Visible) === */
+/* === Remove Unit Button (Always Visible) */
 .remove-unit {
   position: absolute;
   top: 6px;
